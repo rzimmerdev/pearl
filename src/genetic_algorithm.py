@@ -1,6 +1,12 @@
+"""
+
+Comparing Genetic Algorithm and Metropolis-Hastings algorithm for approximating the samples
+from a mixture of normal distributions.
+
+"""
 import numpy as np
 from plotly import graph_objects as go
-from scipy.stats import norm
+from utils import mixtured_sampling, fittness
 
 
 def get_random_genomes(n, size):
@@ -9,67 +15,15 @@ def get_random_genomes(n, size):
     )
 
 
-def kl_divergence(p, q):
-    p = np.asarray(p)
-    q = np.asarray(q)
-
-    # Ensure histograms have the same shape
-    assert p.shape == q.shape, "Histograms must have the same shape."
-
-    # Add a small epsilon to avoid division by zero
-    epsilon = 1e-10
-
-    # Compute KL divergence
-    kl_div = np.sum(p * np.log((p + epsilon) / (q + epsilon)))
-
-    return kl_div
-
-
-def fittness(population, sample):
-    hist_pred, _ = np.histogram(sample, bins=np.arange(min(min(sample), min(population)),
-                                                       max(max(sample), max(population)) + 2))
-    hist_true, _ = np.histogram(population, bins=np.arange(min(min(sample), min(population)),
-                                                           max(max(sample), max(population)) + 2))
-
-    return -kl_divergence(
-        hist_true,
-        hist_pred,
-    )
-
-
-def mixtured_sampling(rates, size):
-    """
-    Mixture multiple normal distributions and sample from the convolved distribution.
-
-    Parameters:
-    - distributions: List of tuples, where each tuple contains the mean and standard deviation
-                     for a normal distribution.
-    - size: Number of points to sample from the convolved distribution.
-
-    Returns:
-    - samples: Array containing the sampled points from the mixtured distribution.
-    """
-    # Create a normal distribution for each rate
-    distributions = [norm(loc=mean, scale=std) for mean, std in rates]
-
-    # Sample from each distribution
-    samples = [dist.rvs(size=size) for dist in distributions]
-
-    # Mixture the samples
-    mixtured_samples = np.concatenate(samples)
-
-    # Sample size without reposition from the convolved distribution
-    samples = np.random.choice(mixtured_samples, size=size, replace=False)
-
-    return samples
-
-
 distributions = np.array([
     (0, 1),
     (4, 1),
 ])
 
 true_distribution = mixtured_sampling(distributions, 1000)
+
+
+# Genetic Algorithm
 
 n = 1000
 size = 1000
@@ -160,3 +114,4 @@ layout = go.Layout(
 
 fig = go.Figure(data=[trace_true, trace_pred], layout=layout)
 fig.show()
+
