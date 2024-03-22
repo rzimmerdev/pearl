@@ -17,7 +17,6 @@ find . -type f -name "*.out" -delete
 find . -type f -name "*.toc" -delete
 find . -type f -name "*.synctex.gz" -delete
 
-rm -f *.zip *.pdf
+rm -f *.zip
 
 echo "Cleaned LaTeX output files."
-

@@ -1,0 +1,205 @@
+\documentclass{pre-project}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{scalefnt}
+\usepackage{balance}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{hyperref}
+\usepackage{mathptmx}
+\usepackage{times}
+\usepackage{textcomp}
+\usepackage{gensymb} % degree. ie 360º
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{hyperref}
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{hyperref} % Required for hyperlinks
+\hypersetup{hidelinks,colorlinks,breaklinks=true,urlcolor=color2,citecolor=color1,linkcolor=color1,bookmarksopen=false,pdftitle={Title},pdfauthor={Author}}
+
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf,
+versalete,
+abnt-emphasize = bf,
+abnt-etal-list = 3,
+abnt-etal-text = it,
+abnt-and-type = &,
+abnt-last-names = abnt, 
+abnt-repeated-author-omit = yes
+]{abntex2cite}
+
+\renewcommand{\backref}{}
+\renewcommand*{\backrefalt}[4]{	}
+
+\titulo{Otimizando Simulações de Mercado com Algoritmos Genéticos: Uma Análise de Replicação de Regimes do Livro de Ordens Limite}
+
+\autor{RAFAEL ZIMMER}
+
+\local{São Carlos - SP}
+
+\data{2024}
+
+\tipotrabalho{TCC}
+
+\orientador{OSWALDO LUIZ DO VALLE COSTA}
+
+\preambulo{Pré-Projeto do trabalho de conclusão de curso
+	apresentado ao curso de Ciência da
+	Computação da Universidade de São Paulo - USP, 
+	como requisito para obtenção do grau de Bacharel.
+}
+
+\makeatletter
+\hypersetup{
+		pdftitle={\@title}, 
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX with abnTeX2},
+		pdfkeywords={abnt}{latex}{abntex}{abntex2}{projeto de pesquisa}, 
+		colorlinks=false,
+		bookmarksdepth=4,
+		pdfborder={0 0 0},
+}
+\makeatother
+
+\setlength{\parindent}{1.3cm}
+
+\setlength{\parskip}{0.2cm}
+
+\makeindex
+
+
+\begin{document}
+
+\selectlanguage{brazil}
+\frenchspacing 
+\pretextual
+
+\imprimircapa
+\imprimirfolhaderosto
+
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+
+\pdfbookmark[0]{\contentsname}{lot}
+\listoftables*
+\cleardoublepage
+
+\begin{siglas}
+	\item [SIGLA] {DESCRIÇÃO DA SIGLA}
+	% Incluir as siglas aqui ...
+\end{siglas}
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+\textual
+
+
+\chapter{TEMA}
+TEMA DO PROJETO
+	
+\chapter{DELIMITAÇÃO DO TEMA}	
+	DELIMITAÇÃO
+	
+\chapter{PROBLEMA}
+DIZER QUAIS AS PROBLEMÁTICAS
+	
+\chapter{HIPÓTESE}
+O PORQUE DISSO ACONTECER
+	
+\chapter{OBJETIVOS}
+	\section{Objetivo geral}
+	OBJETIVO DO PROJETO
+	
+	\section{Objetivos específicos}
+		\begin{enumerate}
+			\item MOTIVO 1;
+			\item MOTIVO 2;
+			\item MOTIVO 4; ...
+			\end{enumerate}
+
+\chapter{JUSTIFICATIVA}
+JUSTIFICAR O DO PORQUE ESTA FAZENDO ESTE PROJETO \cite{mota2012descobrindo}.
+
+		\begin{citacao}
+			CITACAO DIRETA
+		\end{citacao}
+
+
+\chapter{FUNDAMENTAÇÃO TEÓRICA}
+	\section{\textit{Linux}}
+	
+	FUNDAMENTAÇÃO TEÓRICA \cite{nomenacitacao}.
+	
+	
+	
+		\begin{citacao}
+		CITAÇÃO DIRETA
+		\end{citacao}
+	
+	
+		\subsection{SUBSEÇÃO}
+		
+			\begin{figure*}[h]
+			\caption{\label{Debian}\textit{QRcode Github}}
+			\centering
+			{\includegraphics[width=9cm]{Imagens/Karan_GitHub.png}}
+			\legend{Fonte: MODELO PARA ADICAO DE IMAGENS}
+			\end{figure*}
+	
+
+	
+\chapter{Procedimentos metodológicos}
+	
+	
+
+\chapter{Cronograma}
+\begin{table}[htb]
+%\ABNTEXfontereduzida
+\caption[Cronograma]{Cronograma.}
+\label{tab-nivinv}		
+\scalefont{0.7}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline
+		\textbf{Ano} & \multicolumn{11}{c|}{\textbf{-------------------- 2019/1 --------------------------|------------------- 2019/2 -------------------}} \\ \hline
+		Atividades | MÊS & Fev. & Mar. & Abr. & Mai. & Jun. & Jul. & Ago. & Set. & Out. & Nov. & Dez \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento do Tema e \\ Objetivos\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento do Problema,\\ Hipótese e Justificativa\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento da\\ Metodologia e Fundamentação Teórica\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento do\\ Cronograma e Orçamento\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Encontros\\ de Orientação\end{tabular} & X & X & X & X & X & X & X & X & X & X & X \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Defesa do\\ Projeto de Pesquisa\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento\\ da Introdução\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Desenvolvimento\\ do TCC\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Correção de\\ Erros\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Elaboração da\\ apresentação do TCC\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Apresentação\\ do TCC\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Entrega Versão\\ final\end{tabular} &  &  &  &  &  &  &  &  &  &  &  \\ \hline
+	\end{tabular}
+	
+\end{table}
+
+
+\phantompart
+
+\postextual
+
+\bibliography{bibliografia}
+
+\end{document}
