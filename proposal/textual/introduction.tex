@@ -1,39 +1,15 @@
 \begin{btUnit}
 \chapter{Introdução}
 
-\section*{Resumo}
-\addcontentsline{toc}{section}{Resumo}
+O livro de ordens limite representa o estado atual de todas ordens aguardando execução. Eseencialmente fornece uma representação dinâmica das intenções de compra e venda de ativos financeiros em um determinado mercado por meio de uma lista de ordens, organizadas por preço e quantidade, onde cada entrada representa o desejo de um participante do mercado de comprar ou vender um certo ativo. Os intervalos de tempo entre a chegada de duas ordens subsequentes podem ser representados por processos de chegada e são fundamentais para modelar e representar formalmente a dinâmica do mercado financeiro. Tradicionalmente, os modelos de chegada de ordens têm se baseado em processos de contagem, onde os incrementos entre eventes são distribuídos de acordo com distribuições de Poisson ou distribuições exponenciais. No entanto, recentemente, houve um interesse crescente em modelar os processos de chegada de ordens usando processos pontuais autoexcitáveis, especificamente processos de Hawkes. 
 
-\begin{table}
-\centering
-\caption{Estimates of libero ac erat vulputate feugiat non
-  eu justo. Aenean blandit fermentum efficitur. Fusce faucibus turpis
-  ac dolor sollicitudin, quis lobortis felis porttitor. Phasellus
-  hendrerit quam sit amet erat fringilla, et bibendum ligula feugiat.
-  Phasellus odio tortor, mollis ac cursus ut, fermentum ut orci.
-  Vestibulum malesuada, justo vitae tincidunt posuere, nibh ipsum
-  pellentesque mauris, et suscipit magna turpis pellentesque magna.
-  Mauris sed dui vitae velit facilisis pharetra eu in enim.
-  Suspendisse fringilla lobortis dolor eget sollicitudin.}
-\begin{tabular}{ c p{5.5pc} c p{5.5pc} }
-\hline
-\multicolumn{2}{c}{Múltiplas colunas} & Aqui & Acolá \\
-\hline
-Um & \raggedright\arraybackslash Largura fixa em (5.5pc). & Três &
-\raggedright\arraybackslash Coluna 4, largura fixa.\\
-\hline
-\label{Tab:estim}
-\end{tabular}
-\end{table}
-us fringilla hendrerit.
+Além das diferentes características de processos individuais de chegada, o mercado financeiro é caracterizado por diferentes regimes, seja em escala macro como regimes de inflação, como em regimes de curto prazo, que podem ser definidos como períodos de tempo em que as características do mercado, como volatilidade, liquidez e volume de negociação, exibem comportamentos distintos. Esses regimes podem ser influenciados por uma variedade de fatores, incluindo eventos econômicos, políticos e sazonais.
 
-Citação no meio do texto \citet{Casella-Berger2011} e entre parênteses
-\citep{Gelman2007}
+Uma abordagem promissora para modelar o livro de ordens e os processos de chegada de ordens em diferentes regimes é o uso de Hidden Markov Chains (HMC). As HMCs são modelos estatísticos que assumem a existência de estados ocultos, não observáveis diretamente, mas que podem ser inferidos a partir de observações visíveis. Nesse contexto, os diferentes estados do livro de ordens e as diferentes intensidades de chegada de ordens podem ser representados como estados ocultos da cadeia de Markov, permitindo modelar a transição entre diferentes regimes de mercado de forma dinâmica.
 
-\begin{btSect}[referencias/apalikept]{referencias/bibliografia}
-\section*{Referências}
-\addcontentsline{toc}{section}{Referências}
-\btPrintCited
-\end{btSect}
+Além disso, os algoritmos genéticos têm se destacado como uma ferramenta poderosa para otimização e modelagem em uma variedade de domínios, incluindo finanças. Esses algoritmos podem ser aplicados para aproximar as possíveis distribuições dos processos de chegada de ordens, utilizando estimativas por máxima verossimilhança para ajustar os parâmetros do modelo aos dados históricos observados. Isso permite replicar as características estatísticas dos dados históricos no simulador, proporcionando uma base sólida para a geração de cenários realistas de mercado.
+
+Em suma, este trabalho propõe uma abordagem inovadora para modelar e simular o livro de ordens limite e os processos de chegada de ordens no mercado financeiro, utilizando Hidden Markov Chains e algoritmos genéticos. Essa abordagem tem o potencial de melhorar significativamente a precisão das simulações e fornecer insights mais robustos sobre o comportamento do mercado em diferentes regimes, contribuindo assim para o desenvolvimento de estratégias de negociação mais eficientes e resilientes.
+
 
 \end{btUnit}

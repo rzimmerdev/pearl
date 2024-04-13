@@ -87,17 +87,14 @@
 % novos .tex, etc.
 
 \input{./textual/introduction.tex}
-
 \input{./textual/thema.tex}
 \input{./textual/objectives.tex}
 \input{./textual/methodology.tex}
 \input{./textual/chronogram.tex}
-
-% Apêndices (opcionais). Edite da forma desejada.
-\input{./pos-textual/Apendices.tex}
-
-% Anexos (opcionais). Edite da forma desejada.
-\input{./pos-textual/Anexos.tex}
-
+\begin{btSect}[bibliography/apalikept]{bibliography/bibliography}
+	\section*{Referências}
+	\addcontentsline{toc}{section}{Referências}
+	\btPrintCited
+\end{btSect}
 
 \end{document}
