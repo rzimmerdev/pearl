@@ -8,7 +8,7 @@
 \usepackage{tcolorbox}
 \usepackage{adjustbox}
 \raggedbottom
-\usepackage{bibtopic}
+\usepackage{natbib}
 
 \begin{document}
 
@@ -36,10 +36,8 @@
 \\
 \input{./textual/chronogram.tex}
 \endgroup
-\begin{btSect}[bibliography/apalikept]{bibliography/bibliography}
-	\section*{Referências}
-	\addcontentsline{toc}{section}{Referências}
-	\btPrintCited
-\end{btSect}
+
+\bibliographystyle{bibliography/apalikept}
+\bibliography{bibliography/bibliography}
 
 \end{document}
