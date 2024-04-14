@@ -1,96 +1,41 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Template para redação de Teses/Dissertações da ESALQ/USP
-% Autor: Antonio Augusto Franco Garcia
-% Conversão para capítulos: Fernando de Pol Mayer
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Este arquivo concatena todos os arquivos individuais e o template
-
-% ESTE É O ARQUIVO QUE DEVE SER COMPILADO!!!!!
-
-% AS CONFIGURAÇÕES NESTE ARQUIVO NÃO DEVEM SER ALTERADAS
-% INADVERTIDAMENTE. MUDE APENAS O QUE FOR EXPLICITAMENTE INDICADO.
-
-% Preâmbulo: definição da classe e inclusão do template
-% NÃO MUDE NADA AQUI, NEM O TAMANHO DA FONTE
-\documentclass[a4paper,10pt,twoside,oldfontcommands]{memoir}
+\documentclass[a4paper,10pt,oldfontcommands,oneside]{memoir}
 \usepackage{./template/Template_Tese}
 
-
-% Inclua aqui a lista dos pacotes do LaTeX que você necessita usar.
-% Por exemplo, para incluir o pacote amsmath, remova o comentário da
-% linha correspondente logo abaixo. Insira os demais pacotes de forma
-% análoga.
-
-% ATENÇÃO: alguns pacotes são incompatíveis entre si, ou se sobrepõem
-% as configurações de outros; use com cuidado
-% amsmath: \usepackage{amsmath}
-
-%% O pacote bibtopic é responsável por fazer as referências em cada
-%% capítulo. Ele deve ser chamado aqui no preâmbulo e também no início e
-%% final de cada capítulo.
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{tcolorbox}
+\usepackage{adjustbox}
 \raggedbottom
 \usepackage{bibtopic}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Início do documento - Parte Pré-textual
 \begin{document}
 
-% Macro da classe memoir que remove os cabeçalhos (comuns em
-% documentos da classe "book")
 \pagestyle{fnsizeheadings}
-
-% Inclusão do arquivo com informações necessárias para a parte
-% pré-textual.
-% %%%%
-% VOCÊ DEVE ABRIR O ARQUIVO TodasInformações.tex E
-% ALTERÁ-LO DA FORMA APROPRIADA PARA O SEU TRABALHO.
-% %%%%
-% Lembre-se de  conferir o número de páginas quando tiver a versão final a ser
-% submetida.
 \input{./pre-textual/TodasInformacoes.tex}
-
-
-% Inclusão de arquivos que compõem a parte pré-textual
-
-% Inclusão das Capas
-% NÃO HÁ NADA A SER ALTERADO NO ARQUIVO ABAIXO
-% A capa é produzida automaticamente
 \input{./pre-textual/Capa.tex}
 
-% Duas configurações importantes que não devem ser removidas:
-% Paginação constante a partir da Ficha Catalográfica, fontes roman
 \openany
 \rmfamily
 
-% Para remover partes opcionais indicadas abaixo, basta comentar as
-% respectivas linhas (incluindo o \clearpage). Para editar, abra o
-% arquivo correspondente.
-
-% Resumo. Abra o arquivo para alterações.
 \input{./pre-textual/Resumo.tex}
 \clearpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Início da Parte Textual. Conteúdo mais importante
-
-% A opção abaixo, que não deve ser removida, inicia cada capítulo
-% em página ímpar
-\openright
-
-% Os items abaixo dependem do tipo de trabalho: capítulos, texto
-% convencional, etc, de acordo com o Regulamento. Abra os arquivos
-% abaixo (estão no diretório chamado "textual") para ver como os
-% modelos foram criados. Basicamente, é uma edição usando LaTeX, sem
-% modificações substanciais. Modifique o conteúdo dos arquivos, insira
-% novos .tex, etc.
-
+\begingroup
+\renewcommand{\cleardoublepage}{}
+\renewcommand{\clearpage}{}
 \input{./textual/introduction.tex}
-\input{./textual/thema.tex}
+\\
+\\
 \input{./textual/objectives.tex}
+\\
+\\
 \input{./textual/methodology.tex}
+\\
+\\
 \input{./textual/chronogram.tex}
+\endgroup
 \begin{btSect}[bibliography/apalikept]{bibliography/bibliography}
 	\section*{Referências}
 	\addcontentsline{toc}{section}{Referências}
