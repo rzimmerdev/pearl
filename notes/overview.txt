@@ -1,0 +1,35 @@
+Fitting Hidden Markov Models
+Hidden Markov models are usually fit to unlabeled data using the Baum-Welch algorithm or the Viterbi algorithm.
+This is a structured EM algorithm that accounts for transitions between distributions as well as the distribution parameters themselves.
+Essentially, one uses the forward-backward algorithm to infer the expected number of transitions across each edge
+and the expected probability of each observation aligning to each state and uses those estimates to update the underlying parameters.
+
+Algorithms for distribution fitting:
+- Metropolis-Hastings
+- Genetic Algorithms and Particle Swarm Optimization
+- Differential Evolution
+- Reinforcement Learning
+
+The simulation model is
+1. HMM.get(Observation) -> Current State, State Transition
+2. Distr[State] -> Observation Distribution
+3. HMM.step() -> Next State
+
+For fitness of simulator model to LOB data, stylized facts are used to evaluate the model:
+1. Price changes, on a small enough timescale, are autocorrelated negatively at the first lag and then uncorrelated in further lags.
+2. Trading volumes are heterogenous and strongly autocorrelated.
+3. Trading volumes exhibit intraday seasonality strongly.
+4. Order flow is clustered in time. This implies durations between orders are autocorrelated and there is positive cross-correlation among arrivals of different order types.
+
+In quantitative terms:
+1. Empirical Distributions: densities of price, returns (particularly of note is the long-tailed distribution of returns), order volume, arrival rates, joint density of bid and ask queue sizes, time-to-fills.
+2. Autocorrelation of returns: the ACF of returns is negative at the first lag and then uncorrelated at further lags.
+3. Correlations: Volatility and Volume have positive correlations while Volatility and Returns have a negative correlation in empirical data.
+4. Intraday seasonality: Volumes have a signature U-shaped intraday seasonality with increased trading at Open and Close compared to mid-day.
+5. Signature Plots: This is defined as the relation between Volatility and Sampling Frequency - generally the empirical observation is that the signature plot decays quite slowly.
+6. Average Shape of the Book : The mean of volumes at each price level with respect to mid-price is the quantity of interest here. Generally we observed the so-called ‘M’ shaped average shape for high spread stocks while a inverted ‘V’ shape is observed for low spread stocks.
+
+Despite having such a wide variety of simulators, there is a lack of a parsimonious, explainable, analytically tractable model which has a good representation of most of the stylized facts the model is aiming to track. In our future work as a research group, we plan to tackle this challenge and build a simulator which can be interacted with by an autonomous agent to learn trading strategies on.
+
+
+# Limited Information Maximum Likelihood Estimation
