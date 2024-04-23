@@ -1,6 +1,6 @@
 1. HMM - dealing with different emission matrix fitting methods
 1.1 Fit emission matrix using forward-backward algorithm (Baum-Welch)
-1.2 Fit emission using Metropolis-Hastings
+1.2 Fit emission using Metropolis-Hastings (MCMC)
 1.3 Fit emission using Genetic Algorithm
 2. LSTM - dealing with different training methods
 3. GAN - dealing with different generator and discriminator models
