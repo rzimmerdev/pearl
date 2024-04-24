@@ -4,6 +4,10 @@ from tqdm import tqdm
 import plotly.graph_objects as go
 
 
+def mse(x, y):
+    return np.mean((x - y) ** 2)
+
+
 class HMM:
     def __init__(self, states, space, d):
         self.hidden_states = states
@@ -57,9 +61,9 @@ class HMM:
 
         return beta
 
-    def baum_welch(self, data, iterations):
+    def baum_welch(self, data, iterations, true_transition_matrix):
         T = len(data)
-        for i in tqdm(range(iterations)):
+        for k in range(iterations):
             alpha = self.forward(data)
             beta = self.backward(data)
 
@@ -71,18 +75,27 @@ class HMM:
             for t in range(T - 1):
                 for i in range(self.hidden_states):
                     for j in range(self.hidden_states):
-                        xi[t, i, j] = alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[j, self.observation_index(data[t + 1])] * beta[t + 1, j]
+                        xi[t, i, j] = alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[
+                            j, self.observation_index(data[t + 1])] * beta[t + 1, j]
                 xi[t] /= np.sum(xi[t])
 
             # M-step
-            self.transition_matrix = np.sum(xi, axis=0) / np.sum(gamma, axis=0)[:, np.newaxis]
-            self.emission_matrix = np.zeros((self.hidden_states, len(self.observation_space)))
+            transition_matrix_new = np.sum(xi, axis=0) / np.sum(gamma, axis=0)[:, np.newaxis]
+            emission_matrix_new = np.zeros((self.hidden_states, len(self.observation_space)))
             for i in range(self.hidden_states):
                 for j in range(len(self.observation_space)):
-                    self.emission_matrix[i, j] = np.sum(gamma[:, i] * (self.observation_index(data) == j)) / np.sum(gamma[:, i])
+                    emission_matrix_new[i, j] = np.sum(gamma[:, i] * (self.observation_index(data) == j)) / np.sum(
+                        gamma[:, i])
 
-            self.transition_matrix /= np.sum(self.transition_matrix, axis=1)[:, np.newaxis]
-            self.emission_matrix /= np.sum(self.emission_matrix, axis=1)[:, np.newaxis]
+            # Normalize matrices
+            transition_matrix_new /= np.sum(transition_matrix_new, axis=1)[:, np.newaxis]
+            emission_matrix_new /= np.sum(emission_matrix_new, axis=1)[:, np.newaxis]
+
+            self.transition_matrix = transition_matrix_new
+            if k % 10 == 0:
+                print(f"Epoch {k}, MSE: {mse(self.transition_matrix, true_transition_matrix)}")
+                print(np.round(self.transition_matrix, 2))
+            self.emission_matrix = emission_matrix_new
 
 
 def mixture_sampling(transition_matrix, emission_matrix, space, T):
@@ -108,9 +121,9 @@ true_transition_matrix = np.array([
 ])
 
 emissions = [
-    (0, 1),
-    (1, 1),
-    (-1, 2)
+    (0, 0.1),
+    (1, 0.1),
+    (-1, 0.1)
 ]
 
 observation_space = np.linspace(-2, 2, 100)
@@ -134,12 +147,11 @@ beta = hmm.backward(data)
 print(alpha.shape)  # (T, hidden_states)
 print(beta.shape)  # (T, hidden_states)
 
-hmm.baum_welch(data, 50)
+print(true_transition_matrix)
+hmm.baum_welch(data, 100, true_transition_matrix)
 
 # round transition matrix to 2 decimal places
 print(np.round(hmm.transition_matrix, 2))
-
-print(true_transition_matrix)
 print(np.allclose(
     np.sum(hmm.transition_matrix, axis=1),
     np.ones(hidden_states)
