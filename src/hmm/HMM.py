@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import norm
-from tqdm import tqdm
-import plotly.graph_objects as go
+import jax.numpy as jnp
+from jax import jit
 
 
 def mse(x, y):
@@ -27,74 +27,81 @@ class HMM:
     def clip_observation(self, x):
         return self.observation_space[self.observation_index(x)]
 
+    @jit
     def forward(self, data):
         T = len(data)
-        alpha = np.zeros((T, self.hidden_states))
+        alpha = jnp.zeros((T, self.hidden_states))
 
         # Initialization
-        alpha[0] = self.emission_matrix[:, self.observation_index(data[0])]
+        alpha = alpha.at[0].set(self.emission_matrix[:, self.observation_index(data[0])])
 
         # Recursion
         for t in range(1, T):
             for i in range(self.hidden_states):
-                alpha[t, i] = np.sum(alpha[t - 1] * self.transition_matrix[:, i]) * self.emission_matrix[i, self.observation_index(data[t])]
+                alpha = alpha.at[t, i].set(jnp.sum(alpha[t - 1] * self.transition_matrix[:, i]) * self.emission_matrix[
+                    i, self.observation_index(data[t])])
 
             # Normalize
-            alpha[t] /= np.sum(alpha[t])
+            alpha = alpha.at[t].set(alpha[t] / jnp.sum(alpha[t]))
 
         return alpha
 
+    @jit
     def backward(self, data):
         T = len(data)
-        beta = np.zeros((T, self.hidden_states))
+        beta = jnp.zeros((T, self.hidden_states))
 
         # Initialization
-        beta[T - 1] = 1
+        beta = beta.at[T - 1].set(1)
 
         # Recursion
         for t in range(T - 2, -1, -1):
             for i in range(self.hidden_states):
-                beta[t, i] = np.sum(self.transition_matrix[i, :] * self.emission_matrix[:, self.observation_index(data[t + 1])] * beta[t + 1, :])
+                beta = beta.at[t, i].set(jnp.sum(
+                    self.transition_matrix[i, :] * self.emission_matrix[:, self.observation_index(data[t + 1])] * beta[
+                                                                                                                  t + 1,
+                                                                                                                  :]))
 
             # Normalize
-            beta[t] /= np.sum(beta[t])
+            beta = beta.at[t].set(beta[t] / jnp.sum(beta[t]))
 
         return beta
 
     def baum_welch(self, data, iterations, true_transition_matrix):
         T = len(data)
+        data = jnp.array(data)
         for k in range(iterations):
             alpha = self.forward(data)
             beta = self.backward(data)
 
             # E-step
             gamma = alpha * beta
-            gamma /= np.sum(gamma, axis=1)[:, np.newaxis]
+            gamma /= jnp.sum(gamma, axis=1)[:, jnp.newaxis]
 
-            xi = np.zeros((T, self.hidden_states, self.hidden_states))
+            xi = jnp.zeros((T, self.hidden_states, self.hidden_states))
             for t in range(T - 1):
                 for i in range(self.hidden_states):
                     for j in range(self.hidden_states):
-                        xi[t, i, j] = alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[
-                            j, self.observation_index(data[t + 1])] * beta[t + 1, j]
-                xi[t] /= np.sum(xi[t])
+                        xi = xi.at[t, i, j].set(alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[
+                            j, self.observation_index(data[t + 1])] * beta[t + 1, j])
+                xi = xi.at[t].set(xi[t] / jnp.sum(xi[t]))
 
             # M-step
-            transition_matrix_new = np.sum(xi, axis=0) / np.sum(gamma, axis=0)[:, np.newaxis]
-            emission_matrix_new = np.zeros((self.hidden_states, len(self.observation_space)))
+            transition_matrix_new = jnp.sum(xi, axis=0) / jnp.sum(gamma, axis=0)[:, jnp.newaxis]
+            emission_matrix_new = jnp.zeros((self.hidden_states, len(self.observation_space)))
             for i in range(self.hidden_states):
                 for j in range(len(self.observation_space)):
-                    emission_matrix_new[i, j] = np.sum(gamma[:, i] * (self.observation_index(data) == j)) / np.sum(
-                        gamma[:, i])
+                    emission_matrix_new = emission_matrix_new.at[i, j].set(
+                        jnp.sum(gamma[:, i] * (self.observation_index(data) == j)) / jnp.sum(gamma[:, i]))
 
             # Normalize matrices
-            transition_matrix_new /= np.sum(transition_matrix_new, axis=1)[:, np.newaxis]
-            emission_matrix_new /= np.sum(emission_matrix_new, axis=1)[:, np.newaxis]
+            transition_matrix_new /= jnp.sum(transition_matrix_new, axis=1)[:, jnp.newaxis]
+            emission_matrix_new /= jnp.sum(emission_matrix_new, axis=1)[:, jnp.newaxis]
 
             self.transition_matrix = transition_matrix_new
             if k % 10 == 0:
                 print(f"Epoch {k}, MSE: {mse(self.transition_matrix, true_transition_matrix)}")
-                print(np.round(self.transition_matrix, 2))
+                print(jnp.round(self.transition_matrix, 2))
             self.emission_matrix = emission_matrix_new
 
 
@@ -142,10 +149,6 @@ data = mixture_sampling(true_transition_matrix, true_emission_matrix, observatio
 # fig.show()
 
 hmm = HMM(hidden_states, observation_space, 1)
-alpha = hmm.forward(data)
-beta = hmm.backward(data)
-print(alpha.shape)  # (T, hidden_states)
-print(beta.shape)  # (T, hidden_states)
 
 print(true_transition_matrix)
 hmm.baum_welch(data, 100, true_transition_matrix)
