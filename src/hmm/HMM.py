@@ -1,11 +1,37 @@
 import numpy as np
 from scipy.stats import norm
-import jax.numpy as jnp
-from jax import jit
+from plotly import graph_objects as go
 
 
 def mse(x, y):
     return np.mean((x - y) ** 2)
+
+
+def mixture_sampling_normal(transition_matrix, emission_matrix, space, T):
+    current_state = 0
+    observations = []
+
+    for t in range(T):
+        current_state = np.random.choice(np.arange(len(transition_matrix)), p=transition_matrix[current_state])
+        observation = np.random.choice(space, p=emission_matrix[current_state])
+
+        observations.append(observation)
+
+    return np.array(observations)
+
+
+def mixture_sampling_any(transition_matrix, emission_distribution, space, T):
+    current_state = 0
+    observations = []
+
+    for t in range(T):
+        current_state = np.random.choice(np.arange(len(transition_matrix)), p=transition_matrix[current_state])
+        histogram = emission_distribution[current_state]
+        observation = np.random.choice(space, p=histogram)
+
+        observations.append(observation)
+
+    return np.array(observations)
 
 
 class HMM:
@@ -27,95 +53,81 @@ class HMM:
     def clip_observation(self, x):
         return self.observation_space[self.observation_index(x)]
 
-    @jit
     def forward(self, data):
         T = len(data)
-        alpha = jnp.zeros((T, self.hidden_states))
+        alpha = np.zeros((T, self.hidden_states))
 
         # Initialization
-        alpha = alpha.at[0].set(self.emission_matrix[:, self.observation_index(data[0])])
+        alpha[0] = self.emission_matrix[:, self.observation_index(data[0])]
 
-        # Recursion
         for t in range(1, T):
-            for i in range(self.hidden_states):
-                alpha = alpha.at[t, i].set(jnp.sum(alpha[t - 1] * self.transition_matrix[:, i]) * self.emission_matrix[
-                    i, self.observation_index(data[t])])
-
-            # Normalize
-            alpha = alpha.at[t].set(alpha[t] / jnp.sum(alpha[t]))
+            # for i in range(self.hidden_states):
+            #     alpha[t, i] = np.sum(alpha[t - 1] * self.transition_matrix[:, i]) * self.emission_matrix[i, self.observation_index(data[t])]
+            alpha[t] = np.sum(alpha[t - 1] * self.transition_matrix.T, axis=1) * self.emission_matrix[:, self.observation_index(data[t])]
+            alpha[t] /= np.sum(alpha[t])
 
         return alpha
 
-    @jit
     def backward(self, data):
         T = len(data)
-        beta = jnp.zeros((T, self.hidden_states))
+        beta = np.zeros((T, self.hidden_states))
 
         # Initialization
-        beta = beta.at[T - 1].set(1)
+        beta[T - 1] = 1
 
         # Recursion
         for t in range(T - 2, -1, -1):
             for i in range(self.hidden_states):
-                beta = beta.at[t, i].set(jnp.sum(
-                    self.transition_matrix[i, :] * self.emission_matrix[:, self.observation_index(data[t + 1])] * beta[
-                                                                                                                  t + 1,
-                                                                                                                  :]))
-
+                beta[t, i] = np.sum(self.transition_matrix[i, :] * self.emission_matrix[:, self.observation_index(data[t + 1])] * beta[t + 1, :])
             # Normalize
-            beta = beta.at[t].set(beta[t] / jnp.sum(beta[t]))
+            beta[t] /= np.sum(beta[t])
 
         return beta
 
     def baum_welch(self, data, iterations, true_transition_matrix):
         T = len(data)
-        data = jnp.array(data)
+
         for k in range(iterations):
             alpha = self.forward(data)
             beta = self.backward(data)
 
             # E-step
             gamma = alpha * beta
-            gamma /= jnp.sum(gamma, axis=1)[:, jnp.newaxis]
+            gamma /= np.sum(gamma, axis=1)[:, np.newaxis]
 
-            xi = jnp.zeros((T, self.hidden_states, self.hidden_states))
+            xi = np.zeros((T, self.hidden_states, self.hidden_states))
+
             for t in range(T - 1):
                 for i in range(self.hidden_states):
                     for j in range(self.hidden_states):
-                        xi = xi.at[t, i, j].set(alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[
-                            j, self.observation_index(data[t + 1])] * beta[t + 1, j])
-                xi = xi.at[t].set(xi[t] / jnp.sum(xi[t]))
+                        xi[t, i, j] = alpha[t, i] * self.transition_matrix[i, j] * self.emission_matrix[
+                            j, self.observation_index(data[t + 1])] * beta[t + 1, j]
+                xi[t] /= np.sum(xi[t])
 
             # M-step
-            transition_matrix_new = jnp.sum(xi, axis=0) / jnp.sum(gamma, axis=0)[:, jnp.newaxis]
-            emission_matrix_new = jnp.zeros((self.hidden_states, len(self.observation_space)))
+            transition_matrix_new = np.sum(xi, axis=0) / np.sum(gamma, axis=0)[:, np.newaxis]
+            emission_matrix_new = np.zeros((self.hidden_states, len(self.observation_space)))
             for i in range(self.hidden_states):
                 for j in range(len(self.observation_space)):
-                    emission_matrix_new = emission_matrix_new.at[i, j].set(
-                        jnp.sum(gamma[:, i] * (self.observation_index(data) == j)) / jnp.sum(gamma[:, i]))
+                    emission_matrix_new[i, j] = np.sum(gamma[:, i] * (self.observation_index(data) == j)) / np.sum(
+                        gamma[:, i])
 
             # Normalize matrices
-            transition_matrix_new /= jnp.sum(transition_matrix_new, axis=1)[:, jnp.newaxis]
-            emission_matrix_new /= jnp.sum(emission_matrix_new, axis=1)[:, jnp.newaxis]
+            transition_matrix_new /= np.sum(transition_matrix_new, axis=1)[:, np.newaxis]
+            emission_matrix_new /= np.sum(emission_matrix_new, axis=1)[:, np.newaxis]
 
             self.transition_matrix = transition_matrix_new
             if k % 10 == 0:
                 print(f"Epoch {k}, MSE: {mse(self.transition_matrix, true_transition_matrix)}")
-                print(jnp.round(self.transition_matrix, 2))
+                print(np.round(self.transition_matrix, 2))
+
+            if mse(self.transition_matrix, true_transition_matrix) < 1e-3:
+                break
+
             self.emission_matrix = emission_matrix_new
 
-
-def mixture_sampling(transition_matrix, emission_matrix, space, T):
-    current_state = 0
-    observations = []
-
-    for t in range(T):
-        current_state = np.random.choice(np.arange(len(transition_matrix)), p=transition_matrix[current_state])
-        observation = np.random.choice(space, p=emission_matrix[current_state])
-
-        observations.append(observation)
-
-    return np.array(observations)
+    def mixture_sampling(self, T):
+        return mixture_sampling_any(self.transition_matrix, self.emission_matrix, self.observation_space, T)
 
 
 hidden_states = 3
@@ -129,8 +141,8 @@ true_transition_matrix = np.array([
 
 emissions = [
     (0, 0.1),
-    (1, 0.1),
-    (-1, 0.1)
+    (2, 0.1),
+    (-2, 0.1)
 ]
 
 observation_space = np.linspace(-2, 2, 100)
@@ -141,7 +153,7 @@ true_emission_matrix = np.array([
 
 true_emission_matrix /= np.sum(true_emission_matrix, axis=1)[:, np.newaxis]
 
-data = mixture_sampling(true_transition_matrix, true_emission_matrix, observation_space, 1000)
+data = mixture_sampling_normal(true_transition_matrix, true_emission_matrix, observation_space, 1000)
 
 # fig = go.Figure()
 # acc = np.cumsum(data)
@@ -155,7 +167,19 @@ hmm.baum_welch(data, 100, true_transition_matrix)
 
 # round transition matrix to 2 decimal places
 print(np.round(hmm.transition_matrix, 2))
-print(np.allclose(
-    np.sum(hmm.transition_matrix, axis=1),
-    np.ones(hidden_states)
-))
+print(np.round(true_transition_matrix, 2))
+
+
+# print true sequence
+acc = np.cumsum(data)
+
+# print generated sequence using hmm
+acc_hmm = np.cumsum(hmm.mixture_sampling(1000))
+
+
+# plot both sequences
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=np.arange(len(data)), y=acc, mode='markers', name="True"))
+fig.add_trace(go.Scatter(x=np.arange(len(data)), y=acc_hmm, mode='markers', name="HMM"))
+
+fig.show()
