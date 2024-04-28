@@ -18,7 +18,7 @@ class LOB:
     def aggregate(self):
         # make orders with the same price into one
         for i in range(len(self.bids)):
-            for j in range(i+1, len(self.bids)):
+            for j in range(i + 1, len(self.bids)):
                 if self.bids[i].price == self.bids[j].price:
                     self.bids[i].quantity += self.bids[j].quantity
                     self.bids.pop(j)
@@ -44,7 +44,7 @@ class LOB:
                     self.bids.pop(0)
 
     def plot(self, depth: int = None):
-        depth_label = f'{depth} levels'
+        depth_label = f"{depth} levels"
         if depth is None:
             depth = len(self.asks)
             depth_label = "Full"
@@ -52,30 +52,36 @@ class LOB:
         ask_volumes = [x.quantity for x in self.asks][:depth]
 
         fig = go.Figure()
-        fig.add_trace(go.Bar(
-            y=['{:.4f}'.format(x) for x in ask_prices],
-            x=ask_volumes,
-            orientation='h',
-            marker=dict(
-                color='Gray',
-            ),
-            name="Asks"
-        ))
+        fig.add_trace(
+            go.Bar(
+                y=["{:.4f}".format(x) for x in ask_prices],
+                x=ask_volumes,
+                orientation="h",
+                marker=dict(
+                    color="Gray",
+                ),
+                name="Asks",
+            )
+        )
         bid_prices = [x.price for x in self.bids]
         bid_volumes = [x.quantity for x in self.bids]
-        fig.add_trace(go.Bar(
-            y=['{:.4f}'.format(x) for x in bid_prices],
-            x=bid_volumes,
-            orientation='h',
-            marker=dict(
-                color='IndianRed',
-            ),
-            name="Bids"
-        ))
-        fig.update_layout(barmode='stack',
-                          xaxis_title="Volume",
-                          yaxis_title="Price",
-                          title="Limit Order Book, depth={}".format(depth_label))
+        fig.add_trace(
+            go.Bar(
+                y=["{:.4f}".format(x) for x in bid_prices],
+                x=bid_volumes,
+                orientation="h",
+                marker=dict(
+                    color="IndianRed",
+                ),
+                name="Bids",
+            )
+        )
+        fig.update_layout(
+            barmode="stack",
+            xaxis_title="Volume",
+            yaxis_title="Price",
+            title="Limit Order Book, depth={}".format(depth_label),
+        )
         fig.show()
 
 

@@ -29,10 +29,12 @@ def metropolis_hastings(p, q, qdraw, nsamp, xinit):
     return samples, accepted / nsamp
 
 
-rates = np.array([
-    (0, 1),
-    (4, 1),
-])
+rates = np.array(
+    [
+        (0, 1),
+        (4, 1),
+    ]
+)
 
 target_samples = mixtured_sampling(rates, 1000)
 
@@ -65,9 +67,13 @@ for i in range(steps):
     samples, acceptance_rate = metropolis_hastings(
         lambda x: pdf_histogram(target_distribution, x),
         lambda x: pdf_histogram(proposal_distribution, x),
-        lambda x: np.random.choice(np.arange(len(proposal_distribution)), p=proposal_distribution),
+        lambda x: np.random.choice(
+            np.arange(len(proposal_distribution)), p=proposal_distribution
+        ),
         1000,
-        np.random.choice(np.arange(len(proposal_distribution)), p=proposal_distribution),
+        np.random.choice(
+            np.arange(len(proposal_distribution)), p=proposal_distribution
+        ),
     )
 
     if i % 10 == 0:

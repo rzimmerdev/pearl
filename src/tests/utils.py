@@ -19,10 +19,14 @@ def kl_divergence(p, q):
 
 
 def fittness(target, pred):
-    hist_pred, _ = np.histogram(pred, bins=np.arange(min(min(pred), min(target)),
-                                                     max(max(pred), max(target)) + 2))
-    hist_target, _ = np.histogram(target, bins=np.arange(min(min(pred), min(target)),
-                                                         max(max(pred), max(target)) + 2))
+    hist_pred, _ = np.histogram(
+        pred,
+        bins=np.arange(min(min(pred), min(target)), max(max(pred), max(target)) + 2),
+    )
+    hist_target, _ = np.histogram(
+        target,
+        bins=np.arange(min(min(pred), min(target)), max(max(pred), max(target)) + 2),
+    )
 
     return -kl_divergence(
         hist_target,

@@ -32,7 +32,12 @@ class TestArrivalSampler(ArrivalSampler):
 
 
 class LOBSimulator:
-    def __init__(self, event_sampler: EventSampler, arrival_sampler: callable, logger: dx.LoggerMixin = None):
+    def __init__(
+        self,
+        event_sampler: EventSampler,
+        arrival_sampler: callable,
+        logger: dx.LoggerMixin = None,
+    ):
         self.lob = LOB()
         self.t = 0
         self.logger = logger or dx.InfoLogger()

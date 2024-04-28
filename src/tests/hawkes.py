@@ -51,10 +51,10 @@ intensity_values = [hawkes.intensity(t, events) for t in t_values]
 
 plt.figure(figsize=(10, 5))
 for i in range(d):
-    plt.scatter(events[i], [i] * len(events[i]), color='blue', label=f'Dimension {i}')
-plt.xlabel('Time')
-plt.ylabel('Intensity')
-plt.title('Intensity Function of Hawkes Process')
+    plt.scatter(events[i], [i] * len(events[i]), color="blue", label=f"Dimension {i}")
+plt.xlabel("Time")
+plt.ylabel("Intensity")
+plt.title("Intensity Function of Hawkes Process")
 plt.legend()
 plt.grid(True)
 plt.show()

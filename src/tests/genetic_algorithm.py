@@ -4,6 +4,7 @@ Comparing Genetic Algorithm and Metropolis-Hastings algorithm for approximating 
 from a mixture of normal distributions.
 
 """
+
 import numpy as np
 from plotly import graph_objects as go
 from utils import mixtured_sampling, fittness
@@ -15,10 +16,12 @@ def get_random_genomes(n, size):
     )
 
 
-distributions = np.array([
-    (0, 1),
-    (4, 1),
-])
+distributions = np.array(
+    [
+        (0, 1),
+        (4, 1),
+    ]
+)
 
 true_distribution = mixtured_sampling(distributions, 1000)
 
@@ -36,7 +39,9 @@ current_fittness = -np.inf
 epsilon = 1e-9
 gamma = 1
 for i in range(steps):
-    fittnesses = np.array([fittness(true_distribution, genome) for genome in current_genomes])
+    fittnesses = np.array(
+        [fittness(true_distribution, genome) for genome in current_genomes]
+    )
 
     # select 10 out of 100 with best fittness
     best_genomes = current_genomes[np.argsort(fittnesses)[-selection:]]
@@ -73,7 +78,9 @@ for i in range(steps):
     current_genomes = np.array(new_genomes)
     current_fittness = fittnesses[np.argmax(fittnesses)]
 
-fittnesses = np.array([fittness(true_distribution, genome) for genome in current_genomes])
+fittnesses = np.array(
+    [fittness(true_distribution, genome) for genome in current_genomes]
+)
 best_genomes = current_genomes[np.argsort(fittnesses)[-100:]]
 best_genome = best_genomes[-1]
 
@@ -83,8 +90,8 @@ print("Best Fitness: ", np.max(fittnesses))
 # plot both distributions
 trace_true = go.Histogram(
     x=true_distribution,
-    histnorm='probability',
-    name='True Distribution',
+    histnorm="probability",
+    name="True Distribution",
     opacity=0.75,
     xbins=dict(
         start=min(true_distribution),
@@ -95,8 +102,8 @@ trace_true = go.Histogram(
 
 trace_pred = go.Histogram(
     x=best_genome,
-    histnorm='probability',
-    name='Predicted Distribution',
+    histnorm="probability",
+    name="Predicted Distribution",
     opacity=0.75,
     xbins=dict(
         start=min(best_genome),
@@ -106,12 +113,11 @@ trace_pred = go.Histogram(
 )
 
 layout = go.Layout(
-    title='True vs Predicted Distribution',
-    xaxis=dict(title='Value'),
-    yaxis=dict(title='Probability'),
-    barmode='overlay',
+    title="True vs Predicted Distribution",
+    xaxis=dict(title="Value"),
+    yaxis=dict(title="Probability"),
+    barmode="overlay",
 )
 
 fig = go.Figure(data=[trace_true, trace_pred], layout=layout)
 fig.show()
-
