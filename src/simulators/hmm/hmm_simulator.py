@@ -1,31 +1,39 @@
 import numpy as np
+import dxlib as dx
 
 from .hmm import HMM
-from ...lob import LOBSimulator, EventSampler, ArrivalSampler
+from ...lob.simulator import LOBSimulator, EventSampler, ArrivalSampler
 
 
 class HMMArrivalSampler(ArrivalSampler):
     def __init__(self, hmm: HMM, *args, **kwargs):
         self.hmm = hmm
+        self.current_state = np.random.choice(np.arange(self.hmm.hidden_states))
 
-    def __call__(self, state, *args, **kwargs) -> float:
-        state = self.hmm.observation_index(state)
-        observation = np.random.choice(self.hmm.observation_space, p=self.hmm.emission_matrix[state])
+    def __call__(self, *args, **kwargs) -> float:
+        self.current_state = np.random.choice(np.arange(self.hmm.hidden_states),
+                                              p=self.hmm.transition_matrix[self.current_state])
+        observation = np.random.choice(self.hmm.observation_space, p=self.hmm.emission_matrix[self.current_state])
         return observation
 
 
 class HMMEventSampler(EventSampler):
-    def __call__(self, *args, **kwargs):
-        pass
+    def __call__(self, *args, **kwargs) -> dx.Signal:
+        return dx.Signal(
+            side=dx.Side.BUY,
+            price=1.0,
+            quantity=1.0,
+        )
 
 
 class HMMSimulator(LOBSimulator):
     def __init__(self, hmm, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.hmm = hmm
         self.state = np.random.choice(np.arange(self.hmm.hidden_states))
         self.arrival_sampler = HMMArrivalSampler(self.hmm)
         self.event_sampler = HMMEventSampler()
+
+        super().__init__(self.arrival_sampler, self.event_sampler, *args, **kwargs)
 
     def simulate(self):
         pass
@@ -41,6 +49,5 @@ def main():
 
     # create a HMM simulator
     hmm_simulator = HMMSimulator(hmm, 1000, 1000)
-
-    # run the simulation
+    hmm_simulator.run(10)
 
