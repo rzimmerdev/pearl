@@ -1,2 +1,0 @@
-Fitting Hidden Markov Models
-Hidden Markov models are usually fit to unlabeled data using the Baum-Welch algorithm. This is a structured EM algorithm that accounts for transitions between distributions as well as the distribution parameters themselves. Essentially, one uses the forward-backward algorithm to infer the expected number of transitions across each edge and the expected probability of each observation aligning to each state and uses those estimates to update the underlying parameters.
