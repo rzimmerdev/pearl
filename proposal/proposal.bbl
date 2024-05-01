@@ -1,0 +1,166 @@
+\begin{thebibliography}{}
+
+\bibitem[Abergel et~al., 2020]{Abergel2020}
+Abergel, F., Hure, C., e Pham, H. (2020).
+\newblock Algorithmic trading in a microstructural limit order book model.
+\newblock {\em QUANTITATIVE FINANCE}, 20(8):1263--1283.
+
+\bibitem[Avellaneda e Stoikov, 2008]{Avellaneda2008}
+Avellaneda, M. e Stoikov, S. (2008).
+\newblock High-frequency trading in a limit order book.
+\newblock {\em Quantitative Finance}, 8(3):217--224.
+
+\bibitem[Bacry et~al., 2015]{Bacry2015}
+Bacry, E., Mastromatteo, I., e Muzy, J.-F. (2015).
+\newblock Hawkes processes in finance.
+\newblock {\em Market Microstructure and Liquidity}, 01(01):1550005.
+
+\bibitem[Baum e Petrie, 1966]{Baum1966}
+Baum, L.~E. e Petrie, T. (1966).
+\newblock Statistical inference for probabilistic functions of finite state
+  markov chains.
+\newblock {\em The Annals of Mathematical Statistics}, 37(6):1554--1563.
+
+\bibitem[Boonthiem et~al., 2023]{Boonthiem2023}
+Boonthiem, S., Sutikasana, C., Klongdee, W., e Ieosanurak, W. (2023).
+\newblock Parameter estimations of normal distribution via genetic algorithm
+  and its application to carbonation depth.
+\newblock {\em WSEAS TRANSACTIONS ON MATHEMATICS}, 22:184--189.
+
+\bibitem[Bradbury et~al., 2018]{Bradbury2018}
+Bradbury, J., Frostig, R., Hawkins, P., Johnson, M.~J., Leary, C., Maclaurin,
+  D., Necula, G., Paszke, A., Vander{P}las, J., Wanderman-{M}ilne, S., e Zhang,
+  Q. (2018).
+\newblock {JAX}: composable transformations of {P}ython+{N}um{P}y programs.
+
+\bibitem[Colla et~al., 2010]{Colla2010}
+Colla, V., Nastasi, G., e Matarese, N. (2010).
+\newblock Gadf — genetic algorithms for distribution fitting.
+\newblock {\em Proceedings of the 2010 10th International Conference on
+  Intelligent Systems Design and Applications, ISDA'10}, pages 6--11.
+
+\bibitem[Cont et~al., 2022]{Cont2022}
+Cont, R., Cucuringu, M., Kochems, J.~A., e Prenzel, F. (2022).
+\newblock Dynamic calibration of order flow models with generative adversarial
+  networks.
+\newblock In {\em 3RD ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE, ICAIF
+  2022}, pages 446--453, 1601 Broadway, 10th Floor, NEW YORK, NY, UNITED
+  STATES. Assoc Comp Machinery; J P Morgan Chase \& Co; U S Bank, ASSOC
+  COMPUTING MACHINERY.
+\newblock 3rd ACM International Conference on AI in Finance (ICAIF), New York,
+  NY, NOV 02-04, 2022.
+
+\bibitem[Cont et~al., 2010]{Cont2010}
+Cont, R., Stoikov, S., e Talreja, R. (2010).
+\newblock A stochastic model for order book dynamics.
+\newblock {\em Operations Research}, 58(3):549--563.
+
+\bibitem[Glasserman, 2004]{Glasserman2004}
+Glasserman, P. (2004).
+\newblock {\em Monte Carlo methods in financial engineering}.
+\newblock Springer, New York.
+
+\bibitem[Guilbaud e Pham, 2013]{Guilbaud2013}
+Guilbaud, F. e Pham, H. (2013).
+\newblock Optimal high-frequency trading with limit and market orders.
+\newblock {\em QUANTITATIVE FINANCE}, 13(1):79--94.
+
+\bibitem[Hawkes, 1971]{Hawkes1971}
+Hawkes, A.~G. (1971).
+\newblock {Spectra of some self-exciting and mutually exciting point
+  processes}.
+\newblock {\em Biometrika}, 58(1):83--90.
+
+\bibitem[Katoch et~al., 2021]{Katoch2021}
+Katoch, S., Chauhan, S.~S., e Kumar, V. (2021).
+\newblock A review on genetic algorithm: past, present, and future.
+\newblock {\em Multimedia Tools and Applications}, 80(5):8091--8126.
+
+\bibitem[Krause et~al., 2022]{Krause2022}
+Krause, S.~M., Jungblut, E., e Guhr, T. (2022).
+\newblock Two price regimes in limit order books: liquidity cushion and
+  fragmented distant field.
+\newblock {\em JOURNAL OF STATISTICAL MECHANICS-THEORY AND EXPERIMENT},
+  2022(2).
+
+\bibitem[Liu et~al., 2021]{Liu2021}
+Liu, Y., Xing, Y., Yang, X., Wang, X., Shi, J., Jin, D., e Chen, Z. (2021).
+\newblock Learning continuous-time dynamics by stochastic differential
+  networks.
+
+\bibitem[Morariu-Patrichi e Pakkanen, 2022]{MorariuPatrichi2022}
+Morariu-Patrichi, M. e Pakkanen, M.~S. (2022).
+\newblock State-dependent hawkes processes and their application to limit order
+  book modelling.
+\newblock {\em QUANTITATIVE FINANCE}, 22(3):563--583.
+
+\bibitem[Nagy et~al., 2023]{Nagy2023}
+Nagy, P., Calliess, J.-P., e Zohren, S. (2023).
+\newblock Asynchronous deep double dueling q-learning for trading-signal
+  execution in limit order book markets.
+\newblock {\em FRONTIERS IN ARTIFICIAL INTELLIGENCE}, 6.
+
+\bibitem[Oesch e Maringer, 2013]{Oesch2013}
+Oesch, C. e Maringer, D. (2013).
+\newblock Portfolio optimization under market impact costs.
+\newblock In {\em 2013 IEEE CONGRESS ON EVOLUTIONARY COMPUTATION (CEC)}, pages
+  1--7, 345 E 47TH ST, NEW YORK, NY 10017 USA. IEEE; IEEE Computat Intelligence
+  Soc, IEEE.
+\newblock IEEE Congress on Evolutionary Computation, Cancun, MEXICO, JUN 20-23,
+  2013.
+
+\bibitem[Oriol et~al., 2023]{Oriol2023}
+Oriol, A.-P., Virgile, A., Colin, C., Larry, D., J., F.~C., Maxim, K., Ravin,
+  K., Jupeng, L., C., L.~C., A., M.~O., Michael, O., Ricardo, V., Thomas, W., e
+  Robert, Z. (2023).
+\newblock Pymc: A modern and comprehensive probabilistic programming framework
+  in python.
+\newblock {\em {PeerJ} Computer Science}, 9:e1516.
+
+\bibitem[Ponta et~al., 2012]{Ponta2012}
+Ponta, L., Scalas, E., Raberto, M., e Cincotti, S. (2012).
+\newblock Statistical analysis and agent-based microstructure modeling of
+  high-frequency financial trading.
+\newblock {\em IEEE JOURNAL OF SELECTED TOPICS IN SIGNAL PROCESSING},
+  6(4):381--387.
+
+\bibitem[Rasmussen, 2013]{Rasmussen2013}
+Rasmussen, J. (2013).
+\newblock Bayesian inference for hawkes processes.
+\newblock {\em Methodology and Computing in Applied Probability}, 15.
+
+\bibitem[Rousseau et~al., 2018]{Rousseau2018}
+Rousseau, J., Donnet, S., e Rivoirard, V. (2018).
+\newblock Nonparametric bayesian estimation of multivariate hawkes processes.
+\newblock {\em Annals of Statistics}, 48.
+
+\bibitem[Shi e Cartlidge, 2022]{Shi2022}
+Shi, Z. e Cartlidge, J. (2022).
+\newblock State dependent parallel neural hawkes process for limit order book
+  event stream prediction and simulation.
+\newblock In {\em PROCEEDINGS OF THE 28TH ACM SIGKDD CONFERENCE ON KNOWLEDGE
+  DISCOVERY AND DATA MINING, KDD 2022}, pages 1607--1615, 1601 Broadway, 10th
+  Floor, NEW YORK, NY, UNITED STATES. Assoc Comp Machinery; ACM SIGKDD; ACM
+  SIGMOD, ASSOC COMPUTING MACHINERY.
+\newblock 28th ACM SIGKDD Conference on Knowledge Discovery and Data Mining
+  (KKD), Washington, DC, AUG 14-18, 2022.
+
+\bibitem[Toke, 2011]{Toke2011}
+Toke, I.~M. (2011).
+\newblock ``market making{''} in an order book model and its impact on the
+  spread.
+\newblock In Abergel, F., Chakrabarti, B., Chakraborti, A., e Mitra, M.,
+  editors, {\em ECONOPHYSICS OF ORDER-DRIVEN MARKETS}, New Economic Windows,
+  pages 49--64, 233 SPRING STREET, NEW YORK, NY 10013, UNITED STATES. Saha Inst
+  Nucl Phys, Ctr Appl Math \& Comp Sci; Indian Stat Inst; Ecole Cent Paris,
+  SPRINGER.
+\newblock 5th Econophys-Kolkata Conference, Saha Inst Nucl Phys, Kolkata,
+  INDIA, MAR, 2010.
+
+\bibitem[Zare et~al., 2021]{Zare2021}
+Zare, M., Naghshineh~Arjmand, O., Salavati, E., e Mohammadpour, A. (2021).
+\newblock An agent-based model for limit order book: Estimation and simulation.
+\newblock {\em INTERNATIONAL JOURNAL OF FINANCE \& ECONOMICS},
+  26(1):1112--1121.
+
+\end{thebibliography}
