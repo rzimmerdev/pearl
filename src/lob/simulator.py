@@ -48,7 +48,6 @@ class LOBSimulator:
 
     async def _step(self):
         try:
-            # sample arrival time and wait
             arrival_time = self.arrival_sampler()
             await asyncio.sleep(arrival_time)
 

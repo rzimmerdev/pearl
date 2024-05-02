@@ -6,12 +6,12 @@ from .utils import mse, mixture_sampling_normal, mixture_sampling_any
 
 
 class HMM:
-    def __init__(self, states: int, space: np.ndarray, d: int):
+    def __init__(self, states: int, space: np.ndarray, dimensions: int = 1):
         self.hidden_states = states
         self.observation_space = space
-        self.d = d
-        self.transition_matrix = np.random.rand(self.hidden_states, self.hidden_states)
-        self.emission_matrix = np.random.rand(self.hidden_states, len(space))
+        self.dimensions = dimensions
+        self.transition_matrix = np.random.rand(self.dimensions, self.hidden_states, self.hidden_states)
+        self.emission_matrix = np.random.rand(self.dimensions, self.hidden_states, len(space))
 
         self.transition_matrix /= np.sum(self.transition_matrix, axis=1)[:, np.newaxis]
         self.emission_matrix /= np.sum(self.emission_matrix, axis=1)[:, np.newaxis]
