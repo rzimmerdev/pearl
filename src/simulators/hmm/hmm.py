@@ -10,6 +10,8 @@ class HMM:
         self.hidden_states = states
         self.observation_space = space
         self.dimensions = dimensions
+
+        # TODO: Fix methods to also take into account dimensions
         self.transition_matrix = np.random.rand(self.dimensions, self.hidden_states, self.hidden_states)
         self.emission_matrix = np.random.rand(self.dimensions, self.hidden_states, len(space))
 
