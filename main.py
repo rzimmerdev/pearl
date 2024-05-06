@@ -4,10 +4,8 @@ from src.simulators import HMM, HMMSimulator
 
 
 def main():
-    hmm = HMM(2, np.linspace(0, 1, 100), 1)
-
     simulator = HMMSimulator(
-        hmm
+        3,
     )
     simulator.run()
     simulator.lob.plot()

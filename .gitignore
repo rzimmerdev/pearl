@@ -1,1 +1,14 @@
 .idea
+
+# tex compilation files
+*.aux
+*.log
+*.out
+*.toc
+*.gz
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*-figure*.pdf
+*.pdf
+*-compressed.pdf

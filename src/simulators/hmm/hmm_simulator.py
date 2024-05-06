@@ -1,39 +1,32 @@
 import numpy as np
-import dxlib as dx
 
 from .hmm import HMM
-from ...lob.simulator import LOBSimulator, EventSampler, ArrivalSampler
+from ...lob.simulator import LOBSimulator
 
 
-class HMMArrivalSampler(ArrivalSampler):
-    def __init__(self, hmm: HMM, *args, **kwargs):
-        self.hmm = hmm
-        self.current_state = np.random.choice(np.arange(self.hmm.hidden_states))
-
-    def __call__(self, *args, **kwargs) -> float:
-        self.current_state = np.random.choice(np.arange(self.hmm.hidden_states),
-                                              p=self.hmm.transition_matrix[self.current_state])
-        observation = np.random.choice(self.hmm.observation_space, p=self.hmm.emission_matrix[self.current_state])
-        return observation
+class Sampler:
+    def __call__(self, *args, **kwargs):
+        pass
 
 
-class HMMEventSampler(EventSampler):
-    def __call__(self, *args, **kwargs) -> dx.Signal:
-        return dx.Signal(
-            side=dx.Side.BUY,
-            price=1.0,
-            quantity=1.0,
-        )
+class HMMSampler(Sampler):
+    def __init__(self, hidden_states: int, space: dict = None):
+        self.space = space or {
+            "price": np.linspace(0, 1, 100),
+            "quantity": np.linspace(0, 1, 100),
+            "type": [-2, 2],
+            "interval": np.linspace(0, 50, 1000),
+        }
+        self.hmm = HMM(hidden_states, self.space)
+
+    def __call__(self, *args, **kwargs):
+        pass
 
 
 class HMMSimulator(LOBSimulator):
-    def __init__(self, hmm, *args, **kwargs):
-        self.hmm = hmm
-        self.state = np.random.choice(np.arange(self.hmm.hidden_states))
-        self.arrival_sampler = HMMArrivalSampler(self.hmm)
-        self.event_sampler = HMMEventSampler()
-
-        super().__init__(self.arrival_sampler, self.event_sampler, *args, **kwargs)
+    def __init__(self, hidden_states: int, space=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sampler = HMMSampler(hidden_states, space)
 
     def simulate(self):
         pass

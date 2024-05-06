@@ -2,8 +2,7 @@ from typing import Dict
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
-from plotly import graph_objects as go
+from tqdm import tqdm
 
 
 class MSE:
@@ -55,57 +54,6 @@ class EmissionMatrix:
 
 
 class HMM:
-    def __init__(self, states: int, space: np.ndarray):
-        self.hidden_states = states
-        self.observation_space = space
-        self.transition_matrix = np.random.rand(self.hidden_states, self.hidden_states)
-        self.emission_matrix = np.random.rand(self.hidden_states, len(space))
-
-        self.transition_matrix /= np.sum(self.transition_matrix, axis=1)[:, np.newaxis]
-        self.emission_matrix /= np.sum(self.emission_matrix, axis=1)[:, np.newaxis]
-
-    def observation_index(self, x):
-        if isinstance(x, np.ndarray):
-            return np.argmin(np.abs(self.observation_space - x[:, np.newaxis]), axis=1)
-        return np.argmin(np.abs(self.observation_space - x))
-
-    def clip_observation(self, x):
-        return self.observation_space[self.observation_index(x)]
-
-    def forward(self, data):
-        observation_length = len(data)
-
-        alpha = np.zeros((observation_length, self.hidden_states))
-        alpha[0] = self.emission_matrix[:, self.observation_index(data[0])]
-
-        for t in range(1, observation_length):
-            alpha[t] = (
-                    np.sum(alpha[t - 1] * self.transition_matrix.T, axis=1)
-                    * self.emission_matrix[:, self.observation_index(data[t])]
-            )
-            alpha[t] /= np.sum(alpha[t])
-
-        return alpha
-
-    def backward(self, data):
-        observation_length = len(data)
-
-        beta = np.zeros((observation_length, self.hidden_states))
-        beta[observation_length - 1] = 1
-
-        for t in range(observation_length - 2, -1, -1):
-            beta[t] = np.sum(
-                self.transition_matrix * self.emission_matrix[:, self.observation_index(data[t + 1])] * beta[t + 1],
-                axis=1,
-            )
-            beta[t] /= np.sum(beta[t])
-
-        return beta
-    # def mixture_sampling(self, T):
-    #     return mixture_sampling_any(self.transition_matrix, self.emission_matrix, self.observation_space, T)
-
-
-class MultivariateHMM:
     def __init__(self, states: int, spaces: Dict[str, np.ndarray]):
         self.hidden_states = states
         self.spaces = spaces
@@ -115,7 +63,7 @@ class MultivariateHMM:
 
         self.current_state = np.random.choice(np.arange(self.hidden_states))
 
-    def mixture_sampling(self, T):
+    def mixture_sampling(self, T) -> pd.DataFrame:  # shape (T, len(spaces))
         df = pd.DataFrame([], columns=list(self.spaces.keys()), index=np.arange(T))
         for t in range(T):
             self.current_state = self.transition_matrix.transition(self.current_state)
@@ -172,7 +120,9 @@ class MultivariateHMM:
     def baum_welch(self, x: pd.DataFrame, iterations):
         T = len(x)
 
-        for k in range(iterations):
+        d = iterations // 10
+
+        for k in tqdm(range(iterations)):
             alpha = self.forward(x)
             beta = self.backward(x)
 
@@ -210,54 +160,15 @@ class MultivariateHMM:
                     for j in range(len(self.spaces[key])):
                         self.emission_matrix.matrix[key][i, j] = np.sum(gamma[key][:, i] * (x[key] == self.spaces[key][j])) / gamma_sum[i]
 
-            if k % 10 == 0:
-                print(k)
-
 
 def main():
-    def test_hmm():
-        hidden_states = 3
+    hmm = HMM(2, {"a": np.linspace(-1, 1, 100), "b": np.linspace(-1, 1, 100)})
+    x = hmm.mixture_sampling(1000)
 
-        true_transition_matrix = np.array(
-            [[0.7, 0.2, 0.1],
-             [0.1, 0.7, 0.2],
-             [0.2, 0.1, 0.7]]
-        )
+    hmm.baum_welch(x, 100)
 
-        emissions = [(0, 0.1),
-                     (2, 0.1),
-                     (-2, 0.1)]
-
-        observation_space = np.linspace(-2, 2, 100)
-
-        true_emission_matrix = np.array([[norm(loc=mean, scale=std).pdf(observation_space) for mean, std in emissions]])[0]
-        true_emission_matrix /= np.sum(true_emission_matrix, axis=1)[:, np.newaxis]
-
-        # data = mixture_sampling_normal(true_transition_matrix, true_emission_matrix, observation_space, 1000)
-        data = []
-
-        hmm = HMM(hidden_states, observation_space)
-
-        print(true_transition_matrix)
-        hmm.baum_welch(data, 100)
-        print(np.round(hmm.transition_matrix, 2))
-        print(np.round(true_transition_matrix, 2))
-
-        acc = np.cumsum(data)
-        acc_hmm = np.cumsum(hmm.mixture_sampling(1000))
-
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=np.arange(len(data)), y=acc, mode="markers", name="True"))
-        fig.add_trace(go.Scatter(x=np.arange(len(data)), y=acc_hmm, mode="markers", name="HMM"))
-        fig.show()
-
-    vhmm = MultivariateHMM(2, {"a": np.linspace(-1, 1, 100), "b": np.linspace(-1, 1, 100)})
-    x = vhmm.mixture_sampling(1000)
-
-    vhmm.baum_welch(x, 100)
-
-    print(vhmm.transition_matrix.matrix)
-    print(vhmm.emission_matrix.matrix)
+    print(hmm.transition_matrix.matrix)
+    print(hmm.emission_matrix.matrix)
 
 
 if __name__ == "__main__":
