@@ -1,49 +1,37 @@
-from dataclasses import dataclass
-
 import dxlib as dx
 import asyncio
 
-from .lob import LOB
-
-
-@dataclass
-class MarketEvent:
-    time: float
-    signal: dx.Signal
-
-
-class EventSampler:
-    def __call__(self, *args, **kwargs) -> MarketEvent:
-        pass
+from ..lob import LOB
+from .event import MarketEvent, EventSampler
 
 
 class LOBSimulator:
     def __init__(
         self,
+        lob: LOB,
         event_sampler: EventSampler,
         logger: dx.LoggerMixin = None,
     ):
-        self.lob = LOB()
         self.t = 0
+        self.lob = lob
         self.logger = logger or dx.InfoLogger()
 
         self.event_sampler = event_sampler
 
     async def _step(self, wait=False):
         try:
-            event = self.event_sampler()
+            event = self.event_sampler(self.lob)
             if wait:
-                await asyncio.sleep(event.time)
+                await asyncio.sleep(event.interval)
             self.register(event)
-            self.logger.info(f"Event {event} registered at time {event.time}")
+            self.logger.info(f"Event {event} registered at time {event.interval}")
         except asyncio.CancelledError:
             return None
 
     def register(self, event: MarketEvent):
-        signal, time = event.signal, event.time
-        self.t += time
+        signal, interval = event.signal, event.interval
+        self.t += interval
         self.lob.send(event.signal)
-        self.lob.aggregate()
 
         return self.t
 
@@ -51,7 +39,7 @@ class LOBSimulator:
         while self.t < T:
             await self._step()
 
-    def run(self, T: float = 10.0):
+    def run(self, T):
         self.logger.info("Starting simulation")
         asyncio.run(self._run(T))
         self.logger.info("Simulation finished")

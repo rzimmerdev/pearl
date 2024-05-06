@@ -1,46 +1,38 @@
 import numpy as np
+import dxlib as dx
 
 from .hmm import HMM
-from ...lob.simulator import LOBSimulator
+from ..event import MarketEvent, EventSampler
+from ..simulator import LOBSimulator
+from ...lob import LOB
 
 
-class Sampler:
-    def __call__(self, *args, **kwargs):
-        pass
-
-
-class HMMSampler(Sampler):
+class HMMSampler(EventSampler):
     def __init__(self, hidden_states: int, space: dict = None):
         self.space = space or {
-            "price": np.linspace(0, 1, 100),
-            "quantity": np.linspace(0, 1, 100),
-            "type": [-2, 2],
+            "spread": np.linspace(-10, 10, 1000),
+            "quantity": np.linspace(0, 1, 1000),
+            "side": np.array([-1, 1]),
             "interval": np.linspace(0, 50, 1000),
         }
         self.hmm = HMM(hidden_states, self.space)
 
-    def __call__(self, *args, **kwargs):
-        pass
+    def __call__(self, lob: LOB, *args, **kwargs) -> MarketEvent:
+        df = self.hmm.mixture_sampling(1)
+        event = df.iloc[0]
+        spread = event["spread"]
+        price = np.maximum(lob.mid_price + spread, 0)
+        print(lob.mid_price, spread, price)
+        signal = dx.Signal(
+            side=dx.Side(event["side"]),
+            quantity=event["quantity"],
+            price=price,
+        )
+        interval = event["interval"]
+
+        return MarketEvent(interval, signal)
 
 
 class HMMSimulator(LOBSimulator):
-    def __init__(self, hidden_states: int, space=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.sampler = HMMSampler(hidden_states, space)
-
-    def simulate(self):
-        pass
-
-
-def main():
-    # using dash to plot realtime event times:
-    import dash
-    from dash import dcc
-
-    # create a HMM object
-    hmm = HMM(2, np.linspace(0, 1, 100), 1)
-
-    # create a HMM simulator
-    hmm_simulator = HMMSimulator(hmm, 1000, 1000)
-    hmm_simulator.run(10)
-
+    def __init__(self, lob, hidden_states: int, space=None, *args, **kwargs):
+        super().__init__(lob, HMMSampler(hidden_states, space), *args, **kwargs)
