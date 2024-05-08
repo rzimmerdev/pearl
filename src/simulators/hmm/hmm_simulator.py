@@ -22,7 +22,7 @@ class HMMSampler(EventSampler):
         event = df.iloc[0]
         spread = event["spread"]
         price = np.maximum(lob.mid_price + spread, 0)
-        print(lob.mid_price, spread, price)
+
         signal = dx.Signal(
             side=dx.Side(event["side"]),
             quantity=event["quantity"],
