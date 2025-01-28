@@ -9,3 +9,11 @@
 *-figure*.pdf
 *.pdf
 *-compressed.pdf
+*.bbl
+*.blg
+*.idx
+*.lof
+*.loq
+*.lot
+*.bst
+*.sty

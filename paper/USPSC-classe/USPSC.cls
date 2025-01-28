@@ -306,6 +306,7 @@
 \providecommand{\imprimircoorientadoradic}{}
 \newcommand{\coorientadoradic}[1]{\renewcommand{\imprimircoorientadoradic}{#1}}
 
+
 % ---
 % 28/03/2017 - Área de concentração para página de rosto adicional
 \providecommand{\imprimirareaadic}{}
@@ -1277,7 +1278,7 @@
 % ---
 
 % Chamanda para dados pre-textuais
-\include{icmc}
+\include{USPSC-unidades}  
 %
 
 % ------------------------------------------------------------------------
