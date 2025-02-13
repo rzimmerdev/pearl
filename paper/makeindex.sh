@@ -1,0 +1,1 @@
+makeindex -s main.ist main.idx
