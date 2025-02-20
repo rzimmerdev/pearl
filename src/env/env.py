@@ -2,7 +2,8 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from itertools import islice
-from env.simulators import MarketSimulator
+
+from .simulator import MarketSimulator
 
 
 class MarketEnv(gym.Env):
