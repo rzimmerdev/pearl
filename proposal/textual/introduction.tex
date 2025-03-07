@@ -5,15 +5,17 @@
 High-frequency trading represents one of the most technologically demanding domains within quantitative finance,
 characterized by a need for ultra-low latency, massive volumes of data streaming, and the ability to dynamically adapt to changing market conditions.
 Reinforcement learning has emerged as a promising approach for developing trading strategies within the context of high-frequency trading (HFT),
-offering the ability to learn optimal policies directly from market interactions without requiring explicit knowledge of the underlying dynamics.
+offering the ability to learn optimal policies directly from market interactions without requiring explicit knowledge of the underlying dynamics
+\cite{cartea2015algorithmic}.
 However, existing reinforcement learning algorithms are fraught with challenges,
 particularly regarding scaling training and inference to meet the performance requirements of live trading environments.
 
 Traditional frameworks often rely on centralized architectures, where a single learner aggregates experiences from multiple actors to update a shared policy.
 While effective in general-purpose applications, such approaches can become bottlenecks in HFT contexts,
-where the scale and complexity of trading environments demand highly efficient distributed training.
+where the scale and complexity of trading environments demand highly efficient distributed training~\cite{abernethy2013adaptive}.
 Moreover, typical RL systems treat environments as isolated entities for each agent or strategy,
-leading to significant computational redundancies when simulating complex environments with shared attributes, like a limit order book (LOB).
+leading to significant computational redundancies when simulating complex environments with shared attributes, like a limit order book (LOB)
+~\cite{cont2010stochastic}.
 The LOB is a critical component in the high-frequency trading ecosystem, representing the collection of all outstanding buy and sell orders in a market,
 and are crucial for understanding the dynamics of price formation and liquidity provision.
 
@@ -54,7 +56,7 @@ For example, in a simplified book with four price levels, the bid side (buy orde
 In this example, the bid side contains four price levels with corresponding volumes of 31, 56, 42, and 9, respectively,
 while the ask side contains four price levels with volumes of 44, 31, 26, and 13.
 The difference between the best bid and ask prices is known as the bid-ask spread, which in this case is $\Delta = 102.01 - 102.64 = -0.63$.
-A visualization of the LOB accumulated depth for this example is shown in~\hyperref[fig:lob]{Figure~\ref{fig:lob}}.
+A visualization of the LOB accumulated depth for this example is shown in~\autoref{fig:lob}.
 
 \begin{figure}[H]
     \centering
@@ -100,13 +102,14 @@ A visualization of the LOB accumulated depth for this example is shown in~\hyper
 \subsection{Motivation and Contributions}
 
 The main contribution of this course conclusion thesis is the design and comparison of a parallel agent-based RL framework for HFT applications.
-We aim to leverage the Ray RLLib framework to parallelize environments and use ZeroMQ for brokerless communication between workers and environments,
-inspired by the actor-learner model introduced in the IMPALA (Importance Weighted Actor-Learner Architecture) algorithm.
+We aim to leverage the Ray RLLib~\cite{liang2018rllib} framework to parallelize environments and use ZeroMQ for brokerless communication between workers and environments,
+inspired by the actor-learner model introduced in the IMPALA (Importance Weighted Actor-Learner Architecture) algorithm~\cite{espeholt2018impala}
 However, we extend the original implementation by allowing multiple learners to share multiple environments,
-enabling unique learners to interact with the same LOB environment, as shown in~\hyperref[fig:framework]{Figure~\ref{fig:framework}}.
+enabling unique learners to interact with the same LOB environment, as shown in~\autoref{fig:framework}.
 
 The reduced computational overhead by reusing core environment components, such as order aggregation, order book initialization,
-and transaction processing, across multiple agents, could lead to significant performance improvements in terms of speedup and multicore efficiency.
+and transaction processing, across multiple agents, could lead to significant performance improvements in terms of speedup and multicore efficiency
+compared to traditional RL frameworks~\cite{zhang2021multi}.
 We will measure wall time latency from environment step to agent action output as the primary metric for evaluating the framework's performance,
 and change in agent loss and reward scores as secondary metrics for assessing the framework's sensibility to multi-agent environments.
 The primary contribution of the thesis is to provide a scalable

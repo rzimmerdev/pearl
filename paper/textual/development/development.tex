@@ -5,6 +5,20 @@
 % comandos do abnTeX2 e de LaTeX.
 % ---
 
+Asynchronous Shared Environments with State Consistency
+
+Asynchronous: Environments and Learners are decoupled, allowing for independent operation,
+with message queues acting as intermediate buffers for data exchange and synchronization.
+
+Shared: Multiple workers interact with a single environment instance, reducing redundant computations and memory overhead.
+
+State Consistency: Workers can access states previously observed by other workers, ensuring a synchronized view of the environment
+if a learner was unable to process the latest state in time for synchronization.
+
+This approach aims to improve computational efficiency and learning performance while maintaining training stability
+by allowing all agents to interact synchronously on all states due to the proposed consistent environment state design.
+
+
 \chapter{Development}
 \label{ch:development}
 %Este capítulo é parte principal do trabalho acadêmico e deve conter a exposição ordenada e detalhada do assunto.
@@ -47,6 +61,7 @@ We start with an overview of related works in distributed RL and financial tradi
 
 \input{textual/development/literature}
 
+
 \section{Methodology}
 \label{sec:methodology}
 
@@ -57,7 +72,7 @@ is designed to enhance computational efficiency and learning performance in high
 
 First, the proposed framework enables multiple RL agents (workers) to share a single environment instance rather than running isolated simulations.
 This design minimizes redundant computations and significantly reduces the communication overhead typically
-encountered when synchronizing  separate environment instances.
+encountered when synchronizing separate environment instances.
 Second, the system incorporates an asynchronous policy update mechanism.
 In our approach, workers continuously send their experience trajectories to a centralized learner without waiting for all processes to complete,
 thereby mitigating issues of data staleness and enhancing convergence stability in non-stationary environments
@@ -95,7 +110,6 @@ By integrating a realistic LOB into the simulation, the environment provides a r
 distributed reinforcement learning algorithms can learn and adapt in complex, dynamic markets.
 The detailed representation of market microstructure, combined with the precise handling of order events,
 allows for rigorous scientific investigation into the interplay between order submission strategies and market behavior.
-
 
 \subsection{Parallel Environments for Asynchronous Reinforcement Learning (PEARL)}
 

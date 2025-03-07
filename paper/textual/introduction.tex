@@ -16,8 +16,8 @@ Traditionally, RL research focused on single-agent settings;
 however, as problems grew in complexity and scale, the need to distribute learning and data collection became paramount.
 This has led to the development of distributed RL architectures that parallelize both the simulation of environments and the learning process itself.
 
-In conventional distributed RL frameworks, multiple agents (or actors) operate independently—each typically interacting with
-its own environment instance—and report their experiences to a central learner.
+In conventional distributed RL frameworks, multiple agents (or actors) operate independently (each typically interacting with
+its own environment instance) and report their experiences to a central learner.
 Frameworks such as IMPALA and Ray RLlib have popularized this actor-learner paradigm,
 allowing systems to scale by decoupling the data collection (often executed on CPUs) from the intensive training phase (executed on GPUs).
 Although these approaches have advanced the state of the art, they come with inherent inefficiencies.
@@ -36,9 +36,9 @@ This is especially valuable in domains like high-frequency trading where simulat
 
 The architecture is built upon modern distributed frameworks such as Ray, which provides a robust runtime
 for deploying multiple actors across heterogeneous clusters.
-Ray’s multi-agent support ensures that workers can be efficiently created, managed, and synchronized.
-Communication between the learner and workers is handled asynchronously via ZeroMQ integration—a choice that minimizes messaging
-overhead and allows each worker to send its actions and trajectory data independently.
+Ray's multi-agent support ensures that workers can be efficiently created, managed, and synchronized.
+Communication between the learner and workers is handled asynchronously via ZeroMQ integration, minimizing messaging
+overhead and allowing each worker to send its actions and trajectory data independently.
 As soon as a worker completes a trajectory, the learner is updated, while other workers continue processing without interruption.
 This asynchronous design not only improves overall throughput but also enables scaling the learner and the environment independently,
 an aspect critical to handling real-time financial data streams.
@@ -82,8 +82,8 @@ In such cases, being able to independently scale the processing of the environme
 
 In summary, the motivation for this research stems from the need to overcome the inefficiencies of
 traditional distributed RL systems in high-stakes, real-time applications such as financial trading.
-By rethinking the standard paradigm—specifically through shared parallel environments and asynchronous policy
-updates—this work aims to provide an architecture that is both computationally efficient and capable of robust, scalable learning.
+By rethinking the standard paradigm, specifically through shared parallel environments and asynchronous policy
+updates, this work aims to provide an architecture that is both computationally efficient and capable of robust, scalable learning.
 This approach promises to deliver faster data processing, lower latency in policy updates, and a more efficient use of computational resources,
 all of which are critical in domains where time and accuracy are of the essence.
 
@@ -95,7 +95,7 @@ leveraging parallel data collection and high-throughput training,
 several challenges persist when scaling such systems for real-world applications.
 One major challenge is the communication overhead between multiple workers (or actors) and a centralized learner.
 In many distributed architectures, synchronizing policy updates across a large number of workers incurs significant latency.
-Synchronous approaches, for example, can suffer from the “straggler problem” where the overall update is delayed by slower workers,
+Synchronous approaches, for example, can suffer from the ``straggler problem'' where the overall update is delayed by slower workers,
 while asynchronous methods often risk data staleness due to delayed propagation of updated policy parameters.
 
 
@@ -117,8 +117,8 @@ Moreover, optimizing the load balance between data collection and model training
 prevent scenarios where either component becomes a performance bottleneck.
 
 Non-stationarity is an inherent issue in distributed RL systems.
-The dynamic nature of environments—especially in applications such as financial trading where market conditions are
-continuously evolving—can lead to non-stationary data distributions.
+The dynamic nature of market environments are usually made up of multiple non-stationary data distributions,
+due to the presence of latent and exogenous factors that influence the underlying data-generating process and separate market regimes.
 When multiple agents are learning concurrently and updating a shared policy, the underlying environment as perceived by
 any individual worker may appear to change over time.
 This violation of the Markov property complicates the theoretical guarantees of convergence for standard RL algorithms and
