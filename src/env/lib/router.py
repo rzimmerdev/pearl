@@ -6,6 +6,7 @@ import signal
 from dxlib.interfaces.internal.mesh import MeshInterface
 from dxlib.interfaces.services import ServiceModel, Server
 
+
 class Router:
     def __init__(self, host, port):
         self.context = None
@@ -13,7 +14,7 @@ class Router:
         self.open()
         self.host = host
         self.port = port
-        self.mesh = None
+        self.mesh: MeshInterface | None = None
         self.service = None
         self.running = asyncio.Event()
         self.listen_task = None
@@ -40,13 +41,12 @@ class Router:
         if self.mesh and self.service:
             self.mesh.deregister_service(self.service.name, self.service.service_id)
 
-    async def listen(self):
+    async def listen(self, handler):
         try:
             while self.running.is_set():
                 try:
                     identity, message = await self.socket.recv_multipart()
-                    print(f"Received from {identity}: {message.decode('utf-8')}")
-                    await self.socket.send_multipart([identity, message])
+                    await handler(identity, message)
                 except zmq.error.ZMQError as e:
                     if e.errno == zmq.ETERM:
                         break
@@ -55,8 +55,8 @@ class Router:
         except asyncio.CancelledError:
             pass
 
-    async def run(self):
-        self.listen_task = asyncio.create_task(self.listen())
+    async def run(self, handler):
+        self.listen_task = asyncio.create_task(self.listen(handler))
         await self.listen_task
 
     async def stop(self):
@@ -76,7 +76,7 @@ class Router:
         self.socket.close()
         self.context.term()
 
-    def start(self):
+    def start(self, handler=None):
         """Starts the router and manages lifecycle, including signal handling."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -90,8 +90,10 @@ class Router:
             loop.add_signal_handler(sig, lambda: asyncio.create_task(shutdown()))
 
         self.running.set()
+        if handler is None:
+            handler = lambda identity, message: print(f"Received message from {identity}: {message}")
         try:
-            loop.run_until_complete(self.run())
+            loop.run_until_complete(self.run(handler))
         finally:
             pending_tasks = asyncio.all_tasks(loop)
             for task in pending_tasks:
