@@ -1,4 +1,6 @@
+import json
 from typing import Callable, List, Any
+from uuid import uuid4
 
 import zmq
 
@@ -12,14 +14,15 @@ class Dealer:
         self.sockets = {}
         self.mesh = None
         self.mesh_name = None
+        self.uuid = uuid4().hex.encode()
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):
         self.mesh = MeshInterface()
-        self.mesh.register(Server(mesh_host, mesh_port))
         self.mesh_name = mesh_name
+        self.mesh.register(Server(mesh_host, mesh_port))
         self.routers = {
-            service["service_id"]: service["endpoints"] for service in
-            self.mesh.get_service(self.mesh_name)
+            service["service_id"]: service["endpoints"]
+            for service in self.mesh.get_service(self.mesh_name)
         }
         self.sockets = {
             service_id: self._create_socket() for service_id in self.routers.keys()
@@ -46,15 +49,15 @@ class Dealer:
 
             # get endpoint that has "name" == "router" [{...}, ..., {"name": "router", "path": "tcp://localhost:8000"} <- addr]
             addr = next(endpoint["path"] for endpoint in endpoints if endpoint["name"] == "router")
+            socket.setsockopt(zmq.IDENTITY, self.uuid)
             socket.connect(addr)
-
             socket.setsockopt(zmq.SNDTIMEO, 5000)  # 5 seconds send timeout
             socket.setsockopt(zmq.RCVTIMEO, 5000)  # 5 seconds receive timeout
 
             try:
                 socket.send_multipart([message])
-                responses[service_id] = handler(socket.recv_multipart())
-
+                frames = socket.recv_multipart()
+                responses[service_id] = handler(*[json.loads(frame) for frame in frames])
             except zmq.Again:
                 print(f"Timeout reached when sending to {addr}")
 
@@ -62,6 +65,7 @@ class Dealer:
             socket.disconnect(addr)
 
         return responses
+
 
 if __name__ == "__main__":
     dealer = Dealer()

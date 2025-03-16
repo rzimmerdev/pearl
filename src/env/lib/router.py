@@ -1,4 +1,7 @@
+import json
 import uuid
+from json import JSONDecodeError
+
 import zmq
 import zmq.asyncio
 import asyncio
@@ -46,12 +49,22 @@ class Router:
             while self.running.is_set():
                 try:
                     identity, message = await self.socket.recv_multipart()
-                    await handler(identity, message)
                 except zmq.error.ZMQError as e:
                     if e.errno == zmq.ETERM:
                         break
-                    else:
-                        raise
+                    raise
+
+                try:
+                    content = json.loads(message)
+                    response = handler(identity, content)
+                    await self.socket.send_multipart([identity, json.dumps(response).encode()])
+                except JSONDecodeError as e:
+                    print(f"Invalid message received: {message}")
+                    await self.socket.send_multipart([identity, json.dumps({"error": "Expected JSON message"}).encode()])
+                except Exception as e:
+                    await self.socket.send_multipart([identity, json.dumps({"error": "Error processing message: " + str(e)}).encode()])
+                    raise
+
         except asyncio.CancelledError:
             pass
 

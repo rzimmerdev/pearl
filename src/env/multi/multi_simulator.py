@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
-from uuid import uuid4
 
 import numpy as np
 from dxlib.orders import LimitOrderBook, Order, Transaction
@@ -38,8 +37,8 @@ class UserVariables:
     bid: Order = None
     ask: Order = None
     # currently placed orders
-    ask_placed: Order = None
-    bid_placed: Order = None
+    ask_placed: Order | None = None
+    bid_placed: Order | None = None
 
     def set_quote(self, order, side):
         setattr(self, side, order)
@@ -47,6 +46,13 @@ class UserVariables:
     def set_placed_order(self, order, side):
         setattr(self, f"{side}_placed", order)
 
+    def update(self, transaction, sign):
+        self.portfolio.update(transaction, sign)
+        # if transaction fills a placed order, set it to None
+        if self.ask_placed and self.ask_placed.uuid == transaction.uuid:
+            self.ask_placed = None
+        if self.bid_placed and self.bid_placed.uuid == transaction.uuid:
+            self.bid_placed = None
 
 class MarketSimulator:
     def __init__(
@@ -109,7 +115,7 @@ class MarketSimulator:
         }
 
         self.previous_event = 0
-        self.market_uuid = uuid4().hex
+        self.uuid = "market"
 
     def reset(self):
         self.bid_process.mean = self.drift_rate - self.spread_mean / 2 / self.dt
@@ -123,6 +129,10 @@ class MarketSimulator:
             next_event=self.next_event(0, [])
         )
         self.user_variables = {agent_id: UserVariables() for agent_id in self.agent_ids}
+
+    def add_user(self, agent_id):
+        self.agent_ids.append(agent_id)
+        self.user_variables[agent_id] = UserVariables()
 
     def fill(self, n):
         # generate n events to fill the order book
@@ -167,8 +177,8 @@ class MarketSimulator:
         bids_quantity = np.array(self.quantity_distribution(size=bid_size) + 1)
         asks_quantity = np.array(self.quantity_distribution(size=ask_size) + 1)
 
-        orders = [Order(price, quantity, 'ask', self.market_uuid) for price, quantity in zip(asks, asks_quantity)] + \
-                 [Order(price, quantity, 'bid', self.market_uuid)
+        orders = [Order(price, quantity, 'ask', client=self.uuid) for price, quantity in zip(asks, asks_quantity)] + \
+                 [Order(price, quantity, 'bid', client=self.uuid)
                   for price, quantity in zip(bids, bids_quantity)]
 
         return np.array(orders)

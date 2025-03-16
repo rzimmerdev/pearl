@@ -1,6 +1,3 @@
-import time
-from uuid import uuid4
-
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
@@ -70,20 +67,16 @@ class MarketEnv(gym.Env):
 
     def __init__(
             self,
-            n_agents=2,
             n_levels=10,
             starting_value=100,
             *args, **kwargs
     ):
         super().__init__()
-        self.n_agents = n_agents
         self.n_levels = n_levels
         self.starting_value = starting_value
-        self.agent_ids = [uuid4().hex for _ in range(n_agents)]
         self.simulator = MarketSimulator(
             starting_value=starting_value,
             *args, **kwargs,
-            agent_ids=self.agent_ids,
         )
 
         self.quotes = []
@@ -103,6 +96,11 @@ class MarketEnv(gym.Env):
             high=np.array([1e2, 1e2, 1e2, 1e2], dtype=np.float32),
             dtype=np.float32,
         )
+        self.agent_ids = set()
+
+    def add_user(self, user_id):
+        self.agent_ids.add(user_id)
+        self.simulator.add_user(user_id)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -111,7 +109,7 @@ class MarketEnv(gym.Env):
         self.quotes = []
 
         # Get initial states for all agents
-        states = [self._get_state(agent_id) for agent_id in range(self.n_agents)]
+        states = {agent_id: self._get_state(agent_id) for agent_id in self.agent_ids}
         return states, {}
 
     def step(self, actions):
@@ -140,7 +138,7 @@ class MarketEnv(gym.Env):
             )
 
         done = self.done
-        trunc = any(np.abs(r) > 1e4 for r in reward)
+        trunc = any(np.abs(r) > 1e4 for r in reward.values())
 
         return next_state, reward, done, trunc, {}
 
