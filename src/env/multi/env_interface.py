@@ -1,35 +1,99 @@
-from urllib.parse import urlparse
+import json
+import os
+from dataclasses import dataclass
+from typing import List, Dict, Tuple
 
 import httpx
-from dxlib.interfaces import Interface, Server, Protocols
+from urllib.parse import urlparse
+
+from dxlib.interfaces import Interface, Server, Protocols, ServiceData
+from dxlib.interfaces.internal import MeshInterface
+from httpx import ConnectError
 
 from src.lib import Dealer
 
 
+@dataclass
+class Env:
+    router: Server
+    snapshot: Server
+    agent_id: str | None = None
+
+
 class EnvInterface(Interface):
     def __init__(self):
-        self.router: Server | None = None
-        self.snapshot_server: Server | None = None
+        self.mesh = MeshInterface()
+        self.dealer = Dealer()
+        self._envs: Dict[str, Env] = {}
 
-    def register(self, server: Server, snapshot_server: Server):
-        self.router = server
-        self.snapshot_server = snapshot_server
-
-    def register_service(self, endpoints):
+    def _load_services(self, endpoints) -> Tuple[Server, Server]:
         # [{'method': 'ROUTER', 'name': 'router', 'path': 'tcp://localhost:5001'}] -> parse "path"
-        for endpoint in endpoints:
-            if endpoint["method"] == "router":
-                result = urlparse(endpoint["path"])
-                self.router = Server(result.hostname, result.port, protocol=Protocols.TCP)
-            elif endpoint["method"] == "snapshot":
-                result = urlparse(endpoint["path"])
-                self.snapshot_server = Server(result.hostname, result.port, protocol=Protocols.HTTP)
+        router = None
+        snaphshot = None
+        for route in endpoints:
+            for method in endpoints[route]:
+                if method == "router":
+                    result = urlparse(route)
+                    router = Server(result.hostname, result.port, protocol=Protocols.TCP)
+                elif method == "GET" and endpoints[route][method]['handler'] == 'get_state':
+                    result = urlparse(route)
+                    snaphshot = Server(result.hostname, result.port, protocol=Protocols.HTTP)
+        return router, snaphshot
 
-    def step(self, action, dealer: Dealer):
-        response = dealer.send(action, self.router.url)
+    def encode(self, data):
+        # encode dict to bytes
+        # return bytes
+        return json.dumps(data).encode()
+
+    def _send(self, data):
+        return self.dealer.send(data)
+
+    def register_user(self):
+        response = self._send(self.encode({"type": "connect"}))
+        print(f"Registered user with agent_id: {response}")
+        for env_id, agent_id in response.items():
+            self._envs[env_id].agent_id = agent_id
+
+    def step(self, actions):
+        response = self._send({env_id: self.encode({"type": "action", "data": action}) for env_id, action in actions.items()})
         return response
 
-    def state(self):
+    def __iter__(self):
+        return iter(self._envs.keys())
+
+    def state(self) -> Dict[str, dict]:
         with httpx.Client() as client:
-            response = client.get(self.snapshot_server.url)
-            return response.json()
+            states = {}
+            for env_id, env in self._envs.items():
+                url = env.snapshot.url
+                response = client.get(f"{url}/state", params={"agent_id": env.agent_id})
+                states[env_id] = response.json()
+            return states
+
+    def use_mesh(self, mesh_name, mesh_host, mesh_port):
+        self.mesh.register(Server(mesh_host, mesh_port))
+        try:
+            instances = self.mesh.get_service("market_env")
+        except httpx.ConnectError as e:
+            raise ConnectError(f"Could not connect to mesh service: {e}")
+        if len(instances) == 0:
+            raise ValueError(f"No instances found for mesh service '{mesh_name}. Unable to use remote environment.")
+        for service in instances:
+            endpoints = service.endpoints
+            router, server = self._load_services(endpoints)
+            self._envs[service.service_id] = Env(router, server)
+
+        self.dealer.register({service_id: env.router.url for service_id, env in self._envs.items()})
+
+
+if __name__ == "__main__":
+    mesh_name = os.getenv("MESH_NAME")
+    mesh_host = os.getenv("MESH_HOST")
+    mesh_port = int(os.getenv("MESH_PORT"))
+    envs = EnvInterface()
+    envs.use_mesh(mesh_name, mesh_host, mesh_port)
+    envs.register_user()
+    print(envs.state())
+
+    response = envs.step([0.1, 0.2, 0.3, 0.4])
+    print(response)

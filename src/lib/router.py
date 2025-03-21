@@ -8,9 +8,11 @@ from json import JSONDecodeError
 import zmq
 import zmq.asyncio
 import asyncio
-from dxlib.interfaces.internal.mesh import MeshInterface
-from dxlib.interfaces.services import ServiceModel, Server
 
+from dxlib.interfaces import Protocols
+from dxlib.interfaces.internal.mesh import MeshInterface
+from dxlib.interfaces.services import ServiceData, Server
+from httpx import HTTPStatusError
 
 log_format = "%(levelname)s:     %(message)s"
 
@@ -41,7 +43,8 @@ class Router:
         self.socket.bind(f"tcp://{self.host}:{self.port}")
 
     def unbind(self):
-        self.socket.unbind(f"tcp://{self.host}:{self.port}")
+        if self.socket:
+            self.socket.unbind(f"tcp://{self.host}:{self.port}")
 
     def use_mesh(self,
                  mesh_name,
@@ -52,13 +55,21 @@ class Router:
                  ):
         self.mesh = MeshInterface()
         self.mesh.register(Server(mesh_host, mesh_port))
-        self.service = ServiceModel(
+        route = f"tcp://{self.host}:{self.port}"
+        method = Protocols.ROUTER.value
+        self.service = ServiceData(
             name=service_name,
             service_id=service_id,
-            endpoints=[{"path": f"tcp://{self.host}:{self.port}", "method": "ROUTER", "name": "router"}],
-            tags=["router"],
+            endpoints={
+                route: {method:{"path": f"tcp://{self.host}:{self.port}", "method": "ROUTER", "name": "router"}}
+            },
+            tags={"router"},
         )
-        self.mesh.register_service(self.service)
+        try:
+            self.mesh.register_service(self.service)
+        except HTTPStatusError as e:
+            self.logger.error(e.response.text)
+            return
         self.logger.info(f"Using mesh '{mesh_name}' at http://{mesh_host}:{mesh_port}")
         self.logger.info(f"Registered service {self.service.name} with id {self.service.service_id}")
 
@@ -100,15 +111,16 @@ class Router:
         self.socket = self.context.socket(zmq.ROUTER)
 
         self.socket.setsockopt(zmq.SNDTIMEO, 1000)
-        self.socket.setsockopt(zmq.RCVTIMEO, 1000)
+        self.socket.setsockopt(zmq.RCVTIMEO, 5000)
 
     def close(self):
-        self.socket.close()
+        if self.socket:
+            self.socket.close()
         if self.task:
             self.task.cancel()
-        self.context.term()
+        if self.context:
+            self.context.term()
 
-    # start -> run threaded asyncio.run
     def start(self, handler):
         self._running.set()
         self.open()
@@ -125,7 +137,8 @@ class Router:
         self._running.clear()
         self.unbind()
         self.close()
-        self.thread.join()
+        if self.thread:
+            self.thread.join()
 
 if __name__ == "__main__":
     router = Router("localhost", 5000)

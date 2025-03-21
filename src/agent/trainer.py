@@ -1,6 +1,7 @@
 import json
 import os
 
+import torch
 from torch import optim
 from torch.utils.tensorboard import SummaryWriter
 
@@ -9,11 +10,11 @@ from src.agent.models.mlp import MLP
 from src.agent.models.mm_policy import MMPolicyNetwork
 from src.agent.ppo import PPOAgent, PPOParams
 from src.agent.replay_buffer import ReplayBuffer
-from src.lib import Dealer
+from src.env.multi.env_interface import EnvInterface
 
 
-class RLTrainer(Dealer):
-    def __init__(self, agent: Agent, path="runs", rollout_length=2048):
+class RLTrainer:
+    def __init__(self, agent: Agent, envs: EnvInterface, path="runs", rollout_length=2048):
         super().__init__()
         self.agent = agent
         self.rollout_length = rollout_length
@@ -38,12 +39,7 @@ class RLTrainer(Dealer):
             weight_decay=1e-5,
             amsgrad=True
         )
-        # self.envs = [EnvInterface(router) for router in self.routers]
-
-    def send(self, content, *args, **kwargs):
-        msg = json.dumps(content).encode()
-        response = super().send(msg)
-        return response
+        self.envs = envs
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
         reward_history = []
@@ -102,26 +98,39 @@ class RLTrainer(Dealer):
 
     def collect_trajectories(self):
         trajectories = {
-            env: ReplayBuffer()
-            for env in self.routers
+            env_id: ReplayBuffer()
+            for env_id in self.envs
         }
-        states = {
-            env: env.reset()
-            for env in self.routers
-        }
+        states = self.envs.state()
 
         done = False
 
         for _ in range(self.rollout_length):
-            for env in self.routers:
-                action, log_prob, _ = self.agent(states[env])
-                next_state, reward, done, trunc, _ = env.send(action)
-                done = done or trunc
-                trajectories[env].add(states[env], action, log_prob, reward, done)
-                states[env] = next_state
+            # transform states {env_id: state} into batch x state tensor, where (batch x state)[i] == envs.values()[i]
+            env_ids = list(trajectories.keys())
+            batch_states = torch.tensor([states[env_id] for env_id in env_ids], dtype=torch.float32)
 
-            if done:
-                break
+            actions, log_prob, _ = self.agent(batch_states)
+
+            # action is of format [tensor(num_envs) for _ in range(action_dim)], but need [tensor(action_dim) for _ in range(num_envs)]
+
+            # transform back into {env_id: action} according to env_ids order
+            actions = {env_id: action.tolist() for env_id, action in zip(env_ids, actions)}
+            log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(env_ids, log_prob)}
+
+            response = self.envs.step(actions)
+
+            # store actions, log_probs, rewards, and next_states in respective ReplayBuffer
+            for env_id, data in response.items():
+                trajectories[env_id].add(action=actions, log_prob=log_prob, **data)
+
+            states = {env_id: data['state'] for env_id, data in response.items()}
+            done = {env_id: data['done'] for env_id, data in response.items()}
+
+            print(states)
+
+            if all(done_flag for done_flag in done.values()):
+                states = self.envs.state()
 
         return trajectories
 
@@ -153,14 +162,14 @@ class RLTrainer(Dealer):
 if __name__ == "__main__":
     agent = PPOAgent(
         MMPolicyNetwork(
-            in_features=3,
+            in_features=8,
             in_depth=10,
             attention_heads=4,
             hidden_dims=(128, 128),
-            out_dims=(4,)
+            out_dims=(int(1e2) for _ in range(4))
         ),
         value_network=MLP(
-            in_dim=3,
+            in_dim=48,
             hidden_units=(128, 128),
             out_dim=1
         ),
@@ -171,9 +180,16 @@ if __name__ == "__main__":
             entropy_coef=0.01,
         ),
     )
-    trainer = RLTrainer(agent)
-    trainer.use_mesh("pearl", "localhost", 8000)
-    connect = {"type": "connect"}
-    trainer.send(connect)
 
+    envs = EnvInterface()
+
+    mesh_name = os.getenv("MESH_NAME", "pearl")
+    mesh_host = os.getenv("MESH_HOST", "localhost")
+    mesh_port = int(os.getenv("MESH_PORT", "5000"))
+
+    envs.use_mesh(mesh_name, mesh_host, mesh_port)
+    envs.register_user()
+
+    trainer = RLTrainer(agent, envs)
+    connect = {"type": "connect"}
     trainer.train()

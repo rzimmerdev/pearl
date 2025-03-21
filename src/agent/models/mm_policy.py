@@ -113,7 +113,7 @@ class MMPolicyNetwork(Model):
         probs = self(state)
         dist = [Categorical(prob) for prob in probs]
         action = [d.sample() for d in dist]
-        return action, [d.log_prob(a) for d, a in zip(dist, action)], dist
+        return torch.stack(action, dim=1), [d.log_prob(a) for d, a in zip(dist, action)], dist
 
     def get_action(self, actions):
         return np.array([a.item() for a in actions])

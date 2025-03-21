@@ -98,9 +98,12 @@ class MarketEnv(gym.Env):
         )
         self.agent_ids = set()
 
-    def add_user(self, user_id):
-        self.agent_ids.add(user_id)
-        self.simulator.add_user(user_id)
+    def add_user(self, agent_id):
+        self.agent_ids.add(agent_id)
+        self.simulator.add_user(agent_id)
+
+    def verify_id(self, agent_id):
+        return agent_id in self.agent_ids
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)

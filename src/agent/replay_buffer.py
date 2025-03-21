@@ -7,7 +7,7 @@ class ReplayBuffer:
         self.rewards = []
         self.dones = []
 
-    def add(self, state, action, log_prob, reward, done):
+    def add(self, state, action, log_prob, reward, done, trunc=None):
         self.states.append(state)
         self.actions.append(action)
         self.log_probs.append(log_prob)

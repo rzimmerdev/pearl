@@ -141,7 +141,7 @@ class PPOAgent(Agent):
     #     return trajectory
 
     def __call__(self, *args, **kwargs):
-        return self.policy_network.act(*args, **kwargs)
+        return self.act(*args, **kwargs)
 
     def update(self, trajectories, optimizer, epochs=5):
         states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()

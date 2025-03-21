@@ -1,18 +1,35 @@
+import json
 import threading
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Type
 from uuid import uuid4
 
-from dxlib.interfaces.internal import MeshInterface
+from dxlib.storage import T
+from httpx import HTTPStatusError, ConnectError
 
 from src.lib import Router
 from src.lib.timer import Timer
 from src.env.multi.multi_env import MarketEnv
 
-from dxlib.interfaces import HttpEndpoint, Service, Server, ServiceModel
+from dxlib.interfaces import HttpEndpoint, Service, Server
+from dxlib.interfaces.internal import MeshInterface
 from dxlib.interfaces.services.http.fastapi import FastApiServer
 
 
+@dataclass
+class AgentModel:
+    agent_id: str
+
+
 class MarketEnvService(Service, MarketEnv):
+    @classmethod
+    def from_dict(cls: Type[T], data: dict) -> T:
+        pass
+
+    def to_dict(self) -> dict:
+        pass
+
     def __init__(self,
                  host,
                  port,
@@ -35,6 +52,7 @@ class MarketEnvService(Service, MarketEnv):
         # {"type": "action", "data": [0.1, 0.2, 0.3, 0.4]}
         # {"type": "close"}
         # {"type": "connect"}
+        uuid = uuid.decode()
         if not isinstance(msg, dict):
             print(f"Invalid message received: {msg}")
             return "Invalid message received"
@@ -44,7 +62,8 @@ class MarketEnvService(Service, MarketEnv):
         elif msg["type"] == "connect":
             self.connections.add(uuid)
             self.add_user(uuid)
-            return
+            self.router.logger.info(f"User connected: {uuid}")
+            return uuid
 
         if msg["type"] != "action" or "data" not in msg:
             return
@@ -82,51 +101,63 @@ class MarketEnvService(Service, MarketEnv):
         self.response = {"state": state, "reward": reward, "done": done, "trunc": trunc}
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):
-        model = self.to_model()
-        self.router.use_mesh(mesh_name, mesh_host, mesh_port, model.name, model.service_id)
+        service_data = self.data()
+        self.router.use_mesh(mesh_name, mesh_host, mesh_port, service_data.name, service_data.service_id)
         self.mesh = MeshInterface()
         self.mesh.register(Server(mesh_host, mesh_port))
-        self.mesh.register_service(model)
+        try:
+            self.mesh.register_service(service_data)
+        except HTTPStatusError as e:
+            response = json.loads(e.response.text)
+            self.router.logger.error("Error registering service: %s", json.dumps(response, indent=2))
+            return
 
-    def deregister_mesh(self, mesh_name, mesh_host, mesh_port):
+    def deregister_mesh(self):
         self.router.remove_mesh()
-        self.mesh = MeshInterface()
-        self.mesh.register(Server(mesh_host, mesh_port))
-        self.mesh.deregister_service(self.name, self.service_id)
 
-    def start(self, mesh_name=None, mesh_host="localhost", mesh_port=8000):
+    def start(self):
         """Run router async and timer async"""
         # start FastApiServer.Server
-        if mesh_name is not None:
-            self.use_mesh(mesh_name, mesh_host, mesh_port)
-
         self.router.start(self.handle)
 
     def stop(self):
         self.timer.stop()
         self.router.stop()
-        if self.mesh:
-            self.deregister_mesh("pearl", "localhost", 8000)
 
     @property
     def running(self):
         return self.router.running
 
-    @HttpEndpoint.post("/state")
+    @HttpEndpoint.get("/state")
     def get_state(self, agent_id):
-        return self.state(agent_id)
+        if not self.verify_id(agent_id):
+            raise ValueError(f"Invalid agent_id {agent_id} for environment.")
+        return self.state(agent_id).tolist()
+
+    @HttpEndpoint.post("/agent")
+    def register_user(self, agent: AgentModel):
+        agent_id = agent.agent_id
+        if self.verify_id(agent_id):
+            pass
+        self.add_user(agent_id)
 
 
 if __name__ == "__main__":
     host = "localhost"
+    mesh_host = "localhost"
     server = FastApiServer(host, 5000)
     env = MarketEnvService(host, 5001, n_levels=10, starting_value=100)
+    mesh = MeshInterface()
+    mesh.register(Server(mesh_host, 8000))
 
     server.register(env)
     thread = threading.Thread(target=server.run)
+
     try:
         thread.start()
-        env.start("pearl")
+        env.start()
+        mesh.register_service(env.data(server.url))
+        env.router.use_mesh("pearl", mesh_host, 8000, env.name, env.service_id)
         while env.running:
             pass
     except KeyboardInterrupt:
@@ -135,3 +166,7 @@ if __name__ == "__main__":
         env.stop()
         server.stop()
         thread.join()
+        try:
+            mesh.deregister_service(env.name, env.service_id)
+        except ConnectError:
+            pass
