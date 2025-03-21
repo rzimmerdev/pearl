@@ -161,6 +161,9 @@ class MarketEnv(gym.Env):
 
         return np.array(state, dtype=np.float32)
 
+    def state(self, agent_id):
+        return self._get_state(agent_id)
+
     def order_side(self, side_list, fill_value=0.0):
         levels = []
         midprice = self.simulator.midprice()

@@ -1,12 +1,20 @@
+import json
 import os
 
 from torch import optim
 from torch.utils.tensorboard import SummaryWriter
 
+from src.agent.agent import Agent
+from src.agent.models.mlp import MLP
+from src.agent.models.mm_policy import MMPolicyNetwork
+from src.agent.ppo import PPOAgent, PPOParams
+from src.agent.replay_buffer import ReplayBuffer
+from src.lib import Dealer
 
-class RLTrainer:
-    def __init__(self, env, agent, lr=1e-4, num_envs=4, path="runs", rollout_length=2048):
-        self.env = env
+
+class RLTrainer(Dealer):
+    def __init__(self, agent: Agent, path="runs", rollout_length=2048):
+        super().__init__()
         self.agent = agent
         self.rollout_length = rollout_length
         self.path = path
@@ -30,15 +38,18 @@ class RLTrainer:
             weight_decay=1e-5,
             amsgrad=True
         )
+        # self.envs = [EnvInterface(router) for router in self.routers]
+
+    def send(self, content, *args, **kwargs):
+        msg = json.dumps(content).encode()
+        response = super().send(msg)
+        return response
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
         reward_history = []
 
         if not os.path.exists(self.newest_path):
             os.makedirs(self.newest_path)
-
-        snapshots = {col: [] for col in self.env.snapshot_columns}
-        snapshots["episode"] = []
 
         if report is None:
             def report(*args, **kwargs):
@@ -66,21 +77,16 @@ class RLTrainer:
 
         try:
             for episode in range(num_episodes):
-                trajectories = self.agent.collect_trajectories(self.env, self.rollout_length)
-                losses = self.agent.update(trajectories, self.optimizer)
+                trajectories = self.collect_trajectories()
+                # losses = self.agent.update(trajectories, self.optimizer)
+                losses = {}
                 episode_reward = sum(trajectories.rewards)
                 reward_history.append(episode_reward)
 
                 report({"reward": episode_reward})
 
-                snapshot = self.env.snapshot()
-                snapshot["episode"] = episode
-
-                for col in snapshots.keys():
-                    snapshots[col].append(snapshot[col])
-
                 values = {key: value for key, value in losses.items()}
-                values = {**values, **snapshot, "reward": episode_reward}
+                values = {**values, "reward": episode_reward}
 
                 save_checkpoint(episode, episode_reward, losses, values)
 
@@ -93,6 +99,31 @@ class RLTrainer:
         # return average 100 last rewards or
         n = min(100, len(reward_history))
         return sum(reward_history[-n:]) / n
+
+    def collect_trajectories(self):
+        trajectories = {
+            env: ReplayBuffer()
+            for env in self.routers
+        }
+        states = {
+            env: env.reset()
+            for env in self.routers
+        }
+
+        done = False
+
+        for _ in range(self.rollout_length):
+            for env in self.routers:
+                action, log_prob, _ = self.agent(states[env])
+                next_state, reward, done, trunc, _ = env.send(action)
+                done = done or trunc
+                trajectories[env].add(states[env], action, log_prob, reward, done)
+                states[env] = next_state
+
+            if done:
+                break
+
+        return trajectories
 
     def save(self, name="model"):
         self.agent.save_weights(f"{self.newest_path}/{name}.pth")
@@ -117,3 +148,32 @@ class RLTrainer:
         print(f'Loaded model from {self.latest_path}/{file}')
 
         return self.agent
+
+
+if __name__ == "__main__":
+    agent = PPOAgent(
+        MMPolicyNetwork(
+            in_features=3,
+            in_depth=10,
+            attention_heads=4,
+            hidden_dims=(128, 128),
+            out_dims=(4,)
+        ),
+        value_network=MLP(
+            in_dim=3,
+            hidden_units=(128, 128),
+            out_dim=1
+        ),
+        params=PPOParams(
+            gamma=0.99,
+            gae_lambda=0.95,
+            eps_clip=0.2,
+            entropy_coef=0.01,
+        ),
+    )
+    trainer = RLTrainer(agent)
+    trainer.use_mesh("pearl", "localhost", 8000)
+    connect = {"type": "connect"}
+    trainer.send(connect)
+
+    trainer.train()
