@@ -48,8 +48,12 @@ class MarketEnvService(Service, MarketEnv):
         self.response = {}
         self.mesh = None
 
-        self.sync = asyncio.Condition()
+        self.sync = {
+            "execute": asyncio.Condition(),
+            "reset": asyncio.Condition(),
+        }
         self.execute_lock = asyncio.Event()
+        self.reset_flag = asyncio.Event()
 
     async def handle(self, identity, content):
         """Handle different types of messages asynchronously."""
@@ -69,6 +73,15 @@ class MarketEnvService(Service, MarketEnv):
             self.router.logger.info(f"User connected: {uuid}")
             return {"status": "connected", "user": uuid}
 
+        elif content["type"] == "reset":
+            if not self.reset_flag.is_set():
+                self.reset_flag.set()
+                async with self.sync["reset"]:
+                    await self.reset()
+            else:
+                await self.sync["reset"].wait()
+            return {"state": self.state(uuid).tolist()}
+
         if content["type"] != "action" or "data" not in content:
             return {"error": "Invalid action message format"}
 
@@ -85,16 +98,16 @@ class MarketEnvService(Service, MarketEnv):
             return {"error": "Old timestep, send message before market timeout in 'timestep' (s) field",
                     "timeout": True}
 
-        async with self.sync:
+        async with self.sync["execute"]:
             self.action_buffer[uuid] = content["data"]
             if len(self.action_buffer) == len(self.connections):
                 self.timer.stop()
                 await self.execute_step()
             elif len(self.action_buffer) == 1:
                 self.timer.start(self.execute_step, True, self.action_buffer)
-                await self.sync.wait()
+                await self.sync["execute"].wait()
             else:
-                await self.sync.wait()
+                await self.sync["execute"].wait()
         return {
             "state": self.response["state"][uuid].tolist(),
             "reward": self.response["reward"][uuid],
@@ -102,6 +115,12 @@ class MarketEnvService(Service, MarketEnv):
             "trunc": self.response["trunc"],
             "details": {"timestep": self.timestep}
         }
+
+    async def reset(self, **kwargs):
+        super().reset(**kwargs)
+        self.sync["reset"].notify_all()
+        print(self.timestep)
+        self.reset_flag.clear()
 
     async def execute_step(self):
         self.execute_lock.set()
@@ -111,7 +130,7 @@ class MarketEnvService(Service, MarketEnv):
         state, reward, done, trunc, _ = self.step(actions)
 
         self.response = {"state": state, "reward": reward, "done": done, "trunc": trunc}
-        self.sync.notify_all()
+        self.sync["execute"].notify_all()
         self.execute_lock.clear()
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):

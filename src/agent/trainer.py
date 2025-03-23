@@ -1,14 +1,12 @@
 import json
 import os
+from typing import Dict
 
 import torch
 from torch import optim
 from torch.utils.tensorboard import SummaryWriter
 
 from src.agent.agent import Agent
-from src.agent.models.mlp import MLP
-from src.agent.models.mm_policy import MMPolicyNetwork
-from src.agent.ppo import PPOAgent, PPOParams
 from src.agent.replay_buffer import ReplayBuffer
 from src.env.multi.env_interface import EnvInterface
 
@@ -33,12 +31,6 @@ class RLTrainer:
         self.latest_path = f'{path}/{len(latest) - 1}' if len(latest) > 0 else None
 
         # TensorBoard writer
-        self.optimizer = optim.Adam(
-            self.agent.parameters(),
-            betas=(0.9, 0.999),
-            weight_decay=1e-5,
-            amsgrad=True
-        )
         self.envs = envs
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
@@ -74,12 +66,12 @@ class RLTrainer:
         try:
             for episode in range(num_episodes):
                 trajectories = self.collect_trajectories()
-                # losses = self.agent.update(trajectories, self.optimizer)
-                losses = {}
+                losses = self.agent.update(trajectories)
                 episode_reward = sum([sum(trajectory.rewards) for trajectory in trajectories.values()])
                 reward_history.append(episode_reward)
 
                 report({"reward": episode_reward})
+                print(f"Episode {episode}, Reward: {episode_reward}, Loss: {losses}")
 
                 values = {key: value for key, value in losses.items()}
                 values = {**values, "reward": episode_reward}
@@ -98,7 +90,7 @@ class RLTrainer:
             return 0
         return sum(reward_history[-n:]) / n
 
-    def collect_trajectories(self):
+    def collect_trajectories(self) -> Dict[str, ReplayBuffer]:
         trajectories = {
             env_id: ReplayBuffer()
             for env_id in self.envs
@@ -106,15 +98,17 @@ class RLTrainer:
         states = self.envs.state()
         timesteps = {env_id: 0 for env_id in self.envs}
 
-        for _ in range(self.rollout_length):
-            # transform states {env_id: state} into batch x state tensor, where (batch x state)[i] == envs.values()[i]
-            env_ids = list(trajectories.keys())
-            batch_states = torch.tensor([states[env_id] for env_id in env_ids], dtype=torch.float32)
+        env_ids = set(self.envs)
 
+        for _ in range(self.rollout_length):
+            if not env_ids:
+                break
+
+            # transform states {env_id: state} into batch x state tensor, where (batch x state)[i] == envs.values()[i]
+            batch_states = torch.tensor([states[env_id] for env_id in env_ids], dtype=torch.float32).cuda()
             actions, log_prob, _ = self.agent(batch_states)
 
             # action is of format [tensor(num_envs) for _ in range(action_dim)], but need [tensor(action_dim) for _ in range(num_envs)]
-
             # transform back into {env_id: action} according to env_ids order
             actions = {env_id: action.tolist() for env_id, action in zip(env_ids, actions)}
             log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(env_ids, log_prob)}
@@ -122,6 +116,7 @@ class RLTrainer:
             response = self.envs.step(actions, timesteps)
 
             # store actions, log_probs, rewards, and next_states in respective ReplayBuffer
+            dones = []
             for env_id, data in response.items():
                 if data.get("timeout", False):
                     raise TimeoutError(f"Env response timed out {response}")
@@ -129,13 +124,14 @@ class RLTrainer:
                     raise ValueError(f"Error in response: {response}")
                 details = data.pop("details")
                 timesteps[env_id] = details["timestep"]
-                trajectories[env_id].add(action=actions, log_prob=log_prob, **data)
+                trajectories[env_id].add(action=actions[env_id], log_prob=log_prob[env_id], **data)
 
-            states = {env_id: data['state'] for env_id, data in response.items()}
-            done = {env_id: data['done'] for env_id, data in response.items()}
-
-            if all(done_flag for done_flag in done.values()):
-                states = self.envs.state()
+                # if done 1. call reset, 2. remove from env ids
+                if data['done']:
+                    dones.append(env_id)
+                    env_ids.remove(env_id)
+                states[env_id] = data['state']
+            self.envs.reset(dones)
 
         return trajectories
 

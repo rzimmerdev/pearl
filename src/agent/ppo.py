@@ -4,6 +4,7 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn as nn
+from torch import optim
 
 from .agent import Agent, default_reshape
 
@@ -75,6 +76,13 @@ class PPOAgent(Agent):
         self.lr = lr
         self.batch_size = batch_size
 
+        self.optimizer = optim.Adam(
+            self.parameters(),
+            betas=(0.9, 0.999),
+            weight_decay=1e-5,
+            amsgrad=True
+        )
+
     def parameters(self):
         # return list(self.policy_network.parameters()) + list(self.value_network.parameters())
         # separate learning rates for policy and value networks
@@ -143,26 +151,44 @@ class PPOAgent(Agent):
     def __call__(self, *args, **kwargs):
         return self.act(*args, **kwargs)
 
-    def update(self, trajectories, optimizer, epochs=5):
-        states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()
-        actions = torch.tensor(trajectories.actions).cuda()
-        old_log_probs = torch.tensor(trajectories.log_probs, dtype=torch.float32).cuda()
-        rewards = torch.tensor(trajectories.rewards, dtype=torch.float32).cuda()
-        dones = torch.tensor(trajectories.dones, dtype=torch.float32).cuda()
+    def update(self, trajectories, epochs=5):
+        # Collect and concatenate data from all environments
+        states = []
+        actions = []
+        old_log_probs = []
+        rewards = []
+        dones = []
 
+        for env_id, buffer in trajectories.items():
+            states.append(np.array(buffer.states))
+            actions.append(np.array(buffer.actions))
+            old_log_probs.append(np.array(buffer.log_probs))
+            rewards.append(np.array(buffer.rewards))
+            dones.append(np.array(buffer.dones))
+
+        states = torch.tensor(np.concatenate(states, axis=0), dtype=torch.float32).cuda()
+        actions = torch.tensor(np.concatenate(actions, axis=0)).cuda()
+        old_log_probs = torch.tensor(np.concatenate(old_log_probs, axis=0), dtype=torch.float32).cuda()
+        rewards = torch.tensor(np.concatenate(rewards, axis=0), dtype=torch.float32).cuda()
+        dones = torch.tensor(np.concatenate(dones, axis=0), dtype=torch.float32).cuda()
+
+        # Compute advantages and returns
         state_values = self.value_network(states).squeeze().detach().cpu().numpy()
         advantages, returns = self.compute_gae(rewards.cpu().numpy(), state_values, dones.cpu().numpy())
 
         advantages = torch.tensor(advantages, dtype=torch.float32).cuda()
         returns = torch.tensor(returns, dtype=torch.float32).cuda()
 
+        # Create dataset and data loader
         dataset = torch.utils.data.TensorDataset(states, actions, old_log_probs, advantages, returns)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
         ep_actor_loss = 0
         ep_critic_loss = 0
+        num_batches = 0
 
-        for epoch in range(epochs):  # Number of training epochs
+        # Training loop
+        for epoch in range(epochs):
             for batch_states, batch_actions, batch_old_log_probs, batch_advantages, batch_returns in data_loader:
                 _, _, dist = self.policy_network.act(batch_states)
                 log_probs = self.logprobs(dist, batch_actions)
@@ -174,28 +200,27 @@ class PPOAgent(Agent):
                 surr2 = torch.clamp(ratios, 1 - self.params.eps_clip, 1 + self.params.eps_clip) * batch_advantages
                 state_values = self.value_network(batch_states).squeeze()
 
-                actor_loss = -torch.min(surr1, surr2).mean() - self.entropy_coef * entropy
-                critic_loss = nn.MSELoss()(state_values, batch_returns)
-                # loss = actor_loss + 0.5 * critic_loss
+                actor_loss = (-torch.min(surr1, surr2).mean() - self.entropy_coef * entropy) / batch_states.shape[0]
+                critic_loss = nn.MSELoss()(state_values, batch_returns) / batch_states.shape[0]
 
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 actor_loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 critic_loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
-                # episode_loss += loss.item()
                 ep_actor_loss += actor_loss.item()
                 ep_critic_loss += critic_loss.item()
+                num_batches += 1
 
-        self.entropy_coef *= 0.999
-
+        # Report averaged loss per epoch
         return {
-            "actor_loss": ep_actor_loss / epochs,
-            "critic_loss": ep_critic_loss / epochs
+            "actor_loss": ep_actor_loss / (num_batches * epochs),
+            "critic_loss": ep_critic_loss / (num_batches * epochs)
         }
+
 
     def act(self, state):
         return self.policy_network.act(state)

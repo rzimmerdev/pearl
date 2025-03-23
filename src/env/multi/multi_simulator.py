@@ -126,7 +126,8 @@ class MarketSimulator:
             quotes=[self.starting_value],
             drift=self.drift_rate,
             spread=self.spread_mean,
-            next_event=self.next_event(0, [])
+            next_event=self.next_event(0, []),
+            timestep=0,
         )
         self.user_variables = {agent_id: UserVariables() for agent_id in self.agent_ids}
 
@@ -141,7 +142,6 @@ class MarketSimulator:
             for order in orders:
                 self.lob.send_order(order)
             self.market_variables.quotes.append(self.midprice())
-            self.market_variables.timestep += self.dt
 
     @property
     def best_ask(self):

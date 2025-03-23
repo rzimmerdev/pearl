@@ -30,12 +30,12 @@ def main():
             attention_heads=4,
             hidden_dims=(128, 128),
             out_dims=(int(1e2) for _ in range(4))
-        ),
+        ).cuda(),
         value_network=MLP(
             in_dim=48,
             hidden_units=(128, 128),
             out_dim=1
-        ),
+        ).cuda(),
         params=PPOParams(
             gamma=0.99,
             gae_lambda=0.95,

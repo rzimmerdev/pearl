@@ -62,9 +62,6 @@ class EnvInterface(Interface):
             for env_id, action in actions.items()})
         return response
 
-    def __iter__(self):
-        return iter(self._envs.keys())
-
     def state(self) -> Dict[str, dict]:
         with httpx.Client() as client:
             states = {}
@@ -73,6 +70,17 @@ class EnvInterface(Interface):
                 response = client.get(f"{url}/state", params={"agent_id": env.agent_id})
                 states[env_id] = response.json()
             return states
+
+    def reset(self, env_ids: List[str]):
+        if not env_ids:
+            return
+        response = self._send({
+            env_id: self.encode({"type": "reset"}) for env_id in env_ids
+        })
+        return response
+
+    def __iter__(self):
+        return iter(self._envs.keys())
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):
         self.mesh.register(Server(mesh_host, mesh_port))

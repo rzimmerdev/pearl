@@ -23,3 +23,6 @@ class ReplayBuffer:
         self.log_probs = []
         self.rewards = []
         self.dones = []
+
+    def __len__(self):
+        return len(self.states)

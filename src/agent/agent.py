@@ -46,5 +46,9 @@ class Agent(ABC):
     def act(self, state):
         pass
 
+    @abstractmethod
+    def update(self, trajectories):
+        pass
+
     def __call__(self, *args, **kwargs):
         return self.act(*args, **kwargs)
