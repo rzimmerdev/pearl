@@ -3,12 +3,12 @@ import os
 from typing import Dict
 
 import torch
-from torch import optim
 from torch.utils.tensorboard import SummaryWriter
 
 from src.agent.agent import Agent
 from src.agent.replay_buffer import ReplayBuffer
 from src.env.multi.env_interface import EnvInterface
+from src.lib.benchmark import Benchmark
 
 
 class RLTrainer:
@@ -18,20 +18,18 @@ class RLTrainer:
         self.rollout_length = rollout_length
         self.path = path
 
-        # Ensure checkpoint directory exists
         if not os.path.exists(path):
             os.makedirs(path)
 
         files = os.listdir(path)
-        # use only files that only have a number
         latest = [f for f in files if f.isnumeric()]
         latest = sorted(latest, key=lambda x: int(x.split('_')[-1].split('.')[0]))
         self.newest_path = f'{path}/{len(latest)}'
         self.latest_path = f'{path}/{len(latest) - 1}' if len(latest) > 0 else None
         self.latest_path = f'{path}/{len(latest) - 1}' if len(latest) > 0 else None
 
-        # TensorBoard writer
         self.envs = envs
+        self.benchmark = Benchmark()
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
         reward_history = []
@@ -98,40 +96,42 @@ class RLTrainer:
         states = self.envs.state()
         timesteps = {env_id: 0 for env_id in self.envs}
 
-        env_ids = set(self.envs)
+        dones = set()
 
         for _ in range(self.rollout_length):
-            if not env_ids:
+            if dones == set(self.envs):
                 break
 
-            # transform states {env_id: state} into batch x state tensor, where (batch x state)[i] == envs.values()[i]
-            batch_states = torch.tensor([states[env_id] for env_id in env_ids], dtype=torch.float32).cuda()
+            self.benchmark.start("trainer", "act")
+            batch_states = torch.tensor([states[env_id] for env_id in self.envs], dtype=torch.float32).cuda()
             actions, log_prob, _ = self.agent(batch_states)
+            self.benchmark.stop("trainer", "act")
 
-            # action is of format [tensor(num_envs) for _ in range(action_dim)], but need [tensor(action_dim) for _ in range(num_envs)]
-            # transform back into {env_id: action} according to env_ids order
-            actions = {env_id: action.tolist() for env_id, action in zip(env_ids, actions)}
-            log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(env_ids, log_prob)}
+            actions = {env_id: action.tolist() for env_id, action in zip(self.envs, actions)}
+            log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(self.envs, log_prob)}
 
+            self.benchmark.start("trainer", "step")
             response = self.envs.step(actions, timesteps)
+            self.benchmark.stop("trainer", "step")
 
-            # store actions, log_probs, rewards, and next_states in respective ReplayBuffer
-            dones = []
+            self.benchmark.start("trainer", "reset")
             for env_id, data in response.items():
                 if data.get("timeout", False):
-                    raise TimeoutError(f"Env response timed out {response}")
+                    snapshot = self.envs.snapshot(env_id)
+                    timesteps[env_id] = snapshot["timestep"]
+                    continue
                 if "error" in data:
                     raise ValueError(f"Error in response: {response}")
                 details = data.pop("details")
                 timesteps[env_id] = details["timestep"]
                 trajectories[env_id].add(action=actions[env_id], log_prob=log_prob[env_id], **data)
 
-                # if done 1. call reset, 2. remove from env ids
                 if data['done']:
-                    dones.append(env_id)
-                    env_ids.remove(env_id)
+                    dones.add(env_id)
                 states[env_id] = data['state']
-            self.envs.reset(dones)
+            self.benchmark.stop("trainer", "reset")
+        self.envs.reset(list(self.envs))
+        print(self.benchmark.summary())
 
         return trajectories
 

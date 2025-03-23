@@ -117,7 +117,16 @@ class MarketEnv(gym.Env):
 
     def step(self, actions):
         previous_midprice = self.simulator.midprice()
-        delta, transactions, positions, observations = self.simulator.step(actions)
+        if not self.done:
+            delta, transactions, positions, observations = self.simulator.step(actions)
+        else:
+            return (
+                {agent_id: self._get_state(agent_id) for agent_id in self.agent_ids},
+                {agent_id: 0 for agent_id in self.agent_ids},
+                True,
+                False,
+                {}
+            )
         midprice = self.simulator.midprice()
         delta_midprice = midprice - previous_midprice
         self.quotes.append(midprice)
@@ -202,15 +211,11 @@ class MarketEnv(gym.Env):
             "market_timestep",
         ]
 
-    def snapshot(self):
+    def snapshot(self, agent_id):
         midprice = self.simulator.midprice()
-        position = {
-            agent_id: self.simulator.user_variables[agent_id].portfolio.position(midprice)
-            for agent_id in self.agent_ids
-        }
         return {
-            "position": position,
+            "position": self.simulator.user_variables[agent_id].portfolio.position(midprice),
             "midprice": midprice,
-            "events": self.events[-1],
-            "market_timestep": self.timestep,
+            "events": self.events[-1] if self.events else 0,
+            "timestep": self.timestep,
         }

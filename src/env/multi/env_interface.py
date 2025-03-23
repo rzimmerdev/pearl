@@ -62,6 +62,14 @@ class EnvInterface(Interface):
             for env_id, action in actions.items()})
         return response
 
+    def reset(self, env_ids: List[str]):
+        if not env_ids:
+            return
+        response = self._send({
+            env_id: self.encode({"type": "reset"}) for env_id in env_ids
+        })
+        return response
+
     def state(self) -> Dict[str, dict]:
         with httpx.Client() as client:
             states = {}
@@ -71,13 +79,13 @@ class EnvInterface(Interface):
                 states[env_id] = response.json()
             return states
 
-    def reset(self, env_ids: List[str]):
-        if not env_ids:
-            return
-        response = self._send({
-            env_id: self.encode({"type": "reset"}) for env_id in env_ids
-        })
-        return response
+    def snapshot(self, env_id):
+        with httpx.Client() as client:
+            env = self._envs[env_id]
+            url = env.snapshot.url
+            response = client.get(f"{url}/snapshot", params={"agent_id": env.agent_id})
+            response.raise_for_status()
+            return response.json()
 
     def __iter__(self):
         return iter(self._envs.keys())

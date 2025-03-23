@@ -10,6 +10,7 @@ from dxlib.storage import T
 from httpx import HTTPStatusError, ConnectError
 
 from src.lib import Router
+from src.lib.benchmark import Benchmark
 from src.lib.timer import Timer
 from src.env.multi.multi_env import MarketEnv
 
@@ -54,6 +55,8 @@ class MarketEnvService(Service, MarketEnv):
         }
         self.execute_lock = asyncio.Event()
         self.reset_flag = asyncio.Event()
+
+        self.benchmark = Benchmark()
 
     async def handle(self, identity, content):
         """Handle different types of messages asynchronously."""
@@ -103,11 +106,12 @@ class MarketEnvService(Service, MarketEnv):
             if len(self.action_buffer) == len(self.connections):
                 self.timer.stop()
                 await self.execute_step()
-            elif len(self.action_buffer) == 1:
-                self.timer.start(self.execute_step, True, self.action_buffer)
-                await self.sync["execute"].wait()
             else:
+                if len(self.action_buffer) == 1:
+                    asyncio.create_task(self.timer.start(self._execute_step))
+                self.benchmark.start(uuid, "action")
                 await self.sync["execute"].wait()
+                self.benchmark.stop(uuid, "action")
         return {
             "state": self.response["state"][uuid].tolist(),
             "reward": self.response["reward"][uuid],
@@ -119,10 +123,17 @@ class MarketEnvService(Service, MarketEnv):
     async def reset(self, **kwargs):
         super().reset(**kwargs)
         self.sync["reset"].notify_all()
-        print(self.timestep)
         self.reset_flag.clear()
 
+    async def _execute_step(self):
+        try:
+            await self.execute_step()
+        except RuntimeError as e:
+            # very likely tried to notify self.sync while not holding the lock, so just pass
+            pass
+
     async def execute_step(self):
+        self.benchmark.start("environment", "step")
         self.execute_lock.set()
         actions = {uuid: self.action_buffer[uuid] for uuid in self.action_buffer}
         self.action_buffer.clear()
@@ -132,6 +143,7 @@ class MarketEnvService(Service, MarketEnv):
         self.response = {"state": state, "reward": reward, "done": done, "trunc": trunc}
         self.sync["execute"].notify_all()
         self.execute_lock.clear()
+        self.benchmark.stop("environment", "step")
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):
         service_data = self.data()
@@ -168,39 +180,15 @@ class MarketEnvService(Service, MarketEnv):
             raise ValueError(f"Invalid agent_id {agent_id} for environment.")
         return self.state(agent_id).tolist()
 
+    @HttpEndpoint.get("/snapshot")
+    def get_snapshot(self, agent_id):
+        if not self.verify_id(agent_id):
+            raise ValueError(f"Invalid agent_id {agent_id} for environment.")
+        return self.snapshot(agent_id)
+
     @HttpEndpoint.post("/agent")
     def register_user(self, agent: AgentModel):
         agent_id = agent.agent_id
         if self.verify_id(agent_id):
             pass
         self.add_user(agent_id)
-
-
-if __name__ == "__main__":
-    host = "localhost"
-    mesh_host = "localhost"
-    server = FastApiServer(host, 5000)
-    env = MarketEnvService(host, 5001, n_levels=10, starting_value=100, dt=1 / 252 / 6.5 / 60)
-    mesh = MeshInterface()
-    mesh.register(Server(mesh_host, 8000))
-
-    server.register(env)
-    thread = threading.Thread(target=server.run)
-
-    try:
-        thread.start()
-        env.start()
-        mesh.register_service(env.data(server.url))
-        env.router.use_mesh("pearl", mesh_host, 8000, env.name, env.service_id)
-        while env.running:
-            pass
-    except KeyboardInterrupt:
-        pass
-    finally:
-        env.stop()
-        server.stop()
-        thread.join()
-        try:
-            mesh.deregister_service(env.name, env.service_id)
-        except ConnectError:
-            pass
