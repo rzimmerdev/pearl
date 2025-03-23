@@ -51,11 +51,15 @@ class EnvInterface(Interface):
     def register_user(self):
         response = self._send(self.encode({"type": "connect"}))
         print(f"Registered user with agent_id: {response}")
-        for env_id, agent_id in response.items():
-            self._envs[env_id].agent_id = agent_id
+        for env_id, msg in response.items():
+            if msg.get('status', None) != 'connected':
+                raise ValueError(f"Failed to connect to env: {env_id}")
+            self._envs[env_id].agent_id = msg['user']
 
-    def step(self, actions):
-        response = self._send({env_id: self.encode({"type": "action", "data": action}) for env_id, action in actions.items()})
+    def step(self, actions, timesteps):
+        response = self._send({
+            env_id: self.encode({"type": "action", "data": action, "timestep": timesteps[env_id]})
+            for env_id, action in actions.items()})
         return response
 
     def __iter__(self):

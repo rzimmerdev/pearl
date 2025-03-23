@@ -2,8 +2,6 @@ import json
 import threading
 from uuid import uuid4
 import logging
-from asyncio import CancelledError
-from json import JSONDecodeError
 
 import zmq
 import zmq.asyncio
@@ -32,12 +30,15 @@ class Router:
         self.task = None
         self.thread = None
 
+        self.queue = asyncio.Queue()
+        self.num_workers = 4
+
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(level)
 
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(log_format))
-        self.logger.addHandler(handler)
+        handle = logging.StreamHandler()
+        handle.setFormatter(logging.Formatter(log_format))
+        self.logger.addHandler(handle)
 
     def bind(self):
         self.socket.bind(f"tcp://{self.host}:{self.port}")
@@ -78,29 +79,37 @@ class Router:
             self.logger.info(f"Deregistering service {self.service.name} with id {self.service.service_id}")
             self.mesh.deregister_service(self.service.name, self.service.service_id)
 
-    async def listen(self, handler):
+    async def worker(self, handle):
+        """Worker task that processes messages asynchronously."""
+        while self.running:
+            identity, message = await self.queue.get()
+            try:
+                content = json.loads(message)
+                response = await handle(identity, content)
+                await self.socket.send_multipart([identity, json.dumps(response).encode()])
+            except json.JSONDecodeError:
+                await self.socket.send_multipart([identity, json.dumps({"error": "Invalid JSON"}).encode()])
+            except Exception as e:
+                await self.socket.send_multipart([identity, json.dumps({"error": str(e)}).encode()])
+            self.queue.task_done()
+
+    async def listen(self, handle):
+        """Receives messages and sends them to the queue for processing."""
+        for _ in range(self.num_workers):  # Start worker tasks
+            asyncio.create_task(self.worker(handle))
+
         while self.running:
             try:
                 identity, message = await self.socket.recv_multipart()
+                await self.queue.put((identity, message))
             except zmq.error.Again:
                 continue
             except zmq.error.ZMQError as e:
                 if e.errno == zmq.ETERM:
                     break
                 raise
-            except CancelledError:
+            except asyncio.CancelledError:
                 break
-
-            try:
-                content = json.loads(message)
-                response = handler(identity, content)
-                await self.socket.send_multipart([identity, json.dumps(response).encode()])
-            except JSONDecodeError as e:
-                print(f"Invalid message received: {message}")
-                await self.socket.send_multipart([identity, json.dumps({"error": "Expected JSON message"}).encode()])
-            except Exception as e:
-                await self.socket.send_multipart([identity, json.dumps({"error": "Error processing message: " + str(e)}).encode()])
-                raise
 
     @property
     def running(self):
@@ -121,11 +130,11 @@ class Router:
         if self.context:
             self.context.term()
 
-    def start(self, handler):
+    def start(self, handle):
         self._running.set()
         self.open()
         self.bind()
-        self.thread = threading.Thread(target=asyncio.run, args=(self.listen(handler),))
+        self.thread = threading.Thread(target=asyncio.run, args=(self.listen(handle),))
         self.thread.start()
 
         self.logger.info(f"Started server process {self.thread.ident}")

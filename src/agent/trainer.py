@@ -76,7 +76,7 @@ class RLTrainer:
                 trajectories = self.collect_trajectories()
                 # losses = self.agent.update(trajectories, self.optimizer)
                 losses = {}
-                episode_reward = sum(trajectories.rewards)
+                episode_reward = sum([sum(trajectory.rewards) for trajectory in trajectories.values()])
                 reward_history.append(episode_reward)
 
                 report({"reward": episode_reward})
@@ -94,6 +94,8 @@ class RLTrainer:
 
         # return average 100 last rewards or
         n = min(100, len(reward_history))
+        if n == 0:
+            return 0
         return sum(reward_history[-n:]) / n
 
     def collect_trajectories(self):
@@ -102,8 +104,7 @@ class RLTrainer:
             for env_id in self.envs
         }
         states = self.envs.state()
-
-        done = False
+        timesteps = {env_id: 0 for env_id in self.envs}
 
         for _ in range(self.rollout_length):
             # transform states {env_id: state} into batch x state tensor, where (batch x state)[i] == envs.values()[i]
@@ -118,16 +119,20 @@ class RLTrainer:
             actions = {env_id: action.tolist() for env_id, action in zip(env_ids, actions)}
             log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(env_ids, log_prob)}
 
-            response = self.envs.step(actions)
+            response = self.envs.step(actions, timesteps)
 
             # store actions, log_probs, rewards, and next_states in respective ReplayBuffer
             for env_id, data in response.items():
+                if data.get("timeout", False):
+                    raise TimeoutError(f"Env response timed out {response}")
+                if "error" in data:
+                    raise ValueError(f"Error in response: {response}")
+                details = data.pop("details")
+                timesteps[env_id] = details["timestep"]
                 trajectories[env_id].add(action=actions, log_prob=log_prob, **data)
 
             states = {env_id: data['state'] for env_id, data in response.items()}
             done = {env_id: data['done'] for env_id, data in response.items()}
-
-            print(states)
 
             if all(done_flag for done_flag in done.values()):
                 states = self.envs.state()
@@ -157,39 +162,3 @@ class RLTrainer:
         print(f'Loaded model from {self.latest_path}/{file}')
 
         return self.agent
-
-
-if __name__ == "__main__":
-    agent = PPOAgent(
-        MMPolicyNetwork(
-            in_features=8,
-            in_depth=10,
-            attention_heads=4,
-            hidden_dims=(128, 128),
-            out_dims=(int(1e2) for _ in range(4))
-        ),
-        value_network=MLP(
-            in_dim=48,
-            hidden_units=(128, 128),
-            out_dim=1
-        ),
-        params=PPOParams(
-            gamma=0.99,
-            gae_lambda=0.95,
-            eps_clip=0.2,
-            entropy_coef=0.01,
-        ),
-    )
-
-    envs = EnvInterface()
-
-    mesh_name = os.getenv("MESH_NAME", "pearl")
-    mesh_host = os.getenv("MESH_HOST", "localhost")
-    mesh_port = int(os.getenv("MESH_PORT", "5000"))
-
-    envs.use_mesh(mesh_name, mesh_host, mesh_port)
-    envs.register_user()
-
-    trainer = RLTrainer(agent, envs)
-    connect = {"type": "connect"}
-    trainer.train()
