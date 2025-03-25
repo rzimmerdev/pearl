@@ -9,10 +9,10 @@ from uuid import uuid4
 from dxlib.storage import T
 from httpx import HTTPStatusError, ConnectError
 
-from src.lib import Router
-from src.lib.benchmark import Benchmark
-from src.lib.timer import Timer
-from src.env.multi.multi_env import MarketEnv
+from pearl.lib import Router
+from pearl.lib.benchmark import Benchmark
+from pearl.lib.timer import Timer
+from pearl.envs.multi.multi_env import MarketEnv
 
 from dxlib.interfaces import HttpEndpoint, Service, Server
 from dxlib.interfaces.internal import MeshInterface

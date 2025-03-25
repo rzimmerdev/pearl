@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from src.agent.models.model import Model
+from pearl.agent.models.model import Model
 
 
 def default_reshape(action):

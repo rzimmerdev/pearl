@@ -5,10 +5,10 @@ from typing import Dict
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from src.agent.agent import Agent
-from src.agent.replay_buffer import ReplayBuffer
-from src.env.multi.env_interface import EnvInterface
-from src.lib.benchmark import Benchmark
+from pearl.agent.agent import Agent
+from pearl.agent.replay_buffer import ReplayBuffer
+from pearl.envs.multi.env_interface import EnvInterface
+from pearl.lib.benchmark import Benchmark
 
 
 class RLTrainer:

@@ -10,7 +10,7 @@ from dxlib.interfaces import Interface, Server, Protocols, ServiceData
 from dxlib.interfaces.internal import MeshInterface
 from httpx import ConnectError
 
-from src.lib import Dealer
+from pearl.lib import Dealer
 
 
 @dataclass

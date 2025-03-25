@@ -3,7 +3,7 @@ import gymnasium as gym
 from gymnasium import spaces
 from itertools import islice
 
-from src.env.multi.multi_simulator import MarketSimulator  # Import the multi-agent simulator
+from pearl.envs.multi.multi_simulator import MarketSimulator  # Import the multi-agent simulator
 
 
 class Observation:

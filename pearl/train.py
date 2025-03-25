@@ -1,19 +1,16 @@
-import os
+from pearl.load_mesh import load_config
+from pearl.envs.multi.env_interface import EnvInterface
 
-from src.agent.models.mlp import MLP
-from src.agent.models.mm_policy import MMPolicyNetwork
-from src.agent.ppo import PPOAgent, PPOParams
-from src.agent.trainer import RLTrainer
-from src.env.multi.env_interface import EnvInterface
+from pearl.agent.models.mlp import MLP
+from pearl.agent.models.mm_policy import MMPolicyNetwork
+from pearl.agent.ppo import PPOAgent, PPOParams
+from pearl.agent.trainer import RLTrainer
 
 
-def main():
+def main(config=None):
+    host, mesh_name, mesh_host, mesh_port = load_config(config)
+
     envs = EnvInterface()
-
-    mesh_name = os.getenv("MESH_NAME", "pearl")
-    mesh_host = os.getenv("MESH_HOST", "localhost")
-    mesh_port = int(os.getenv("MESH_PORT", "5000"))
-
     try:
         envs.use_mesh(mesh_name, mesh_host, mesh_port)
     except Exception as e:

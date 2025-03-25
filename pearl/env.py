@@ -1,4 +1,3 @@
-import os
 import threading
 from urllib.parse import urlparse
 
@@ -8,14 +7,12 @@ from dxlib.interfaces import Server
 from dxlib.interfaces.internal import MeshInterface
 from dxlib.interfaces.services.http.fastapi import FastApiServer
 
-from src.env.multi import MarketEnvService
+from pearl.envs.multi import MarketEnvService
+from pearl.load_mesh import load_config
 
 
-def main():
-    host = os.getenv("HOST", "localhost")
-    mesh_name = os.getenv("MESH_NAME", "pearl")
-    mesh_host = os.getenv("MESH_HOST", "localhost")
-    mesh_port = int(os.getenv("MESH_PORT", "5000"))
+def main(config=None):
+    host, mesh_name, mesh_host, mesh_port = load_config(config)
     server_intervals = set(range(5001, 5010))
     router_intervals = set(range(5011, 5020))
 
