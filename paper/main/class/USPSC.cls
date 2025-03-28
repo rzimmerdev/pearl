@@ -1,36 +1,9 @@
 %% USPSC.cls v3.2
-%% A Classe USPSC 16/06/2016 é uma derivada da abntex2.cls, v-1.9.5 para as Unidades do %% Campus USP de São Carlos:
-%% EESC - Escola de Engenharia de São Carlos
-%% IAU - Instituto de Arquitetura e Urbanismo
-%% ICMC - Instituto de Ciências Matemáticas e de Computação
-%% IFSC - Instituto de Física de São Carlos
-%% IQSC - Instituto de Química de São Carlos
-%%
-%% A classe USPSC consiste dos arquivos USPSC.cls e USPSC1.cls, integra o 
-%% Pacote USPSC que é mantido pela seguinte equipe:
-%% Programação:
-%%   - Marilza Aparecida Rodrigues Tognetti - marilza@sc.usp.br (PUSP-SC)
-%%   - Ana Paula Aparecida Calabrez - aninha@sc.usp.br (PUSP-SC)
-%% Normalização:
-%%   - Brianda de Oliveira Ordonho Sigolo - brianda@usp.br (IAU)
-%%   - Eduardo Graziosi Silva - edu.gs@sc.usp.br (EESC)
-%%   - Eliana de Cássia Aquareli Cordeiro - eliana@iqsc.usp.br (IQSC)
-%%   - Flávia Helena Cassin - cassinp@sc.usp.br (EESC)
-%%   - Maria Cristina Cavarette Dziabas - mcdziaba@ifsc.usp.br (IFSC)
-%%   - Regina Célia Vidal Medeiros - rcvmat@icmc.usp.br (ICMC)
-%%
-%% Sobre a classe abntex2.cls:
-%% abntex2.cls, v-1.9.5 laurocesar
-%% Copyright 2012-2015 by abnTeX2 group at https://www.abntex.net.br/ 
-%%
-
-% ------------------------------------------------------------------------
 % ------------------------------------------------------------------------
 % Declaracao da classe USPSC como uma extensao da classe memoir (extensão da abntex2)
 % ------------------------------------------------------------------------
-% ------------------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{USPSC-classe/USPSC}[01/06/2021 v3.1 USPSC]
+\ProvidesClass{class/USPSC}[01/06/2021 v3.1 USPSC]
 \RequirePackage{ifthen}
 %
 % Captura as options article e twocolumn
@@ -343,7 +316,7 @@
 		\parbox[b][\paperheight]{\paperwidth}{
 			\vfill
 			\centering
-			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{USPSC-img/CapaICMC.jpg}
+			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{img/CapaICMC.jpg}
 			\vfill
 }}}
 \makeatother
@@ -354,7 +327,7 @@
 		\parbox[b][\paperheight]{\paperwidth}{
 			\vfill
 			\centering
-			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{USPSC-img/USPSC-PaginaEmBranco.jpg}
+			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{img/USPSC-PaginaEmBranco.jpg}
 			\vfill
 }}}		
 \makeatother				
@@ -1278,7 +1251,7 @@
 % ---
 
 % Chamanda para dados pre-textuais
-\include{USPSC-unidades}  
+\include{/home/rzimmerdev/Workspace/research/tcc/paper/main/USPSC-unidades}
 %
 
 % ------------------------------------------------------------------------
