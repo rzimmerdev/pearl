@@ -18,8 +18,10 @@ class RLTrainer:
         self.rollout_length = rollout_length
         self.path = path
 
-        if not os.path.exists(path):
+        try:
             os.makedirs(path)
+        except FileExistsError:
+            pass
 
         files = os.listdir(path)
         latest = [f for f in files if f.isnumeric()]
@@ -34,8 +36,10 @@ class RLTrainer:
     def train(self, num_episodes=1000, report=None, checkpoint=False):
         reward_history = []
 
-        if not os.path.exists(self.newest_path):
+        try:
             os.makedirs(self.newest_path)
+        except FileExistsError:
+            pass
 
         if report is None:
             def report(*args, **kwargs):
@@ -116,10 +120,13 @@ class RLTrainer:
 
             self.benchmark.start("trainer", "reset")
             for env_id, data in response.items():
-                if data.get("timeout", False):
+                if data.get("timeout", False) or data.get("busy", False):
+                    # if busy the environment is very likely currently being step'd
+                    # so whatever was sent will likely not be processed for the agent's sake (to save the agent from adverse lag)
                     snapshot = self.envs.snapshot(env_id)
                     timesteps[env_id] = snapshot["timestep"]
                     continue
+
                 if "error" in data:
                     raise ValueError(f"Error in response: {response}")
                 details = data.pop("details")

@@ -22,7 +22,7 @@ class Timer:
         self.reset()
 
         while self.running and not self.is_timeout():
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(1e-1)
 
         if self.running:
             await callback(*args, **kwargs)

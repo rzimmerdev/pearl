@@ -93,11 +93,15 @@ class MarketEnvService(Service, MarketEnv):
 
         # Store the action data for the user
         if self.execute_lock.is_set():
+            print(f"Environment is busy, try again later: {content} - {self.service_id}")
             return {"error": "Environment is busy, try again later",
-                    "timeout": True}
+                    "busy": True}
         elif "timestep" not in content:
+            print(f"No desired timestep in message: {content} - {self.timestep}")
             return {"error": "No desired timestep in message", "timeout": True}
         elif content.get("timestep", 0) < self.timestep:
+            print(
+                f"Old timestep, send message before market timeout in 'timestep' (s) field: {content} - {self.timestep}")
             return {"error": "Old timestep, send message before market timeout in 'timestep' (s) field",
                     "timeout": True}
 
@@ -121,16 +125,18 @@ class MarketEnvService(Service, MarketEnv):
         }
 
     async def reset(self, **kwargs):
+        self.timer.stop()
         super().reset(**kwargs)
         self.sync["reset"].notify_all()
         self.reset_flag.clear()
+        self.execute_lock.clear()
 
     async def _execute_step(self):
         try:
             await self.execute_step()
         except RuntimeError as e:
-            # very likely tried to notify self.sync while not holding the lock, so just pass
-            pass
+            print(f"Error executing step: {e}")
+            self.execute_lock.clear()
 
     async def execute_step(self):
         self.benchmark.start("environment", "step")
