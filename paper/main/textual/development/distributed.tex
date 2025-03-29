@@ -1,0 +1,71 @@
+%! Author = rzimmerdev
+%! Date = 3/28/25
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+
+% Document
+\begin{document}
+    \subsection{Parallel Environments for Asynchronous Reinforcement Learning (PEARL)}
+    \label{subsec:pearl}
+    The proposed architecture builds on the core idea of sharing a single, highly parallel environment among multiple agents while
+    maintaining an efficient and scalable actor–learner framework.
+    In contrast to conventional distributed reinforcement learning systems—where each worker simulates an independent environment instance—
+    the shared environment paradigm leverages a unified simulation that is concurrently accessed by multiple workers.
+    This design minimizes redundant computations and memory overhead,
+    which is especially critical in high-frequency trading simulations where the fidelity and speed of the limit order book (LOB) dynamics are paramount.
+
+    At the heart of the architecture lies a central learner that manages the global policy.
+    Upon initialization, the learner spawns several worker processes using Python's multiprocessing library.
+    Each worker retrieves the latest version of the shared policy and uses it to interact with the common environment.
+    In this setup, workers act as both data collectors and order executors: they send orders (actions) to the LOB simulation,
+    receive market updates, and construct trajectories that capture the sequence of states, actions, and rewards.
+    By sharing the environment, workers benefit from a consistent and synchronized view of the simulated market,
+    which enhances the quality of the experience data collected.
+
+    Communication between the learner and workers is designed to be asynchronous.
+    Workers submit their generated trajectories to the learner via a high-performance messaging layer implemented with ZeroMQ\@.
+    This asynchronous mechanism enables workers to operate independently—without waiting for policy updates—
+    thereby reducing idle time and mitigating the staleness issues often encountered in distributed setups
+
+    % graphics for diagrams/pearl_architecture.pdf
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=0.8\textwidth]{diagrams/pearl_architecture.pdf}
+        \caption{Overview of the Parallel Environments for Asynchronous Reinforcement Learning (PEARL) framework.}
+        \label{fig:pearl_architecture}
+    \end{figure}
+
+    Meanwhile, the learner continuously processes incoming trajectories from the workers, updates the global policy using reinforcement learning algorithms,
+    and the workers can call the shared agent parameters at any time.
+    This cycle ensures that while each worker may temporarily operate on slightly outdated policy parameters,
+    the overall system converges steadily as fresh data are incorporated into the learner's updates.
+
+    By allowing the workers to share a common environment and asynchronously update the global policy,
+    the proposed architecture aims to strike a balance between computational efficiency and learning performance.
+    The computational load—especially during intensive simulations and gradient computations—is balanced effectively
+    across the workers, due to the pooled resource utilization.
+    The worker pool design also contributes to reducing the overall system latency,
+    as workers can operate and unlock their individual threads while waiting for the environment to synchronize other agents and return a new state.
+    In traditional architectures, the cost of transferring model parameters and simulation data between isolated environment instances can introduce significant delays.
+    By contrast, our approach minimizes such overhead by centralizing the learner weights and leveraging efficient, low-latency communication channels.
+    This architecture is particularly well-suited for real-time applications, such as high-frequency trading,
+    where even minor delays can adversely affect performance.
+
+    In summary, this integrated system architecture—comprising a shared simulation environment, an asynchronous actor–learner framework, and
+    a robust communication backbone—addresses many of the limitations inherent in earlier distributed reinforcement learning approaches.
+    By combining the advantages of shared resource utilization with scalable, asynchronous updates, the architecture provides a solid foundation for
+    developing reinforcement learning systems capable of operating effectively in complex, dynamic domains.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{diagrams/pipeline.pdf}
+        \caption{Illustration of the pipeline between learners, their workers and a single environment instance.}
+        \label{fig:lob_simulation}
+    \end{figure}
+
+
+\end{document}

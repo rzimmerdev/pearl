@@ -1,0 +1,36 @@
+%! Author = rzimmerdev
+%! Date = 3/28/25
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+
+% Document
+\begin{document}
+    \subsection{Communication Protocols and Network Layout}
+    \label{subsec:communication}
+
+    % diagram for diagrams/service_mesh.pdf
+    % and diagrams/communication.pdf
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=0.5\textwidth]{diagrams/service_mesh}
+        \caption{Overview of the service mesh architecture for communication between agents and the central learner.}
+        \label{fig:service_mesh}
+    \end{figure}
+
+    The communication infrastructure of the system is designed to support the asynchronous interaction between agents and the central learner.
+
+    The service mesh architecture, illustrated in \autoref{fig:service_mesh}, provides a scalable and fault-tolerant communication layer that connects the distributed components of the system.
+    The communication between agents and the central learner is facilitated by a high-performance messaging layer implemented with ZeroMQ.
+
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=0.8\textwidth]{diagrams/communication}
+        \caption{Communication flow between agents and the central learner using ZeroMQ messaging.}
+        \label{fig:communication}
+    \end{figure}
+
+\end{document}

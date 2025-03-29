@@ -7,8 +7,18 @@ from pearl.agent.ppo import PPOAgent, PPOParams
 from pearl.agent.trainer import RLTrainer
 
 
-def main(config=None):
+def load_traing_config(config):
+    rollout_length = config.get("ROLLOUT_LENGTH", 2048)
+    path = config.get("PATH", "runs")
+    num_episodes = config.get("NUM_EPISODES", 1000)
+    batch_size = config.get("BATCH_SIZE", 64)
+
+    return rollout_length, path, num_episodes, batch_size
+
+
+def main(config=None, train_config=None):
     host, mesh_name, mesh_host, mesh_port = load_config(config)
+    rollout_length, path, num_episodes, batch_size = load_traing_config(train_config)
 
     envs = EnvInterface()
     try:
@@ -39,10 +49,11 @@ def main(config=None):
             eps_clip=0.2,
             entropy_coef=0.01,
         ),
+        batch_size=batch_size
     )
 
-    trainer = RLTrainer(agent, envs)
-    trainer.train()
+    trainer = RLTrainer(agent, envs, path=path, rollout_length=rollout_length)
+    return trainer.train(num_episodes=num_episodes)
 
 
 if __name__ == "__main__":

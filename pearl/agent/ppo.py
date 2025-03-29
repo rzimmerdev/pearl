@@ -42,20 +42,19 @@ class PPOAgent(Agent):
                  batch_size=32):
         """
         Initialize the PPO agent.
-
-        Args:
-            num_features: The number of features in the state space.
-            num_depth: The depth of the state space.
-            action_dim: The dimension of the action space.
-            policy_hidden_dims (tuple): The dimensions of the hidden layers in the policy network.
-            value_hidden_dims (tuple): The dimensions of the hidden layers in the value network.
-            attention_heads (int): The number of attention heads in the policy network.
-            action_reshape (function): A function to reshape the action output from the policy network.
-            gamma (float): Discount factor for returns.
-            eps_clip (float): Clip parameter used in loss calculation.
-            gae_lambda (float): GAE coefficient, affects the balance between bias and variance.
-            entropy_coef (float): Entropy coefficient, affects the exploration-exploitation trade-off.
         """
+        # num_features: The number of features in the state space.
+        # num_depth: The depth of the state space.
+        # action_dim: The dimension of the action space.
+        # policy_hidden_dims (tuple): The dimensions of the hidden layers in the policy network.
+        # value_hidden_dims (tuple): The dimensions of the hidden layers in the value network.
+        # attention_heads (int): The number of attention heads in the policy network.
+        # action_reshape (function): A function to reshape the action output from the policy network.
+        # gamma (float): Discount factor for returns.
+        # eps_clip (float): Clip parameter used in loss calculation.
+        # gae_lambda (float): GAE coefficient, affects the balance between bias and variance.
+        # entropy_coef (float): Entropy coefficient, affects the exploration-exploitation trade-off.
+
         # self.policy_network = MMPolicyNetwork(
         #     in_features=num_features,
         #     in_depth=num_depth,

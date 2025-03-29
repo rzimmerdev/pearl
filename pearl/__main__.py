@@ -9,13 +9,16 @@ import pearl.mesh
 def run_env(config=None):
     pearl.env.main(config)
 
-def run_train(config=None):
-    pearl.train.main(config)
+def run_train(config=None, train_config=None, queue=None):
+    result = pearl.train.main(config, train_config)
+    if queue is not None:
+        queue.put(result)
 
 def run_mesh(config=None):
     pearl.mesh.main(config)
 
-if __name__ == "__main__":
+
+def main():
     n_envs = 2
     n_trainers = 2
 
@@ -24,6 +27,13 @@ if __name__ == "__main__":
         "MESH_NAME": os.getenv("MESH_NAME", "pearl"),
         "MESH_HOST": os.getenv("MESH_HOST", "localhost"),
         "MESH_PORT": os.getenv("MESH_PORT", 5000),
+    }
+
+    train_config = {
+        "ROLLOUT_LENGTH": os.getenv("ROLLOUT_LENGTH", 2048),
+        "PATH": os.getenv("PATH", "runs"),
+        "NUM_EPISODES": os.getenv("NUM_EPISODES", 10),
+        "BATCH_SIZE": os.getenv("BATCH_SIZE", 64),
     }
 
     mesh_process = multiprocessing.Process(target=run_mesh, args=(dotenv_config,))
@@ -40,7 +50,8 @@ if __name__ == "__main__":
     time.sleep(2)
 
     # Start train processes
-    train_processes = [multiprocessing.Process(target=run_train) for _ in range(n_trainers)]
+    queue = multiprocessing.Queue()
+    train_processes = [multiprocessing.Process(target=run_train, args=(dotenv_config, train_config, queue)) for _ in range(n_trainers)]
     for p in train_processes:
         p.start()
 
@@ -58,3 +69,12 @@ if __name__ == "__main__":
     for p in env_processes:
         p.join()
     mesh_process.join()
+
+    print("Training ended.")
+    print("Results:")
+    while not queue.empty():
+        print(queue.get())
+
+
+if __name__ == "__main__":
+    main()
