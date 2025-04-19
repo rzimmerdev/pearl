@@ -1,5 +1,6 @@
 import json
 import threading
+from typing import Optional
 from uuid import uuid4
 import logging
 
@@ -7,9 +8,9 @@ import zmq
 import zmq.asyncio
 import asyncio
 
-from dxlib.interfaces import Protocols
-from dxlib.interfaces.internal.mesh import MeshInterface
-from dxlib.interfaces.services import ServiceData, Server
+from dxlib.network.servers import Protocols, Server
+from dxlib.network.interfaces.internal.mesh import MeshInterface
+from dxlib.network.services import ServiceData
 from httpx import HTTPStatusError
 
 log_format = "%(levelname)s:     %(message)s"
@@ -21,7 +22,7 @@ class Router:
         self.socket = None
         self.host = host
         self.port = port
-        self.mesh: MeshInterface | None = None
+        self.mesh: Optional[MeshInterface] = None
 
         self.service = None
 

@@ -16,7 +16,7 @@ def load_traing_config(config):
     return rollout_length, path, num_episodes, batch_size
 
 
-def main(config=None, train_config=None):
+def main(config=None, train_config=None) -> list:
     host, mesh_name, mesh_host, mesh_port = load_config(config)
     rollout_length, path, num_episodes, batch_size = load_traing_config(train_config)
 
@@ -26,7 +26,7 @@ def main(config=None, train_config=None):
     except Exception as e:
         print(f"Failed to connect to mesh service: {e}")
         print(f"Are you sure the mesh service is running on {mesh_host}:{mesh_port} (try loading variables from .env)?")
-        return
+        raise e
 
     envs.register_user()
 

@@ -1,20 +1,21 @@
+import logging
 import threading
 from urllib.parse import urlparse
 
 from httpx import ConnectError
 
-from dxlib.interfaces import Server
-from dxlib.interfaces.internal import MeshInterface
-from dxlib.interfaces.services.http.fastapi import FastApiServer
+from dxlib.network.servers import Server
+from dxlib.network.interfaces.internal import MeshInterface
+from dxlib.network.servers.http.fastapi import FastApiServer
 
 from pearl.envs.multi import MarketEnvService
 from pearl.load_mesh import load_config
 
 
-def main(config=None):
+def main(max_envs: int, config=None):
     host, mesh_name, mesh_host, mesh_port = load_config(config)
-    server_intervals = set(range(5001, 5010))
-    router_intervals = set(range(5011, 5020))
+    server_intervals = set(range(5001, 5001 + max_envs))
+    router_intervals = set(range(5002 + max_envs, 5002 + 2*max_envs))
 
     mesh = MeshInterface()
     mesh.register(Server(mesh_host, mesh_port))
@@ -39,7 +40,7 @@ def main(config=None):
                         parsed = urlparse(route)
                         router_intervals.discard(int(parsed.port))
 
-    server = FastApiServer(host, server_intervals.pop())
+    server = FastApiServer(host, server_intervals.pop(), log_level=logging.WARNING)
     env = MarketEnvService(host, router_intervals.pop(), n_levels=10, starting_value=100, dt=1 / 252 / 6.5 / 60)
 
     server.register(env)
@@ -62,7 +63,3 @@ def main(config=None):
             mesh.deregister_service(env.name, env.service_id)
         except ConnectError:
             pass
-
-
-if __name__ == "__main__":
-    main()

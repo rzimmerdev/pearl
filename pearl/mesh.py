@@ -1,5 +1,5 @@
-from dxlib.interfaces.internal import MeshService
-from dxlib.interfaces.services.http.fastapi import FastApiServer
+from dxlib.network.interfaces.internal import MeshService
+from dxlib.network.servers.http.fastapi import FastApiServer
 
 from pearl.load_mesh import load_config
 

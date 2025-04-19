@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Optional, Union
 
 import numpy as np
-from dxlib.orders import LimitOrderBook, Order, Transaction
-from dxlib.dynamics import GeometricBrownianMotion, CoxIngersollRoss, OrnsteinUhlenbeck, Hawkes
+from dxlib.orders import OrderBook as LimitOrderBook, Order, Transaction
+from dxlib.core.dynamics import GeometricBrownianMotion, CoxIngersollRoss, OrnsteinUhlenbeck, Hawkes
 
 
 @dataclass
@@ -37,8 +37,8 @@ class UserVariables:
     bid: Order = None
     ask: Order = None
     # currently placed orders
-    ask_placed: Order | None = None
-    bid_placed: Order | None = None
+    ask_placed: Optional[Order] = None
+    bid_placed: Optional[Order] = None
 
     def set_quote(self, order, side):
         setattr(self, side, order)
@@ -222,7 +222,7 @@ class MarketSimulator:
     def position(self, agent_id):
         return self.user_variables[agent_id].portfolio.position(self.midprice())
 
-    def make_orders(self, action: list | tuple | np.ndarray):
+    def make_orders(self, action: Union[list, tuple, np.ndarray]):
         return Order(action[0], action[1], 'bid'), Order(action[2], action[3], 'ask')
 
     def next_event(self, timestep, events):

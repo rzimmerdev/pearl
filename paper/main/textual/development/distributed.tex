@@ -57,47 +57,6 @@
     This architecture is particularly well-suited for real-time applications, such as high-frequency trading,
     where even minor delays can adversely affect performance.
 
-%    \begin{algorithm}
-%        \begin{algorithmic}[1]
-%            \Require Environment, PPO model, optimizer, number of episodes $num\_episodes$
-%            \For{each episode in range $num\_episodes$}
-%                \State Reset environment and observe initial state $s$
-%                \For{each timestep until episode ends}
-%                    \State Select action $a \sim \pi_{\theta}(s)$
-%                    \State Observe reward $R_t$ and next state $s'$
-%                    \State Store transition $(s, a, r)$ in the trajectory buffer
-%                    \State Set $s \leftarrow s'$
-%                \EndFor
-%                \State \textbf{Compute GAE and Returns} // Policy evaluation
-%                \State \textbf{Update parameters} $\boldsymbol{\theta}$ \textbf{and} $\boldsymbol{\phi}$ // Policy improvement
-%            \EndFor
-%        \end{algorithmic}
-%        \caption{Generic Training Loop for PPO}
-%        \label{alg:algorithm}
-%    \end{algorithm}
-
-%    for _ in range(self.rollout_length):
-%        if dones == set(self.envs):
-%        break
-%
-%        batch_states = torch.tensor([states[env_id] for env_id in self.envs], dtype=torch.float32).cuda()
-%        actions, log_prob, _ = self.agent(batch_states)
-%
-%        response = self.envs.step(actions, timesteps)
-%
-%        for env_id, data in response.items():
-%            if data.get("timeout", False) or data.get("busy", False):
-%                timesteps = self.envs.snapshot(env_id)["timestep"]
-%                continue
-%
-%            trajectories[env_id].add(actions[env_id], log_prob[env_id], **data)
-%
-%            if data['done']:
-%                dones.add(env_id)
-%            states = data['state']
-%
-%        self.envs.reset(list(self.envs))
-
     \begin{algorithm}
         \begin{algorithmic}[1]
             \Require Environments, Policy $\pi_{\theta}$, Rollout length $T$
@@ -110,12 +69,12 @@
                 \State Select actions $\mathbf{a} \sim \pi_{\theta}(\mathbf{s})$
                 \State Send actions $\mathbf{a}$ to each corresponding environment asynchronously
                 \State \textbf{async for} {each environment $i$ in Environments}
-                    \State $\quad$ Receive response $\mathbf{r}_i$ from environment $i$
-                    \State $\quad$ Store transition $(\mathbf{s}_i, \mathbf{a}_i, \mathbf{r}_i)$ in the trajectory buffer
-                    \State $\quad$ Set $\mathbf{s}_i \leftarrow \mathbf{s'}_i$
-                    \State $\quad$ \textbf{if} environment $i$ is done
-                        \State $\quad$$\quad$Remove environment $i$ from current rollout environments
-                    \State $\quad$ \textbf{end if}
+                \State $\quad$ Receive response $\mathbf{r}_i$ from environment $i$
+                \State $\quad$ Store transition $(\mathbf{s}_i, \mathbf{a}_i, \mathbf{r}_i)$ in the trajectory buffer
+                \State $\quad$ Set $\mathbf{s}_i \leftarrow \mathbf{s'}_i$
+                \State $\quad$ \textbf{if} environment $i$ is done
+                \State $\quad$$\quad$Remove environment $i$ from current rollout environments
+                \State $\quad$ \textbf{end if}
                 \State \textbf{end for}
             \EndFor
             \State $\textbf{Return}$ trajectory buffers
@@ -124,10 +83,16 @@
         \label{alg:trajectory}
     \end{algorithm}
 
-    In summary, this integrated system architecture—comprising a shared simulation environment, an asynchronous actor–learner framework, and
-    a robust communication backbone—addresses many of the limitations inherent in earlier distributed reinforcement learning approaches.
-    By combining the advantages of shared resource utilization with scalable, asynchronous updates, the architecture provides a solid foundation for
-    developing reinforcement learning systems capable of operating effectively in complex, dynamic domains.
+    Internally, the learner creates a worker pool before starting the training loop, and the Dealer is then responsible
+    for sending each step request asynchronously to each environment Router.
+    The environment then waits for either all actions to be received or for a small timeout interval to be reached,
+    and returns the results to the learner.
+    Since all environments are executed in separate processes/distributed nodes, the learner can continue to process the
+    received trajectories while waiting for each asynchronous environment to respond,
+    and thus the rollout speed is determined by the speed of the slowest environment.
+    This is becomes a significant bottleneck if the environments have different processing speeds,
+    but due to the nature of the limit order book simulation, the processing time is, although large,
+    still relatively consistent across all environments, and the hard timeout also contributes to minimizing stragglers.
 
     \begin{figure}
         \centering
@@ -136,5 +101,28 @@
         \label{fig:lob_simulation}
     \end{figure}
 
+    In summary, this integrated system architecture—comprising a shared simulation environment, an asynchronous actor–learner framework, and
+    a robust communication backbone—addresses many of the limitations inherent in earlier distributed reinforcement learning approaches.
+    By combining the advantages of shared resource utilization with scalable, asynchronous updates, the architecture provides a solid foundation for
+    developing reinforcement learning systems capable of operating effectively in complex, dynamic domains.
+    We implemented both the independent process workers and shared process for learner/workers,
+    and decided to use the shared process due to the increased efficiency of running the forward and backward batched passes
+    for all environments being faster than the speed gain of running the rollout in parallel.
+
+    \begin{table}[h!]
+        \centering
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \textbf{Operation} & \textbf{Parallel Workers} & \textbf{Shared Learner/Worker Process} \\
+            \hline
+
+            Act & \SI{35.142}{\milli\second} & \SI{3.113}{\milli\second} \\
+            Step & \SI{40.554}{\milli\second} &\SI{48.984}{\milli\second} \\
+            Reset & \SI{12.709}{\micro\second} & \SI{12.302}{\micro\second} \\
+            \hline
+        \end{tabular}
+        \caption{Trainer time benchmarks for ten worker instances. All operations are the average time for 100 episodes taken for each operation per rollout.}
+        \label{tab:table}
+    \end{table}
 
 \end{document}

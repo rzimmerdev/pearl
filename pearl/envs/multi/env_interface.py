@@ -1,13 +1,13 @@
 import json
-import os
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 import httpx
 from urllib.parse import urlparse
 
-from dxlib.interfaces import Interface, Server, Protocols, ServiceData
-from dxlib.interfaces.internal import MeshInterface
+from dxlib.network.interfaces import Interface
+from dxlib.network.servers import Server, Protocols
+from dxlib.network.interfaces.internal import MeshInterface
 from httpx import ConnectError
 
 from pearl.lib import Dealer
@@ -17,7 +17,7 @@ from pearl.lib import Dealer
 class Env:
     router: Server
     snapshot: Server
-    agent_id: str | None = None
+    agent_id: Optional[str] = None
 
 
 class EnvInterface(Interface):
@@ -104,16 +104,3 @@ class EnvInterface(Interface):
             self._envs[service.service_id] = Env(router, server)
 
         self.dealer.register({service_id: env.router.url for service_id, env in self._envs.items()})
-
-
-if __name__ == "__main__":
-    mesh_name = os.getenv("MESH_NAME")
-    mesh_host = os.getenv("MESH_HOST")
-    mesh_port = int(os.getenv("MESH_PORT"))
-    envs = EnvInterface()
-    envs.use_mesh(mesh_name, mesh_host, mesh_port)
-    envs.register_user()
-    print(envs.state())
-
-    response = envs.step([0.1, 0.2, 0.3, 0.4])
-    print(response)

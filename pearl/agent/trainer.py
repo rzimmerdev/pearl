@@ -1,5 +1,5 @@
-import json
 import os
+import time
 from typing import Dict
 
 import torch
@@ -54,6 +54,8 @@ class RLTrainer:
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
         reward_history = []
+        loss_history = []
+        total_updates = 0
 
         try:
             os.makedirs(self.newest_path)
@@ -66,28 +68,29 @@ class RLTrainer:
 
         writer = SummaryWriter(log_dir=self.newest_path)
         checkpoint = self.checkpoint(checkpoint, writer)
-
+        start = time.time()
         try:
             for episode in range(num_episodes):
                 trajectories = self.collect_trajectories()
-                losses = self.agent.update(trajectories)
+                episode_losses, updates = self.agent.update(trajectories)
                 episode_reward = sum([sum(trajectory.rewards) for trajectory in trajectories.values()])
-                reward_history.append(episode_reward)
+                reward_history.append((time.time() - start, episode_reward))
+                loss_history.append(episode_losses["actor_loss"])
 
                 report({"reward": episode_reward})
-                print(f"Episode {episode}, Reward: {episode_reward}, Loss: {losses}")
 
-                values = {key: value for key, value in losses.items()}
+                values = {key: value for key, value in episode_losses.items()}
                 values = {**values, "reward": episode_reward}
 
-                checkpoint(episode, episode_reward, losses, values)
+                checkpoint(episode, episode_reward, episode_losses, values)
+                total_updates += updates
 
         except KeyboardInterrupt:
             pass
 
         writer.close()
 
-        return reward_history
+        return reward_history, loss_history, total_updates
 
     def collect_trajectories(self) -> Dict[str, ReplayBuffer]:
         trajectories = {
@@ -135,6 +138,5 @@ class RLTrainer:
                 states[env_id] = data['state']
             self.benchmark.stop("trainer", "reset")
         self.envs.reset(list(self.envs))
-        print(self.benchmark.summary())
 
         return trajectories

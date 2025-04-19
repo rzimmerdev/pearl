@@ -1,22 +1,21 @@
 import asyncio
 import json
-import threading
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Type
 from uuid import uuid4
 
 from dxlib.storage import T
-from httpx import HTTPStatusError, ConnectError
+from httpx import HTTPStatusError
 
 from pearl.lib import Router
 from pearl.lib.benchmark import Benchmark
 from pearl.lib.timer import Timer
 from pearl.envs.multi.multi_env import MarketEnv
 
-from dxlib.interfaces import HttpEndpoint, Service, Server
-from dxlib.interfaces.internal import MeshInterface
-from dxlib.interfaces.services.http.fastapi import FastApiServer
+from dxlib.network.servers import HttpEndpoint, Service, Server
+from dxlib.network.interfaces.internal import MeshInterface
 
 
 @dataclass
@@ -40,7 +39,7 @@ class MarketEnvService(Service, MarketEnv):
                  ):
         Service.__init__(self, "market_env", uuid4().hex)
         MarketEnv.__init__(self, *args, **kwargs)
-        self.router = Router(host, port)
+        self.router = Router(host, port, level=logging.WARNING)
         self.action_buffer = defaultdict()
         self.timer = Timer(1.0)
         self.connections = set()

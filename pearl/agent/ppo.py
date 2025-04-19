@@ -213,12 +213,13 @@ class PPOAgent(Agent):
                 ep_actor_loss += actor_loss.item()
                 ep_critic_loss += critic_loss.item()
                 num_batches += 1
+        num_updates = epochs * len(data_loader)
 
         # Report averaged loss per epoch
         return {
             "actor_loss": ep_actor_loss / (num_batches * epochs),
-            "critic_loss": ep_critic_loss / (num_batches * epochs)
-        }
+            "critic_loss": ep_critic_loss / (num_batches * epochs),
+        }, num_updates
 
 
     def act(self, state):
