@@ -4,7 +4,63 @@
 % ---
 \chapter{Conclusion}
 \label{ch:conclusion}
-% ---
-% O comando abaixo insere parágrafos aleatórios só para exemplificar
-%Apresentar as conclusões correspondentes aos objetivos ou hipóteses propostos para o desenvolvimento do trabalho, podendo incluir sugestões para novas pesquisas.
 
+This work introduced a distributed reinforcement learning framework tailored for high-frequency trading environments,
+based on a shared parallel environment architecture and an asynchronous messaging backbone.
+The proposed system addresses several persistent limitations in traditional distributed RL approaches
+including communication overhead, data staleness, and the computational inefficiency arising from duplicated environment simulations.
+By reconfiguring the standard multi-agent interaction model into a parallelized,
+shared-environment setting, this framework allows more efficient use of compute resources while preserving---
+if not enhancing---the statistical diversity of sampled trajectories.
+
+Throughout the design and evaluation process, emphasis was placed on reducing the straggler problem extend improving training throughput.
+The use of a brokerless ZeroMQ Router/Dealer communication layout enabled asynchronous, low-latency interactions between workers and the central learner.
+This design reduced idle time in the learning loop and facilitated scalable coordination across heterogeneous agents operating at different speeds.
+
+The experimental results validate several hypotheses that guided this design.
+Notably, the architecture reduced average environment processing latency compared to replicated-environment setups,
+while maintaining convergence properties of the learned policy under asynchronous V-trace updates.
+The shared environment approach demonstrated favorable scaling characteristics in terms of training speed and memory usage.
+
+% PLACEHOLDER: Graph comparing average per-agent environment step latency in shared vs. replicated setups.
+% Description: Line graph showing average and variance of step processing time (in milliseconds) for N agents across shared vs. independent environments.
+% The X-axis should vary the number of agents; Y-axis should show time per step.
+
+% PLACEHOLDER: Table comparing training wall time vs. performance for different architecture configurations.
+% Description: Table comparing final episodic return and total training time for
+% (1) single-threaded baseline, (2) replicated multi-agent, (3) shared environment multi-agent (ours).
+% Include columns for sample throughput and wall-clock convergence time.
+
+Another important contribution of this work is the empirical demonstration that asynchronous policy updates---
+when combined with off-policy correction mechanisms like V-trace---can retain stability in non-stationary environments representative of financial market dynamics.
+These dynamics, characterized by frequent regime shifts and exogenous shocks, are particularly prone to introducing non-Markovian effects that degrade learning performance.
+The architecture’s ability to tolerate these conditions while maintaining learning efficiency highlights its applicability to real-world algorithmic trading systems.
+
+% PLACEHOLDER: Graph showing convergence rate with and without V-trace under regime shifts.
+% Description: Plot showing episode return over time for (1) V-trace enabled, (2) V-trace disabled, during training in a simulated market with predefined regime switches.
+
+While the system achieves notable improvements in latency and compute utilization, it also introduces new design trade-offs.
+The shared environment increases contention on the simulation process, which can become a bottleneck under extremely high agent concurrency.
+Additionally, managing consistent rollout recording and replay in this context requires careful attention to buffering and message timing.
+These aspects open future directions for improvement, such as adaptive load balancing across simulation shards, environment step batching,
+or model-based simulation acceleration.
+
+From an engineering standpoint, the modular nature of the framework facilitates integration with production-grade financial simulators or real-time market data feeds.
+The messaging and learner infrastructure are decoupled from environment specifics, enabling broader applicability beyond the specific HFT use case studied here.
+
+In summary, this work contributes:
+\begin{itemize}
+    \item A novel asynchronous architecture based on shared environments for distributed RL;
+    \item A high-throughput, low-latency communication system based on brokerless ZeroMQ;
+    \item Empirical evidence of improved convergence and latency profiles under real-time training constraints;
+    \item A framework for studying learning stability under non-stationary, non-Markovian conditions.
+\end{itemize}
+
+Future work could explore extensions of this architecture to support:
+- Multi-policy learning (e.g., mixture-of-experts models);
+- Adaptive actor-critic population scheduling;
+- Integration with real order book data for fine-tuned simulation realism.
+
+The results presented here demonstrate the feasibility and potential of designing systems that balance the algorithmic sophistication of
+modern RL methods with the practical constraints of high-frequency trading infrastructure.
+The proposed framework offers a viable path forward for research and deployment of real-time autonomous trading agents in adversarial and non-stationary environments.

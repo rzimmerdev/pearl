@@ -108,6 +108,8 @@
     We implemented both the independent process workers and shared process for learner/workers,
     and decided to use the shared process due to the increased efficiency of running the forward and backward batched passes
     for all environments being faster than the speed gain of running the rollout in parallel.
+    That is, instead of gathering the gradients from each worker, we gather the experiences and perform
+    a single backward pass for all workers, which we observed to be faster for our use case.
 
     \begin{table}[h!]
         \centering

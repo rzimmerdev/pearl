@@ -12,8 +12,6 @@
     \subsection{Communication Protocols and Network Layout}
     \label{subsec:communication}
 
-    % diagram for diagrams/service_mesh.pdf
-    % and diagrams/communication.pdf
     \begin{figure}[htb]
         \centering
         \includegraphics[width=0.5\textwidth]{diagrams/service_mesh}
@@ -21,10 +19,22 @@
         \label{fig:service_mesh}
     \end{figure}
 
-    The communication infrastructure of the system is designed to support the asynchronous interaction between agents and the central learner.
+    The communication infrastructure of the system is designed to support fully asynchronous interactions between distributed actors and the centralized learner module,
+    enabling high-throughput data exchange under low-latency constraints.
+    The adopted service mesh architecture, shown in~\autoref{fig:service_mesh}, provides logical separation between communication and computation concerns,
+    and allows the learner, worker, and environment subsystems to scale independently across compute nodes.
 
-    The service mesh architecture, illustrated in \autoref{fig:service_mesh}, provides a scalable and fault-tolerant communication layer that connects the distributed components of the system.
-    The communication between agents and the central learner is facilitated by a high-performance messaging layer implemented with ZeroMQ.
+    At the messaging layer, we employ a brokerless ZeroMQ Router/Dealer pattern.
+    This setup enables direct point-to-point communication between actors and the learner without requiring intermediate brokers or persistent queues,
+    minimizing the round-trip time of trajectory and gradient message exchange.
+    ZeroMQ's non-blocking I/O capabilities and lock-free shared memory buffers make it suitable for high-frequency,
+    low-latency applications such as algorithmic trading environments.
+
+    Each actor maintains an independent outbound socket pool for pushing trajectory segments or parameter update requests to the learner.
+    This decouples action inference and experience collection from the learning pipeline,
+    allowing learners to continuously receive and process incoming batches even in the presence of straggler workers.
+    Moreover, actors are not synchronized globally; the system is designed so that each actor proceeds independently through environment interaction,
+    buffering experience locally before asynchronously committing the collected data to the learner.
 
     \begin{figure}[htb]
         \centering
@@ -32,5 +42,22 @@
         \caption{Communication flow between agents and the central learner using ZeroMQ messaging.}
         \label{fig:communication}
     \end{figure}
+
+    \autoref{fig:communication} illustrates the end-to-end communication pipeline.
+    Each agent is initialized with a direct messaging channel to the central learner process.
+    The learner operates as a multiplexed ZeroMQ Router endpoint capable of concurrently handling multiple inbound streams.
+    It tags incoming messages with agent identifiers and manages per-agent buffers for temporal ordering and batching of updates.
+    This enables efficient mini-batch construction for training while preserving per-agent data locality when needed.
+
+    Furthermore, to reduce synchronization barriers, policy updates are pushed to agents opportunistically rather than in lockstep.
+    Agents request updated policy parameters periodically, and the learner replies with the most recent version.
+    This reduces update contention and avoids blocking actors that operate with faster environment step times.
+    To mitigate the impact of stale policies, we employ importance sampling corrections at training time, as formalized in the V-trace algorithm.
+    This enables stable off-policy updates under moderate staleness levels.
+
+    The overall communication design maximizes concurrency while controlling the negative effects of policy lag and delayed updates.
+    It also supports horizontal scaling by adding agents and learners without central coordination.
+    This is a key design goal for large-scale reinforcement learning in latency-sensitive domains such as market making and high-frequency trading,
+    where simulation fidelity, throughput, and data freshness all interact to determine the agent’s learning efficiency and eventual performance.
 
 \end{document}
