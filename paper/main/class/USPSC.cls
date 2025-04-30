@@ -194,11 +194,11 @@
 	\renewcommand{\fontename}{Source}
 	\renewcommand{\notaname}{Note}
 	%% adjusts names used by \autoref
-	\renewcommand{\pageautorefname}{page}
-	\renewcommand{\sectionautorefname}{section}
-	\renewcommand{\subsectionautorefname}{subsection}
-	\renewcommand{\subsubsectionautorefname}{subsubsection}
-	\renewcommand{\paragraphautorefname}{subsubsubsection}
+    \renewcommand{\pageautorefname}{Page}
+    \renewcommand{\sectionautorefname}{Section}
+    \renewcommand{\subsectionautorefname}{Subsection}
+    \renewcommand{\subsubsectionautorefname}{Subsection}
+    \renewcommand{\paragraphautorefname}{Subsection}
 }
 % ---
 
@@ -431,7 +431,7 @@
   \ifthenelse{\equal{\ABNTEXisarticle}{true}}{%
     %
   }{ % else
-    \cleardoublepage%
+    \clearpage%
   }
 }  
 

@@ -111,20 +111,4 @@
     That is, instead of gathering the gradients from each worker, we gather the experiences and perform
     a single backward pass for all workers, which we observed to be faster for our use case.
 
-    \begin{table}[h!]
-        \centering
-        \begin{tabular}{|c|c|c|c|}
-            \hline
-            \textbf{Operation} & \textbf{Parallel Workers} & \textbf{Shared Learner/Worker Process} \\
-            \hline
-
-            Act & \SI{35.142}{\milli\second} & \SI{3.113}{\milli\second} \\
-            Step & \SI{40.554}{\milli\second} &\SI{48.984}{\milli\second} \\
-            Reset & \SI{12.709}{\micro\second} & \SI{12.302}{\micro\second} \\
-            \hline
-        \end{tabular}
-        \caption{Trainer time benchmarks for ten worker instances. All operations are the average time for 100 episodes taken for each operation per rollout.}
-        \label{tab:table}
-    \end{table}
-
 \end{document}

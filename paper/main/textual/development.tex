@@ -1,63 +1,35 @@
-%% USPSC-Cap2-Desenvolvimento.tex 
-
-% ---
-% Este capítulo, utilizado por diferentes exemplos do abnTeX2, ilustra o uso de
-% comandos do abnTeX2 e de LaTeX.
-% ---
-%
-%Asynchronous Shared Environments with State Consistency
-%
-%Asynchronous: Environments and Learners are decoupled, allowing for independent operation,
-%with message queues acting as intermediate buffers for data exchange and synchronization.
-%
-%Shared: Multiple workers interact with a single environment instance, reducing redundant computations and memory overhead.
-%
-%State Consistency: Workers can access states previously observed by other workers, ensuring a synchronized view of the environment
-%if a learner was unable to process the latest state in time for synchronization.
-%
-%This approach aims to improve computational efficiency and learning performance while maintaining training stability
-%by allowing all agents to interact synchronously on all states due to the proposed consistent environment state design.
-
-
 \chapter{Development}
 \label{ch:development}
 %Este capítulo é parte principal do trabalho acadêmico e deve conter a exposição ordenada e detalhada do assunto.
 %Divide-se em seções e subseções, em conformidade com a abordagem do tema e do método, abrangendo:
 %revisão bibliográfica, materiais e métodos, técnicas utilizadas, resultados obtidos e discussão.
-
 Distributed reinforcement learning (RL) has evolved considerably in response to the demands of complex tasks such as game playing and financial trading.
 Early methods such as the Asynchronous Advantage Actor-Critic (A3C)
 algorithm introduced the concept of multiple parallel workers collecting experiences independently,
 which helped to reduce update variance and speed up training.
-Building on these ideas, architectures like IMPALA have decoupled data collection from model training by deploying a
-centralized learner that periodically synchronizes its policy with a large number of worker agents.
+Building on these ideas, architectures like IMPALA and Gorila have decoupled data collection from model training by using
+a decentralized learner and worker structure, which periodically synchronizes the policy with the updated gradient
+from the workers through gradient passing.
 This design enables significant scalability across heterogeneous computing resources and facilitates high-throughput training.
 
-A key challenge addressed by these systems is the communication overhead incurred when transmitting experiences and
+As mentioned in \autoref{ch:introduction}, a key challenge present in these systems is the communication overhead incurred when transmitting experiences or
 updated policies between the learner and the workers.
-For example, IMPALA aggregates trajectories from multiple workers into
+The IMPALA algorithm aggregates trajectories from multiple workers into
 batches for efficient gradient computation while managing the staleness of policy information.
 More recent approaches, such as SEED RL, have further optimized communication by bundling inference with training updates.
 This reduces the latency associated with model parameter transmission and minimizes network congestion, thereby improving overall training efficiency.
 In parallel, methods like Ape-X have introduced distributed prioritized experience replay, where critical experiences are sampled with higher probability,
 enhancing data efficiency in scenarios where high-frequency data generation is crucial.
 
-In the context of financial applications, distributed RL has inspired specialized solutions that integrate realistic market simulators.
-These simulators often feature a limit order book (LOB) mechanism where buy and sell orders are submitted, queued, and matched in real time.
-In such systems, the distributed architecture must handle not only the high throughput of simulation data but also the
+In the context of financial applications, RL environments often integrate realistic market simulators.
+These simulators statistically represent stylized facts of limit order book (LOB), which are discussed
+further in \autoref{subsec:environment}.
+For such simulators, the distributed architecture must handle not only the high throughput of simulation data but also the
 precise timing of order execution and asynchronous policy updates.
-Recent studies have demonstrated that merging shared environment simulations with asynchronous updates can improve both
-computational efficiency and learning performance in trading scenarios.
-
-Despite these advances, challenges persist—such as managing synchronization delays, mitigating data staleness,
-and coping with non-stationarity—especially in environments where rapid decision making is essential.
-The trade-offs between synchronous and asynchronous communication, efficient use of replay buffers, and resource heterogeneity remain open research questions.
-This thesis builds upon these existing approaches by proposing a novel shared parallel environment architecture,
-designed specifically to address these challenges in high-frequency trading applications.
+This thesis builds upon existing distributed algorithms through means of shared parallel environments,
+designed specifically to address the nature of high-frequency trading applications.
 In the following sections, we present the design and implementation of our proposed architecture,
-which we refer to as the Parallel Environments for Asynchronous Reinforcement Learning (PEARL).
-
-We start with an overview of related works in distributed RL and financial trading, followed by a detailed description of the PEARL architecture.
+which we refer to as Parallel Environments for Asynchronous Reinforcement Learning (PEARL).
 
 \input{textual/development/literature}
 

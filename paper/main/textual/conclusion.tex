@@ -13,6 +13,9 @@ By reconfiguring the standard multi-agent interaction model into a parallelized,
 shared-environment setting, this framework allows more efficient use of compute resources while preserving---
 if not enhancing---the statistical diversity of sampled trajectories.
 
+\section{Results}
+\label{sec:results}
+
 Throughout the design and evaluation process, emphasis was placed on reducing the straggler problem extend improving training throughput.
 The use of a brokerless ZeroMQ Router/Dealer communication layout enabled asynchronous, low-latency interactions between workers and the central learner.
 This design reduced idle time in the learning loop and facilitated scalable coordination across heterogeneous agents operating at different speeds.
@@ -22,14 +25,35 @@ Notably, the architecture reduced average environment processing latency compare
 while maintaining convergence properties of the learned policy under asynchronous V-trace updates.
 The shared environment approach demonstrated favorable scaling characteristics in terms of training speed and memory usage.
 
-% PLACEHOLDER: Graph comparing average per-agent environment step latency in shared vs. replicated setups.
-% Description: Line graph showing average and variance of step processing time (in milliseconds) for N agents across shared vs. independent environments.
-% The X-axis should vary the number of agents; Y-axis should show time per step.
+% Table comparing average per-agent environment step latency in shared vs. replicated setups.
+% Description: Table comparing average and variance of step processing time (in milliseconds) for N agents across shared vs. independent environments.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Operation} & \textbf{Parallel Workers} & \textbf{Shared Learner/Worker Process} \\
+        \hline
+
+        Act & \SI{35.142}{\milli\second} & \SI{3.113}{\milli\second} \\
+        Step & \SI{40.554}{\milli\second} &\SI{48.984}{\milli\second} \\
+        Reset & \SI{12.709}{\micro\second} & \SI{12.302}{\micro\second} \\
+        \hline
+    \end{tabular}
+    \caption{Trainer time benchmarks for ten worker instances. All operations are the average time for 100 episodes taken for each operation per rollout.}
+    \label{tab:benchmarks}
+\end{table}
 
 % PLACEHOLDER: Table comparing training wall time vs. performance for different architecture configurations.
 % Description: Table comparing final episodic return and total training time for
 % (1) single-threaded baseline, (2) replicated multi-agent, (3) shared environment multi-agent (ours).
 % Include columns for sample throughput and wall-clock convergence time.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/loss_episode}
+    \caption{Training loss over time for the shared environment architecture with V-trace enabled.}
+    \label{fig:loss}
+\end{figure}
 
 Another important contribution of this work is the empirical demonstration that asynchronous policy updates---
 when combined with off-policy correction mechanisms like V-trace---can retain stability in non-stationary environments representative of financial market dynamics.
@@ -38,12 +62,21 @@ The architecture’s ability to tolerate these conditions while maintaining lear
 
 % PLACEHOLDER: Graph showing convergence rate with and without V-trace under regime shifts.
 % Description: Plot showing episode return over time for (1) V-trace enabled, (2) V-trace disabled, during training in a simulated market with predefined regime switches.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/performance}
+    \caption{Performance comparison of the shared environment for different numbers of shared environments.}
+    \label{fig:performance}
+\end{figure}
 
 While the system achieves notable improvements in latency and compute utilization, it also introduces new design trade-offs.
 The shared environment increases contention on the simulation process, which can become a bottleneck under extremely high agent concurrency.
 Additionally, managing consistent rollout recording and replay in this context requires careful attention to buffering and message timing.
 These aspects open future directions for improvement, such as adaptive load balancing across simulation shards, environment step batching,
 or model-based simulation acceleration.
+
+\section{Discussion}
+\label{sec:discussion}
 
 From an engineering standpoint, the modular nature of the framework facilitates integration with production-grade financial simulators or real-time market data feeds.
 The messaging and learner infrastructure are decoupled from environment specifics, enabling broader applicability beyond the specific HFT use case studied here.

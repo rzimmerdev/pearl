@@ -7,6 +7,7 @@
 % Packages
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{amssymb}
 
 % Document
 \begin{document}
@@ -42,10 +43,15 @@
 
     \begin{figure}[htb]
         \centering
-        \includegraphics[width=0.8\textwidth]{img/lob.png}
+        \includegraphics[width=0.8\textwidth]{img/lob}
         \caption{Visualization of a limit order book (LOB) with buy and sell orders organized by price and time priority.}
         \label{fig:lob}
     \end{figure}
+
+    The order book is implemented using a Red-Black tree data structure, which allows for efficient insertion, deletion, and retrieval of orders.
+    Each order is represented as a node in the tree, with the price as the key and the order details (e.g., quantity, timestamp) as the value.
+    New orders are sampled from a mixture of processes, and at each time step, the environment checks for order matches and executes trades accordingly,
+    updating the order book and the agent's state, as well as the reward signal.
 
     The system dynamics are modeled as a continuous-time Markov Decision Process (MDP), where the transition probabilities
     \( P(s', t|s, a) \) are governed by the Kolmogorov forward equation:
@@ -63,7 +69,7 @@
     The market-making problem is modeled using online reinforcement learning, where the simulator represents a
     limit order book (LOB) that reflects stylized market behaviors.
     The event timing in the LOB follows a Hawkes process, capturing the self-exciting nature of clustered order arrivals.
-    The intensity \( \lambda(t) \) of this process evolves as:
+    The intensity \( \lambda(t) \) of the Hawkes process is defined as:
 
     \begin{gather*}
         \lambda(t) = \mu + \sum_{t_i < t} \phi(t - t_i)\\
@@ -71,6 +77,8 @@
     \end{gather*}
 
     where \( \mu > 0 \) is the baseline intensity, and \( \alpha \), \( \beta \) govern the magnitude and decay of past events' influence.
+    To generate order arrivals, we sample from an exponential process with intensity \( \lambda(t) \),
+    where the inter-arrival times are exponentially distributed.
     Bid and ask prices are modeled as separate Geometric Brownian Motion (GBM) processes, with prices evolving according to:
 
     \begin{gather*}
@@ -81,13 +89,13 @@
     where \( \mu_t \) is the drift, \( s_t \) is the spread, and \( \sigma \) is the volatility.
     The drift \( \mu_t \) follows a mean-reverting Ornstein-Uhlenbeck process, while the spread \( s_t \) follows a Cox-Ingersoll-Ross process,
     ensuring a positive spread.
-    The midprice \( X_{\text{mid}} \) is calculated as the average of the current bid and ask prices:
+    The midprice \( X_{\text{mid}} \) is calculated as the average of the current bid and ask prices.
+    In the absence of orders, the midprice is based on the last traded price or an initial value.
 
     \[
         X_{\text{mid}} = \frac{X_{\text{ask}} + X_{\text{bid}}}{2}
     \]
 
-    In the absence of orders, the midprice is based on the last traded price or an initial value.
     Price volatility is modeled using a GARCH(1,1) process:
 
     \[
@@ -97,8 +105,8 @@
     where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
     Order quantities \( q_{\text{ask}} \) and \( q_{\text{bid}} \) are modeled as Poisson random variables with arrival rate \( \lambda_q \),
     reflecting stochastic order arrivals.
-    The simulator is implemented using a Red-black tree structure for the LOB, and all market regime variables (e.g., spread, order arrival rate, and price drift)
-    are sampled from predefined distributions and inserted into the system at each event time step.
+    All market regime variables (e.g., spread, order arrival rate, and price drift, are sampled according to the afforementioned process,
+    and their mixture form the order book dynamics.
 
 
 \end{document}

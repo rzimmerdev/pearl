@@ -761,15 +761,15 @@ Unique-ID = {WOS:001067687600001},
 }
 
 @Article{WOS:001385578000004,
-  author    = {Hou, Jing and Chen, Guang and Zhang, Ruiqi and Li, Zhijun and Gu, Shangding and Jiang, Changjun},
-  journal   = {IEEE TRANSACTIONS ON PARALLEL AND DISTRIBUTED SYSTEMS},
-  title     = {Spreeze: High-Throughput Parallel Reinforcement Learning Framework},
-  year      = {2025},
-  month     = {FEB},
-  number    = {2},
-  pages     = {282-292},
-  volume    = {36},
-  abstract  = {The promotion of large-scale applications of reinforcement learning (RL)
+  author              = {Hou, Jing and Chen, Guang and Zhang, Ruiqi and Li, Zhijun and Gu, Shangding and Jiang, Changjun},
+  journal             = {IEEE TRANSACTIONS ON PARALLEL AND DISTRIBUTED SYSTEMS},
+  title               = {Spreeze: High-Throughput Parallel Reinforcement Learning Framework},
+  year                = {2025},
+  month               = {FEB},
+  number              = {2},
+  pages               = {282-292},
+  volume              = {36},
+  abstract            = {The promotion of large-scale applications of reinforcement learning (RL)
    requires efficient training computation. While existing parallel RL
    frameworks encompass a variety of RL algorithms and parallelization
    techniques, the excessively burdensome communication frameworks hinder
@@ -793,10 +793,14 @@ Unique-ID = {WOS:001067687600001},
    Our work on fully utilizing the hardware resources of a single desktop
    computer is fundamental to enabling efficient large-scale distributed RL
    training.},
-  doi       = {10.1109/TPDS.2024.3497986},
-  ranking   = {rank5},
-  type      = {Article},
-  unique-id = {WOS:001385578000004},
+  algorithm           = {Actor-Critic},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1109/TPDS.2024.3497986},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward;Convergence;Sample Efficiency},
+  ranking             = {rank5},
+  type                = {Article},
+  unique-id           = {WOS:001385578000004},
 }
 
 @incollection{ WOS:001090577200029,
@@ -911,13 +915,13 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @InCollection{WOS:001268569303101,
-  author            = {Kopic, Amna and Perenda, Erma and Gacanin, Haris},
-  booktitle         = {2024 IEEE WIRELESS COMMUNICATIONS AND NETWORKING CONFERENCE, WCNC 2024},
-  title             = {Unveiling the Effects of Experience Replay on Deep Reinforcement Learning-based Power Allocation in Wireless Networks},
-  year              = {2024},
-  series            = {IEEE Wireless Communications and Networking Conference},
-  type              = {Proceedings Paper},
-  abstract          = {Deep reinforcement learning has emerged as a powerful tool for dynamic
+  author              = {Kopic, Amna and Perenda, Erma and Gacanin, Haris},
+  booktitle           = {2024 IEEE WIRELESS COMMUNICATIONS AND NETWORKING CONFERENCE, WCNC 2024},
+  title               = {Unveiling the Effects of Experience Replay on Deep Reinforcement Learning-based Power Allocation in Wireless Networks},
+  year                = {2024},
+  series              = {IEEE Wireless Communications and Networking Conference},
+  type                = {Proceedings Paper},
+  abstract            = {Deep reinforcement learning has emerged as a powerful tool for dynamic
    power allocation, as it allows continuous learning and real-time
    responsiveness to environmental changes through its core element,
    experience replay. Experience replay involves two critical
@@ -935,10 +939,15 @@ Unique-ID = {WOS:000725394600020},
    buffer slightly decrease system performance. Interestingly, the increase
    in batch size does not significantly affect the learning models'
    training time due to parallel execution, yet, it improves performance.},
-  book-group-author = {IEEE},
-  doi               = {10.1109/WCNC57260.2024.10571107},
-  ranking           = {rank5},
-  unique-id         = {WOS:001268569303101},
+  algorithm           = {DQN/DDPG},
+  book-group-author   = {IEEE},
+  communication       = {Centralized},
+  doi                 = {10.1109/WCNC57260.2024.10571107},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Memory},
+  unique-id           = {WOS:001268569303101},
 }
 
 @InCollection{WOS:001207755100255,
@@ -1017,8 +1026,10 @@ Unique-ID = {WOS:000725394600020},
    be 18 times faster than the state-of-the-art Gorila distributed RL
    framework {[}34], and (3) its inference performance achieves a 26 times
    improvement over Gorila.},
+  algorithm      = {GORILA;DQN/DDPG},
   article-number = {6},
   doi            = {10.1145/3589188},
+  learning       = {Off-policy;Model-free},
   ranking        = {rank5},
   type           = {Article},
   unique-id      = {WOS:001020359500002},
@@ -1269,14 +1280,14 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @Article{WOS:001305610300001,
-  author         = {Zhang, Hao and Du, Yu and Zhao, Shixin and Yuan, Ying and Gao, Qiuqi},
-  journal        = {ELECTRONICS},
-  title          = {VN-MADDPG: A Variable-Noise-Based Multi-Agent Reinforcement Learning Algorithm for Autonomous Vehicles at Unsignalized Intersections},
-  year           = {2024},
-  month          = {AUG},
-  number         = {16},
-  volume         = {13},
-  abstract       = {The decision-making performance of autonomous vehicles tends to be
+  author              = {Zhang, Hao and Du, Yu and Zhao, Shixin and Yuan, Ying and Gao, Qiuqi},
+  journal             = {ELECTRONICS},
+  title               = {VN-MADDPG: A Variable-Noise-Based Multi-Agent Reinforcement Learning Algorithm for Autonomous Vehicles at Unsignalized Intersections},
+  year                = {2024},
+  month               = {AUG},
+  number              = {16},
+  volume              = {13},
+  abstract            = {The decision-making performance of autonomous vehicles tends to be
    unstable at unsignalized intersections, making it difficult for them to
    make optimal decisions. We propose a decision-making model based on the
    Variable-Noise Multi-Agent Deep Deterministic Policy Gradient
@@ -1293,11 +1304,16 @@ Unique-ID = {WOS:000725394600020},
    significantly increased, and the pass time has been reduced. The
    decision-making model based on the VN-MADDPG algorithm demonstrates
    stable and excellent decision-making performance.},
-  article-number = {3180},
-  doi            = {10.3390/electronics13163180},
-  ranking        = {rank5},
-  type           = {Article},
-  unique-id      = {WOS:001305610300001},
+  algorithm           = {DQN/DDPG},
+  article-number      = {3180},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.3390/electronics13163180},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Wall Time},
+  type                = {Article},
+  unique-id           = {WOS:001305610300001},
 }
 
 @Article{WOS:001174207000001,
@@ -1372,13 +1388,13 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @Article{WOS:001354561000001,
-  author    = {Lu, Jixiang and Xie, Zhangtian and Xu, Hongsheng and Liu, Junjun},
-  journal   = {IEEE ACCESS},
-  title     = {Optimizing Joint Bidding and Incentivizing Strategy for Price-Maker Load Aggregators Based on Multi-Task Multi-Agent Deep Reinforcement Learning},
-  year      = {2024},
-  pages     = {163988-164001},
-  volume    = {12},
-  abstract  = {The increasing penetration of renewable energy sources poses significant
+  author              = {Lu, Jixiang and Xie, Zhangtian and Xu, Hongsheng and Liu, Junjun},
+  journal             = {IEEE ACCESS},
+  title               = {Optimizing Joint Bidding and Incentivizing Strategy for Price-Maker Load Aggregators Based on Multi-Task Multi-Agent Deep Reinforcement Learning},
+  year                = {2024},
+  pages               = {163988-164001},
+  volume              = {12},
+  abstract            = {The increasing penetration of renewable energy sources poses significant
    challenges for modern power systems, particularly in supply-demand
    balance and peak regulation. Load aggregators (LAs) play a crucial role
    by integrating small to medium-sized loads and coordinating demand
@@ -1398,10 +1414,15 @@ Unique-ID = {WOS:000725394600020},
    effectively captures the interdependence between bidding price, bidding
    quantity, and incentive price decisions. The proposed MTMA-DRL-based
    method is also proven to outperform existing methods.},
-  doi       = {10.1109/ACCESS.2024.3491189},
-  ranking   = {rank5},
-  type      = {Article},
-  unique-id = {WOS:001354561000001},
+  algorithm           = {SAC},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1109/ACCESS.2024.3491189},
+  learning            = {Model-free;Off-policy},
+  performance_metrics = {Reward;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Wall Time},
+  type                = {Article},
+  unique-id           = {WOS:001354561000001},
 }
 
 @Article{WOS:001224831300001,
@@ -1545,7 +1566,7 @@ Unique-ID = {WOS:000725394600020},
    state-of-the-art recommendation models.},
   book-group-author = {ACM},
   doi               = {10.1145/3477495.3532022},
-  ranking           = {rank5},
+  ranking           = {rank4},
   unique-id         = {WOS:000852715901065},
 }
 
@@ -1579,13 +1600,13 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @Article{WOS:001283953100001,
-  author          = {Jia, Kunkun and Xia, Hui and Zhang, Rui and Sun, Yue and Wang, Kai},
-  journal         = {COMPUTER NETWORKS},
-  title           = {Multi-agent DRL for edge computing: A real-time proportional compute offloading},
-  year            = {2024},
-  month           = {OCT},
-  volume          = {252},
-  abstract        = {In the Industrial Internet of Things, devices with limited computing
+  author              = {Jia, Kunkun and Xia, Hui and Zhang, Rui and Sun, Yue and Wang, Kai},
+  journal             = {COMPUTER NETWORKS},
+  title               = {Multi-agent DRL for edge computing: A real-time proportional compute offloading},
+  year                = {2024},
+  month               = {OCT},
+  volume              = {252},
+  abstract            = {In the Industrial Internet of Things, devices with limited computing
    power and energy storage often rely on offloading tasks to edge servers
    for processing. However, existing methods are plagued by the high cost
    of device communication and unstable training processes. Consequently,
@@ -1606,12 +1627,17 @@ Unique-ID = {WOS:000725394600020},
    Finally, experimental results demonstrate that MASTD3 effectively
    addresses the proportional offloading problem, which is optimized by
    44.32\%, 29.26\%, and 17.47\% compared to DDPQN, MADDPG, and FLoadNet.},
-  article-number  = {110665},
-  doi             = {10.1016/j.comnet.2024.110665},
-  earlyaccessdate = {JUL 2024},
-  ranking         = {rank5},
-  type            = {Article},
-  unique-id       = {WOS:001283953100001},
+  algorithm           = {Actor-Critic;DQN/DDPG},
+  article-number      = {110665},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1016/j.comnet.2024.110665},
+  earlyaccessdate     = {JUL 2024},
+  learning            = {Off-policy;Model-free;Offline},
+  performance_metrics = {Sample Efficiency;Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Wall time;Core efficiency},
+  type                = {Article},
+  unique-id           = {WOS:001283953100001},
 }
 
 @Article{WOS:001358880900001,
@@ -1797,13 +1823,13 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @InCollection{WOS:000719386001131,
-  author            = {Lu, Haodong and Wang, Kun},
-  booktitle         = {IEEE INTERNATIONAL CONFERENCE ON COMMUNICATIONS (ICC 2021)},
-  title             = {Distributed Machine Learning based Mitigating Straggler in Big Data Environment},
-  year              = {2021},
-  series            = {IEEE International Conference on Communications},
-  type              = {Proceedings Paper},
-  abstract          = {In big data era, utilizing the parameter server paradigm has been
+  author              = {Lu, Haodong and Wang, Kun},
+  booktitle           = {IEEE INTERNATIONAL CONFERENCE ON COMMUNICATIONS (ICC 2021)},
+  title               = {Distributed Machine Learning based Mitigating Straggler in Big Data Environment},
+  year                = {2021},
+  series              = {IEEE International Conference on Communications},
+  type                = {Proceedings Paper},
+  abstract            = {In big data era, utilizing the parameter server paradigm has been
    regarded as an efficient and practical way to improve performance in
    processing deep learning (DL) applications. One of the main problems is
    that straggler greatly hinders DL training progress, but the previous
@@ -1820,10 +1846,15 @@ Unique-ID = {WOS:000725394600020},
    DARL outperforms the representative Bulk Synchronous Parallel (BSP)
    scheme by 57.8\% and Stale Synchronous Parallel (SSP) by 503\% in terms
    of per-iteration time in heterogeneous environment.},
-  book-group-author = {IEEE},
-  doi               = {10.1109/ICC42927.2021.9500531},
-  ranking           = {rank5},
-  unique-id         = {WOS:000719386001131},
+  algorithm           = {Actor-Critic},
+  book-group-author   = {IEEE},
+  communication       = {Centralized;Asynchronous},
+  doi                 = {10.1109/ICC42927.2021.9500531},
+  learning            = {Model-free;Off-policy;Online},
+  performance_metrics = {Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Latency;Core Efficiency},
+  unique-id           = {WOS:000719386001131},
 }
 
 @Article{WOS:001108812800001,
@@ -1868,16 +1899,16 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @InCollection{WOS:000895738900040,
-  author    = {He, Hang and Ren, Tao and Cui, Meng and Liu, Dong and Niu, Jianwei},
-  booktitle = {WIRELESS ALGORITHMS, SYSTEMS, AND APPLICATIONS, PT III},
-  title     = {Deep Reinforcement Learning Based Computation Offloading in Heterogeneous MEC Assisted by Ground Vehicles and Unmanned Aerial Vehicles},
-  year      = {2022},
-  editor    = {Wang, L and Segal, M and Chen, J and Qiu, T},
-  pages     = {481-494},
-  series    = {Lecture Notes in Computer Science},
-  type      = {Proceedings Paper},
-  volume    = {13473},
-  abstract  = {Compared with traditional mobile edge computing (MEC), heterogeneous MEC
+  author              = {He, Hang and Ren, Tao and Cui, Meng and Liu, Dong and Niu, Jianwei},
+  booktitle           = {WIRELESS ALGORITHMS, SYSTEMS, AND APPLICATIONS, PT III},
+  title               = {Deep Reinforcement Learning Based Computation Offloading in Heterogeneous MEC Assisted by Ground Vehicles and Unmanned Aerial Vehicles},
+  year                = {2022},
+  editor              = {Wang, L and Segal, M and Chen, J and Qiu, T},
+  pages               = {481-494},
+  series              = {Lecture Notes in Computer Science},
+  type                = {Proceedings Paper},
+  volume              = {13473},
+  abstract            = {Compared with traditional mobile edge computing (MEC), heterogeneous MEC
    (H-MEC), which is assisted by ground vehicles (GVs) and unmanned aerial
    vehicles (UAVs) simultaneously, is attracting more and more attention
    from both academia and industry. By deploying base stations (along with
@@ -1900,21 +1931,26 @@ Unique-ID = {WOS:000725394600020},
    other MDs' experience from a shared replay buffer. Extensive simulation
    results demonstrate that SMAPPO can achieve more satisfactory
    performances than traditional algorithms.},
-  doi       = {10.1007/978-3-031-19211-1\_40},
-  ranking   = {rank5},
-  unique-id = {WOS:000895738900040},
+  algorithm           = {PPO/Impala},
+  communication       = {Centralized},
+  doi                 = {10.1007/978-3-031-19211-1\_40},
+  learning            = {Online;Model-free;Off-policy},
+  performance_metrics = {Sample Efficiency;Reward},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Latency;Memory},
+  unique-id           = {WOS:000895738900040},
 }
 
 @Article{WOS:001359244600219,
-  author    = {Zhu, Shengchao and Han, Guangjie and Lin, Chuan and Tao, Qiuzi},
-  journal   = {IEEE TRANSACTIONS ON MOBILE COMPUTING},
-  title     = {Underwater Target Tracking Based on Hierarchical Software-Defined Multi-AUV Reinforcement Learning: A Multi-AUV Advantage-Attention Actor-Critic Approach},
-  year      = {2024},
-  month     = {DEC},
-  number    = {12},
-  pages     = {13639-13653},
-  volume    = {23},
-  abstract  = {With the rapid development of underwater robots, underwater
+  author              = {Zhu, Shengchao and Han, Guangjie and Lin, Chuan and Tao, Qiuzi},
+  journal             = {IEEE TRANSACTIONS ON MOBILE COMPUTING},
+  title               = {Underwater Target Tracking Based on Hierarchical Software-Defined Multi-AUV Reinforcement Learning: A Multi-AUV Advantage-Attention Actor-Critic Approach},
+  year                = {2024},
+  month               = {DEC},
+  number              = {12},
+  pages               = {13639-13653},
+  volume              = {23},
+  abstract            = {With the rapid development of underwater robots, underwater
    communication techniques, etc., the Autonomous Underwater Vehicle (AUV)
    cluster network has emerged as a candidate paradigm to perform
    underwater civil and military applications, e.g., underwater target
@@ -1936,10 +1972,15 @@ Unique-ID = {WOS:000725394600020},
    that our proposed approaches can perform exact underwater target
    tracking based on AUV cluster network systems and outperform some recent
    research products in terms of convergence speed, tracking accuracy, etc.},
-  doi       = {10.1109/TMC.2024.3437376},
-  ranking   = {rank5},
-  type      = {Article},
-  unique-id = {WOS:001359244600219},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Centralized},
+  doi                 = {10.1109/TMC.2024.3437376},
+  learning            = {On-polic;},
+  performance_metrics = {Convergence;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Latency;Memory},
+  type                = {Article},
+  unique-id           = {WOS:001359244600219},
 }
 
 @InCollection{WOS:001027160301030,
@@ -1974,14 +2015,14 @@ Unique-ID = {WOS:000725394600020},
 }
 
 @Article{WOS:001311045100001,
-  author         = {Li, Mingfei and Liu, Haibin and Xie, Feng and Huang, He},
-  journal        = {ELECTRONICS},
-  title          = {Adaptive Distributed Control for Leader-Follower Formation Based on a Recurrent SAC Algorithm},
-  year           = {2024},
-  month          = {SEP},
-  number         = {17},
-  volume         = {13},
-  abstract       = {This study proposes a novel adaptive distributed recurrent SAC (Soft
+  author              = {Li, Mingfei and Liu, Haibin and Xie, Feng and Huang, He},
+  journal             = {ELECTRONICS},
+  title               = {Adaptive Distributed Control for Leader-Follower Formation Based on a Recurrent SAC Algorithm},
+  year                = {2024},
+  month               = {SEP},
+  number              = {17},
+  volume              = {13},
+  abstract            = {This study proposes a novel adaptive distributed recurrent SAC (Soft
    Actor-Critic) control method to address the leader-follower formation
    control problem of omnidirectional mobile robots. Our method
    successfully eliminates the reliance on the complete state of the leader
@@ -2005,11 +2046,16 @@ Unique-ID = {WOS:000725394600020},
    simulation results provide strong support for our study and demonstrate
    the potential and reliability of our method in solving real-world
    problems.},
-  article-number = {3513},
-  doi            = {10.3390/electronics13173513},
-  ranking        = {rank5},
-  type           = {Article},
-  unique-id      = {WOS:001311045100001},
+  algorithm           = {SAC},
+  article-number      = {3513},
+  communication       = {Decentralized;Asynchronous},
+  doi                 = {10.3390/electronics13173513},
+  learning            = {Off-policy;Model-free;Online Learning},
+  performance_metrics = {Convergence;Stability;},
+  ranking             = {rank5},
+  system_metrics      = {Memory;Latency},
+  type                = {Article},
+  unique-id           = {WOS:001311045100001},
 }
 
 @Article{WOS:000953396500001,
@@ -2035,19 +2081,19 @@ Unique-ID = {WOS:000725394600020},
    contemporary mechanisms depending on overhead costs, especially when
    additional energy consumption is required for handover procedure.},
   doi       = {10.1109/ACCESS.2023.3254557},
-  ranking   = {rank5},
+  ranking   = {rank4},
   type      = {Article},
   unique-id = {WOS:000953396500001},
 }
 
 @Article{WOS:001360093300001,
-  author          = {Abbas, Muhammad Naveed and Liston, Paul and Lee, Brian and Qiao, Yuansong},
-  journal         = {KNOWLEDGE-BASED SYSTEMS},
-  title           = {CESDQL: Communicative experience-sharing deep Q-learning for scalability in multi-robot collaboration with sparse reward},
-  year            = {2024},
-  month           = {DEC 20},
-  volume          = {306},
-  abstract        = {Owing to the massive transformation in industrial processes and
+  author              = {Abbas, Muhammad Naveed and Liston, Paul and Lee, Brian and Qiao, Yuansong},
+  journal             = {KNOWLEDGE-BASED SYSTEMS},
+  title               = {CESDQL: Communicative experience-sharing deep Q-learning for scalability in multi-robot collaboration with sparse reward},
+  year                = {2024},
+  month               = {DEC 20},
+  volume              = {306},
+  abstract            = {Owing to the massive transformation in industrial processes and
    logistics, warehouses are also undergoing advanced automation. The
    application of Autonomous Mobile Robots (a.k.a. multi-robots) is one of
    the important elements of overall warehousing automation. The autonomous
@@ -2073,12 +2119,17 @@ Unique-ID = {WOS:000725394600020},
    returns than the closest performing baseline by scenario, and, 27\%,
    10.33\% \& 573\% more final average training returns than the closest
    performing baseline by the big-scale scenario.},
-  article-number  = {112714},
-  doi             = {10.1016/j.knosys.2024.112714},
-  earlyaccessdate = {NOV 2024},
-  ranking         = {rank5},
-  type            = {Article},
-  unique-id       = {WOS:001360093300001},
+  algorithm           = {Q-learning},
+  article-number      = {112714},
+  communication       = {Decentralized;Asynchronous},
+  doi                 = {10.1016/j.knosys.2024.112714},
+  earlyaccessdate     = {NOV 2024},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Core Efficiency},
+  type                = {Article},
+  unique-id           = {WOS:001360093300001},
 }
 
 @Article{WOS:001085511600001,
@@ -2242,6 +2293,68 @@ Unique-ID = {WOS:000725394600020},
   doi               = {10.1109/ICDL55364.2023.10364540},
   ranking           = {rank3},
   unique-id         = {WOS:001172928700001},
+}
+
+@Article{Yin_2024,
+  author              = {Yin, Qiyue and Yu, Tongtong and Shen, Shengqi and Yang, Jun and Zhao, Meijing and Ni, Wancheng and Huang, Kaiqi and Liang, Bin and Wang, Liang},
+  journal             = {Machine Intelligence Research},
+  title               = {Distributed Deep Reinforcement Learning: A Survey and a Multi-player Multi-agent Learning Toolbox},
+  year                = {2024},
+  issn                = {2731-5398},
+  month               = jan,
+  number              = {3},
+  pages               = {411--430},
+  volume              = {21},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Centralized;Asynchronous},
+  doi                 = {10.1007/s11633-023-1454-4},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Sample Efficiency;Convergence},
+  publisher           = {Springer Science and Business Media LLC},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Core Efficiency},
+}
+
+@Article{https://doi.org/10.48550/arxiv.2203.08975,
+  author              = {Zhu, Changxi and Dastani, Mehdi and Wang, Shihan},
+  title               = {A Survey of Multi-Agent Deep Reinforcement Learning with Communication},
+  year                = {2022},
+  algorithm           = {PPO/Impala},
+  communication       = {Decentralized;Asynchronous},
+  copyright           = {arXiv.org perpetual, non-exclusive license},
+  doi                 = {https://doi.org/10.48550/arXiv.2203.08975},
+  keywords            = {Multiagent Systems (cs.MA), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  learning            = {On-policy;Model-free},
+  performance_metrics = {Reward;Stability},
+  publisher           = {arXiv},
+  ranking             = {rank5},
+  system_metrics      = {Latency},
+}
+
+@Article{https://doi.org/10.48550/arxiv.2312.10256,
+  author              = {Huh, Dom and Mohapatra, Prasant},
+  title               = {Multi-agent Reinforcement Learning: A Comprehensive Survey},
+  year                = {2023},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Decentralized},
+  copyright           = {Creative Commons Attribution 4.0 International},
+  doi                 = {https://doi.org/10.48550/arXiv.2312.10256},
+  keywords            = {Multiagent Systems (cs.MA), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Convergence;Stability},
+  publisher           = {arXiv},
+  ranking             = {rank5},
+  system_metrics      = {Memory},
+}
+
+@Article{https://doi.org/10.48550/arxiv.2407.17030,
+  author    = {Pi, Yue and Zhang, Wang and Zhang, Yong and Huang, Hairong and Rao, Baoquan and Ding, Yulong and Yang, Shuanghua},
+  title     = {Applications of Multi-Agent Deep Reinforcement Learning Communication in Network Management: A Survey},
+  year      = {2024},
+  copyright = {arXiv.org perpetual, non-exclusive license},
+  doi       = {https://doi.org/10.48550/arXiv.2407.17030},
+  keywords  = {Networking and Internet Architecture (cs.NI), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  publisher = {arXiv},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}
