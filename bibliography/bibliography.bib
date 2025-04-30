@@ -1,0 +1,538 @@
+@Article{WOS:001385578000004,
+  author              = {Hou, Jing and Chen, Guang and Zhang, Ruiqi and Li, Zhijun and Gu, Shangding and Jiang, Changjun},
+  journal             = {IEEE TRANSACTIONS ON PARALLEL AND DISTRIBUTED SYSTEMS},
+  title               = {Spreeze: High-Throughput Parallel Reinforcement Learning Framework},
+  year                = {2025},
+  month               = {FEB},
+  number              = {2},
+  pages               = {282-292},
+  volume              = {36},
+  abstract            = {The promotion of large-scale applications of reinforcement learning (RL)
+   requires efficient training computation. While existing parallel RL
+   frameworks encompass a variety of RL algorithms and parallelization
+   techniques, the excessively burdensome communication frameworks hinder
+   the attainment of the hardware's limit for final throughput and training
+   effects on a single desktop. In this article, we propose Spreeze, a
+   lightweight parallel framework for RL that efficiently utilizes a single
+   desktop hardware resource to approach the throughput limit. We
+   asynchronously parallelize the experience sampling, network update,
+   performance evaluation, and visualization operations, and employ
+   multiple efficient data transmission techniques to transfer various
+   types of data between processes. The framework can automatically adjust
+   the parallelization hyperparameters based on the computing ability of
+   the hardware device in order to perform efficient large-batch updates.
+   Based on the characteristics of the ``Actor-Critic{''} RL algorithm, our
+   framework uses dual GPUs to independently update the network of actors
+   and critics in order to further improve throughput. Simulation results
+   show that our framework can achieve up to 15,000 Hz experience sampling
+   and 370,000 Hz network update frame rate using only a personal desktop
+   computer, which is an order of magnitude higher than other mainstream
+   parallel RL frameworks, resulting in a 73\% reduction of training time.
+   Our work on fully utilizing the hardware resources of a single desktop
+   computer is fundamental to enabling efficient large-scale distributed RL
+   training.},
+  algorithm           = {Actor-Critic},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1109/TPDS.2024.3497986},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward;Convergence;Sample Efficiency},
+  ranking             = {rank5},
+  type                = {Article},
+  unique-id           = {WOS:001385578000004},
+}
+
+@InCollection{WOS:001268569303101,
+  author              = {Kopic, Amna and Perenda, Erma and Gacanin, Haris},
+  booktitle           = {2024 IEEE WIRELESS COMMUNICATIONS AND NETWORKING CONFERENCE, WCNC 2024},
+  title               = {Unveiling the Effects of Experience Replay on Deep Reinforcement Learning-based Power Allocation in Wireless Networks},
+  year                = {2024},
+  series              = {IEEE Wireless Communications and Networking Conference},
+  type                = {Proceedings Paper},
+  abstract            = {Deep reinforcement learning has emerged as a powerful tool for dynamic
+   power allocation, as it allows continuous learning and real-time
+   responsiveness to environmental changes through its core element,
+   experience replay. Experience replay involves two critical
+   hyperparameters: the replay buffer and mini-batch sizes. While
+   state-of-the-art solutions primarily concentrate on designing input
+   features and reward-shaping methods, the impact of experience replay
+   parameters on system performance has often been overlooked. This paper
+   aims to address this gap by exploring the effects of experience replay
+   parameters in the context of dynamic power allocation in multi-carrier
+   wireless systems. To address the power allocation problem, we propose a
+   multi-agent cooperative deep reinforcement learning framework. The
+   results show that a minimum of 2000 experiences in the replay buffer is
+   necessary for the proposed solution to outperform conventional
+   approaches. Moreover, many obsolete experiences within a larger replay
+   buffer slightly decrease system performance. Interestingly, the increase
+   in batch size does not significantly affect the learning models'
+   training time due to parallel execution, yet, it improves performance.},
+  algorithm           = {DQN/DDPG},
+  book-group-author   = {IEEE},
+  communication       = {Centralized},
+  doi                 = {10.1109/WCNC57260.2024.10571107},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Memory},
+  unique-id           = {WOS:001268569303101},
+}
+
+@Article{WOS:001020359500002,
+  author         = {Zheng, Weijian and Wang, Dali and Song, Fengguang},
+  journal        = {ACM TRANSACTIONS ON PARALLEL COMPUTING},
+  title          = {A Distributed-GPU Deep Reinforcement Learning System for Solving Large Graph Optimization Problems},
+  year           = {2023},
+  month          = {JUN},
+  number         = {2},
+  volume         = {10},
+  abstract       = {Graph optimization problems (such as minimum vertex cover, maximum cut,
+   traveling salesman problems) appear in many fields including social
+   sciences, power systems, chemistry, and bioinformatics. Recently, deep
+   reinforcement learning (DRL) has shown success in automatically learning
+   good heuristics to solve graph optimization problems. However, the
+   existing RL systems either do not support graph RL environments or do
+   not support multiple or many GPUs in a distributed setting. This has
+   compromised the ability of reinforcement learning in solving large-scale
+   graph optimization problems due to lack of parallelization and high
+   scalability. To address the challenges of parallelization and
+   scalability, we develop RL4GO, a high-performance distributed-GPU DRL
+   framework for solving graph optimization problems. RL4GO focuses on a
+   class of computationally demanding RL problems, where both the RL
+   environment and policy model are highly computation intensive.
+   Traditional reinforcement learning systems often assume either the RL
+   environment is of low time complexity or the policy model is small.
+   In this work, we distribute large-scale graphs across distributed GPUs
+   and use the spatial parallelism and data parallelism to achieve scalable
+   performance. We compare and analyze the performance of the spatial
+   parallelism and data parallelism and show their differences. To support
+   graph neural network (GNN) layers that take as input data samples
+   partitioned across distributed GPUs, we design parallel mathematical
+   kernels to perform operations on distributed 3D sparse and 3D dense
+   tensors. To handle costly RL environments, we design a parallel graph
+   environment to scale up all RL-environment-related operations. By
+   combining the scalable GNN layers with the scalable RL environment, we
+   are able to develop high-performance RL4GO training and inference
+   algorithms in parallel. Furthermore, we propose two optimization
+   techniques-replay buffer on-the-fly graph generation and adaptive
+   multiple-node selection-to minimize the spatial cost and accelerate
+   reinforcement learning. This work also conducts in-depth analyses of
+   parallel efficiency and memory cost and shows that the designed RL4GO
+   algorithms are scalable on numerous distributed GPUs. Evaluations on
+   large-scale graphs show that (1) RL4GO training and inference can
+   achieve good parallel efficiency on 192 GPUs, (2) its training time can
+   be 18 times faster than the state-of-the-art Gorila distributed RL
+   framework {[}34], and (3) its inference performance achieves a 26 times
+   improvement over Gorila.},
+  algorithm      = {GORILA;DQN/DDPG},
+  article-number = {6},
+  doi            = {10.1145/3589188},
+  learning       = {Off-policy;Model-free},
+  ranking        = {rank5},
+  type           = {Article},
+  unique-id      = {WOS:001020359500002},
+}
+
+@Article{WOS:001305610300001,
+  author              = {Zhang, Hao and Du, Yu and Zhao, Shixin and Yuan, Ying and Gao, Qiuqi},
+  journal             = {ELECTRONICS},
+  title               = {VN-MADDPG: A Variable-Noise-Based Multi-Agent Reinforcement Learning Algorithm for Autonomous Vehicles at Unsignalized Intersections},
+  year                = {2024},
+  month               = {AUG},
+  number              = {16},
+  volume              = {13},
+  abstract            = {The decision-making performance of autonomous vehicles tends to be
+   unstable at unsignalized intersections, making it difficult for them to
+   make optimal decisions. We propose a decision-making model based on the
+   Variable-Noise Multi-Agent Deep Deterministic Policy Gradient
+   (VN-MADDPG) algorithm to address these issues. The variable-noise
+   mechanism reduces noise dynamically, enabling the agent to utilize the
+   learned policy more effectively to complete tasks. This significantly
+   improves the stability of the decision-making model in making optimal
+   decisions. The importance sampling module addresses the inconsistency
+   between outdated experience in the replay buffer and current
+   environmental features. This enhances the model's learning efficiency
+   and improves the robustness of the decision-making model. Experimental
+   results on the CARLA simulation platform show that the success rate of
+   decision making at unsignalized intersections by autonomous vehicles has
+   significantly increased, and the pass time has been reduced. The
+   decision-making model based on the VN-MADDPG algorithm demonstrates
+   stable and excellent decision-making performance.},
+  algorithm           = {DQN/DDPG},
+  article-number      = {3180},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.3390/electronics13163180},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Reward;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Wall Time},
+  type                = {Article},
+  unique-id           = {WOS:001305610300001},
+}
+
+@Article{WOS:001354561000001,
+  author              = {Lu, Jixiang and Xie, Zhangtian and Xu, Hongsheng and Liu, Junjun},
+  journal             = {IEEE ACCESS},
+  title               = {Optimizing Joint Bidding and Incentivizing Strategy for Price-Maker Load Aggregators Based on Multi-Task Multi-Agent Deep Reinforcement Learning},
+  year                = {2024},
+  pages               = {163988-164001},
+  volume              = {12},
+  abstract            = {The increasing penetration of renewable energy sources poses significant
+   challenges for modern power systems, particularly in supply-demand
+   balance and peak regulation. Load aggregators (LAs) play a crucial role
+   by integrating small to medium-sized loads and coordinating demand
+   response (DR). However, previous research works ignored the inherent
+   coupling between price-maker LAs' decision-making of bidding price and
+   quantity in the ancillary service market and decision-making of
+   incentive price in DR. This study introduces a joint bidding and
+   incentivizing model for a price-maker LA participating in a
+   peak-regulation ancillary service market (PRM) and developing an
+   incentive-based demand response (IBDR), where the LA's objective is to
+   maximize its long-term cumulative payoff. In order to solve this complex
+   joint decision-making optimization problem more effectively and
+   efficiently, a model-free multi-task multi-agent deep reinforcement
+   learning-based (MTMA-DRL-based) method incorporating a shared,
+   centralized prioritized experience replay buffer (PERB) is proposed.
+   Case studies in real-world settings confirm that the proposed model
+   effectively captures the interdependence between bidding price, bidding
+   quantity, and incentive price decisions. The proposed MTMA-DRL-based
+   method is also proven to outperform existing methods.},
+  algorithm           = {SAC},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1109/ACCESS.2024.3491189},
+  learning            = {Model-free;Off-policy},
+  performance_metrics = {Reward;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Wall Time},
+  type                = {Article},
+  unique-id           = {WOS:001354561000001},
+}
+
+@InCollection{WOS:000864709905062,
+  author            = {Fayaz, Muhammad and Yi, Wenqiang and Liu, Yuanwei and Nallanathan, Arumugam},
+  booktitle         = {IEEE INTERNATIONAL CONFERENCE ON COMMUNICATIONS (ICC 2022)},
+  title             = {Throughput Optimization for SGF-NOMA via Distributed DRL with Prioritized Experience Replay},
+  year              = {2022},
+  pages             = {5178-5183},
+  series            = {IEEE International Conference on Communications},
+  type              = {Proceedings Paper},
+  abstract          = {In this paper, we propose a novel distributed resource allocation
+   mechanism for semi-grant-free non-orthogonal multiple access (SGF-NOMA)
+   transmission to maximize the network throughput, where multi-agent deep
+   reinforcement learning with prioritized experience replay (PER) is
+   employed. We design a centralized training framework and decentralized
+   decision making to increase the flexibility of the proposed scheme. More
+   specifically, each grant-free user as an ``agent{''} learns the dynamics
+   of the environment and makes its decisions independently in a
+   decentralized manner. No heavy information exchange is needed to find
+   the optimal transmit power and sub-channel that maximize the throughput.
+   Numerical results show that the proposed algorithm with PER enhances the
+   learning efficiency compared to the algorithm with conventional replay
+   buffer and outperforms the existing scheme with a 12\% throughput
+   increase.},
+  book-group-author = {IEEE},
+  ranking           = {rank5},
+  unique-id         = {WOS:000864709905062},
+}
+
+@Article{WOS:001283953100001,
+  author              = {Jia, Kunkun and Xia, Hui and Zhang, Rui and Sun, Yue and Wang, Kai},
+  journal             = {COMPUTER NETWORKS},
+  title               = {Multi-agent DRL for edge computing: A real-time proportional compute offloading},
+  year                = {2024},
+  month               = {OCT},
+  volume              = {252},
+  abstract            = {In the Industrial Internet of Things, devices with limited computing
+   power and energy storage often rely on offloading tasks to edge servers
+   for processing. However, existing methods are plagued by the high cost
+   of device communication and unstable training processes. Consequently,
+   Deep reinforcement learning (DRL) has emerged as a promising solution to
+   tackle the computation offloading problem. In this paper, we propose a
+   framework called multi-agent twin delayed shared deep deterministic
+   policy gradient algorithm (MASTD3) based on DRL. Firstly, we formulate
+   the task offloading conundrum as a long-term optimization problem, which
+   aids in mitigating the challenge of deciding between local or remote
+   task execution by a device, leading to more effective task offloading
+   management. Secondly, we enhance MASTD3 by introducing a priority
+   experience replay buffer mechanism and a model sample replay buffer
+   mechanism, thus improving sample utilization and overcoming the
+   cold-start problem associated with long-term optimization. Moreover, we
+   refine the actor critic structure, enabling all agents to share the same
+   critic network. This modification accelerates convergence speed during
+   the training process and reduces computational costs during runtime.
+   Finally, experimental results demonstrate that MASTD3 effectively
+   addresses the proportional offloading problem, which is optimized by
+   44.32\%, 29.26\%, and 17.47\% compared to DDPQN, MADDPG, and FLoadNet.},
+  algorithm           = {Actor-Critic;DQN/DDPG},
+  article-number      = {110665},
+  communication       = {Decentralized;Synchronous},
+  doi                 = {10.1016/j.comnet.2024.110665},
+  earlyaccessdate     = {JUL 2024},
+  learning            = {Off-policy;Model-free;Offline},
+  performance_metrics = {Sample Efficiency;Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Wall time;Core efficiency},
+  type                = {Article},
+  unique-id           = {WOS:001283953100001},
+}
+
+@InCollection{WOS:000719386001131,
+  author              = {Lu, Haodong and Wang, Kun},
+  booktitle           = {IEEE INTERNATIONAL CONFERENCE ON COMMUNICATIONS (ICC 2021)},
+  title               = {Distributed Machine Learning based Mitigating Straggler in Big Data Environment},
+  year                = {2021},
+  series              = {IEEE International Conference on Communications},
+  type                = {Proceedings Paper},
+  abstract            = {In big data era, utilizing the parameter server paradigm has been
+   regarded as an efficient and practical way to improve performance in
+   processing deep learning (DL) applications. One of the main problems is
+   that straggler greatly hinders DL training progress, but the previous
+   methods cannot fully consider the resource utilization of the cluster
+   when dealing with straggler. To mitigate straggler problem in parameter
+   server, we propose a Deep Reinforcement Learning (DRL)-based framework
+   called Distributed Actor-critic Reinforcement Learning (DARL) that can
+   automatically adapt each worker's training load to the dynamic cluster
+   without parameter settings. DARL employs state-of-the-art techniques to
+   stabilize training and improve convergence, including distributed
+   framework, multiple actors and prioritized experience replay. Meanwhile,
+   we also apply our customized experience sampling method to fully exploit
+   potentially good samples. Experiments using real DL workloads show that
+   DARL outperforms the representative Bulk Synchronous Parallel (BSP)
+   scheme by 57.8\% and Stale Synchronous Parallel (SSP) by 503\% in terms
+   of per-iteration time in heterogeneous environment.},
+  algorithm           = {Actor-Critic},
+  book-group-author   = {IEEE},
+  communication       = {Centralized;Asynchronous},
+  doi                 = {10.1109/ICC42927.2021.9500531},
+  learning            = {Model-free;Off-policy;Online},
+  performance_metrics = {Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Latency;Core Efficiency},
+  unique-id           = {WOS:000719386001131},
+}
+
+@InCollection{WOS:000895738900040,
+  author              = {He, Hang and Ren, Tao and Cui, Meng and Liu, Dong and Niu, Jianwei},
+  booktitle           = {WIRELESS ALGORITHMS, SYSTEMS, AND APPLICATIONS, PT III},
+  title               = {Deep Reinforcement Learning Based Computation Offloading in Heterogeneous MEC Assisted by Ground Vehicles and Unmanned Aerial Vehicles},
+  year                = {2022},
+  editor              = {Wang, L and Segal, M and Chen, J and Qiu, T},
+  pages               = {481-494},
+  series              = {Lecture Notes in Computer Science},
+  type                = {Proceedings Paper},
+  volume              = {13473},
+  abstract            = {Compared with traditional mobile edge computing (MEC), heterogeneous MEC
+   (H-MEC), which is assisted by ground vehicles (GVs) and unmanned aerial
+   vehicles (UAVs) simultaneously, is attracting more and more attention
+   from both academia and industry. By deploying base stations (along with
+   edge servers) on GVs or UAVs, H-MEC is more suitable for access-demand
+   dynamicallychanging network environments, e.g., sports matches, traffic
+   management, and emergency rescue. However, it is non-trivial to perform
+   real-time user association and resource allocation in large-scale H-MEC
+   environments. Motivated by this, we propose a shared multi-agent
+   proximal policy optimization (SMAPPO) algorithm based on the centralized
+   training and distributed execution framework. Due to the NP-hard
+   difficulty of jointly optimizing user association and resource
+   allocation for H-MEC, we adopt the actor-critic-based online-policy
+   gradient (PG) algorithm to obtain near-optimal solutions with low
+   scheduling complexities. In addition, considering the low sampling
+   efficiency of PG, we introduce proximal policy optimization to increase
+   the training efficiency by importance sampling. Moreover, we leverage
+   the idea of centralized training and distributed execution to improve
+   the training efficiency and reduce scheduling complexity, so that each
+   mobile device makes decisions based only on local observation and learns
+   other MDs' experience from a shared replay buffer. Extensive simulation
+   results demonstrate that SMAPPO can achieve more satisfactory
+   performances than traditional algorithms.},
+  algorithm           = {PPO/Impala},
+  communication       = {Centralized},
+  doi                 = {10.1007/978-3-031-19211-1\_40},
+  learning            = {Online;Model-free;Off-policy},
+  performance_metrics = {Sample Efficiency;Reward},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Latency;Memory},
+  unique-id           = {WOS:000895738900040},
+}
+
+@Article{WOS:001359244600219,
+  author              = {Zhu, Shengchao and Han, Guangjie and Lin, Chuan and Tao, Qiuzi},
+  journal             = {IEEE TRANSACTIONS ON MOBILE COMPUTING},
+  title               = {Underwater Target Tracking Based on Hierarchical Software-Defined Multi-AUV Reinforcement Learning: A Multi-AUV Advantage-Attention Actor-Critic Approach},
+  year                = {2024},
+  month               = {DEC},
+  number              = {12},
+  pages               = {13639-13653},
+  volume              = {23},
+  abstract            = {With the rapid development of underwater robots, underwater
+   communication techniques, etc., the Autonomous Underwater Vehicle (AUV)
+   cluster network has emerged as a candidate paradigm to perform
+   underwater civil and military applications, e.g., underwater target
+   tracking. In this paper, we focus on how to utilize networking and
+   multi-agent artificial intelligence technique to improve underwater
+   target tracking. In particular, to improve the flexibility and
+   scalability of the AUV cluster network, we employ Software-Defined
+   Networking (SDN) and Centralized Training with Decentralized Execution
+   (CTDE)-based Multi-Agent Reinforcement Learning (MARL) technologies, to
+   propose a Hierarchical Software-Defined Multiple AUVs Reinforcement
+   Learning (HSD-MARL) framework. For the MARL mechanism in HSD-MARL, we
+   propose an advantage-attention mechanism and present the architecture of
+   Multi-AUV Advantage-Attention Actor-Critic (MA-A3C), to address slow
+   convergence and poor scalability issues on the AUV cluster network of
+   large-scale. Further, to improve the utilization rate of advantage
+   samples especially when the MA-A3C is utilized to perform AUV cluster
+   network-based underwater tracking, we propose an `advantage resampling'
+   method based on experience replay buffer. Evaluation results showcase
+   that our proposed approaches can perform exact underwater target
+   tracking based on AUV cluster network systems and outperform some recent
+   research products in terms of convergence speed, tracking accuracy, etc.},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Centralized},
+  doi                 = {10.1109/TMC.2024.3437376},
+  learning            = {On-polic;},
+  performance_metrics = {Convergence;Sample Efficiency},
+  ranking             = {rank5},
+  system_metrics      = {Latency;Memory},
+  type                = {Article},
+  unique-id           = {WOS:001359244600219},
+}
+
+@Article{WOS:001311045100001,
+  author              = {Li, Mingfei and Liu, Haibin and Xie, Feng and Huang, He},
+  journal             = {ELECTRONICS},
+  title               = {Adaptive Distributed Control for Leader-Follower Formation Based on a Recurrent SAC Algorithm},
+  year                = {2024},
+  month               = {SEP},
+  number              = {17},
+  volume              = {13},
+  abstract            = {This study proposes a novel adaptive distributed recurrent SAC (Soft
+   Actor-Critic) control method to address the leader-follower formation
+   control problem of omnidirectional mobile robots. Our method
+   successfully eliminates the reliance on the complete state of the leader
+   and achieves the task of formation solely using the pose between robots.
+   Moreover, we develop a novel recurrent SAC reinforcement learning
+   framework that ensures that the controller exhibits good transient and
+   steady-state characteristics to achieve outstanding control performance.
+   We also present an episode-based memory replay buffer and sampling
+   approaches, along with a unique normalized reward function, which
+   expedites the recurrent SAC reinforcement learning formation framework
+   to converge rapidly and receive consistent incentives across various
+   leader-follower tasks. This facilitates better learning and adaptation
+   to the formation task requirements in different scenarios. Furthermore,
+   to bolster the generalization capability of our method, we normalized
+   the state space, effectively eliminating differences between formation
+   tasks of different shapes. Different shapes of leader-follower formation
+   experiments in the Gazebo simulator achieve excellent results,
+   validating the efficacy of our method. Comparative experiments with
+   traditional PID and common network controllers demonstrate that our
+   method achieves faster convergence and greater robustness. These
+   simulation results provide strong support for our study and demonstrate
+   the potential and reliability of our method in solving real-world
+   problems.},
+  algorithm           = {SAC},
+  article-number      = {3513},
+  communication       = {Decentralized;Asynchronous},
+  doi                 = {10.3390/electronics13173513},
+  learning            = {Off-policy;Model-free;Online Learning},
+  performance_metrics = {Convergence;Stability;},
+  ranking             = {rank5},
+  system_metrics      = {Memory;Latency},
+  type                = {Article},
+  unique-id           = {WOS:001311045100001},
+}
+
+@Article{WOS:001360093300001,
+  author              = {Abbas, Muhammad Naveed and Liston, Paul and Lee, Brian and Qiao, Yuansong},
+  journal             = {KNOWLEDGE-BASED SYSTEMS},
+  title               = {CESDQL: Communicative experience-sharing deep Q-learning for scalability in multi-robot collaboration with sparse reward},
+  year                = {2024},
+  month               = {DEC 20},
+  volume              = {306},
+  abstract            = {Owing to the massive transformation in industrial processes and
+   logistics, warehouses are also undergoing advanced automation. The
+   application of Autonomous Mobile Robots (a.k.a. multi-robots) is one of
+   the important elements of overall warehousing automation. The autonomous
+   collaborative behaviour of the multi- robots can be considered as
+   employment on a control task and, thus, can be optimised using
+   multi-agent reinforcement learning (MARL). Consequently, an autonomous
+   warehouse is to be represented by an MARL environment. An MARL
+   environment replicating an autonomous warehouse poses the challenge of
+   exploration due to sparse reward leading to inefficient collaboration.
+   This challenge aggravates further with an increase in the number of
+   robots and the grid size, i.e., scalability. This research proposes C
+   ommunicative E xperience- S haring D eep Q-Learning (CESDQL) based on
+   Q-learning, a novel hybrid multi-robot communicative framework for
+   scalability for MARL collaboration with sparse rewards, where
+   exploration is challenging and makes collaboration difficult. CESDQL
+   makes use of experience-sharing through collective sampling from the
+   Experience (Replay) buffer and communication through Communicative Deep
+   recurrent Q-network (CommDRQN), a Qfunction approximator. Through
+   empirical evaluation of CESDQL in a variety of collaborative scenarios,
+   it is established that CESDQL outperforms the baselines in terms of
+   convergence and stable learning. Overall, CESDQL achieves 5\%, 69\%,
+   60\%, 211\%, 171\%, 3.8\% \& 10\% more final accumulative training
+   returns than the closest performing baseline by scenario, and, 27\%,
+   10.33\% \& 573\% more final average training returns than the closest
+   performing baseline by the big-scale scenario.},
+  algorithm           = {Q-learning},
+  article-number      = {112714},
+  communication       = {Decentralized;Asynchronous},
+  doi                 = {10.1016/j.knosys.2024.112714},
+  earlyaccessdate     = {NOV 2024},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Convergence;Stability},
+  ranking             = {rank5},
+  system_metrics      = {Core Efficiency},
+  type                = {Article},
+  unique-id           = {WOS:001360093300001},
+}
+
+@Article{Yin_2024,
+  author              = {Yin, Qiyue and Yu, Tongtong and Shen, Shengqi and Yang, Jun and Zhao, Meijing and Ni, Wancheng and Huang, Kaiqi and Liang, Bin and Wang, Liang},
+  journal             = {Machine Intelligence Research},
+  title               = {Distributed Deep Reinforcement Learning: A Survey and a Multi-player Multi-agent Learning Toolbox},
+  year                = {2024},
+  issn                = {2731-5398},
+  month               = jan,
+  number              = {3},
+  pages               = {411--430},
+  volume              = {21},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Centralized;Asynchronous},
+  doi                 = {10.1007/s11633-023-1454-4},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Sample Efficiency;Convergence},
+  publisher           = {Springer Science and Business Media LLC},
+  ranking             = {rank5},
+  system_metrics      = {Wall Speed;Core Efficiency},
+}
+
+@Article{https://doi.org/10.48550/arxiv.2203.08975,
+  author              = {Zhu, Changxi and Dastani, Mehdi and Wang, Shihan},
+  title               = {A Survey of Multi-Agent Deep Reinforcement Learning with Communication},
+  year                = {2022},
+  algorithm           = {PPO/Impala},
+  communication       = {Decentralized;Asynchronous},
+  copyright           = {arXiv.org perpetual, non-exclusive license},
+  doi                 = {https://doi.org/10.48550/arXiv.2203.08975},
+  keywords            = {Multiagent Systems (cs.MA), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  learning            = {On-policy;Model-free},
+  performance_metrics = {Reward;Stability},
+  publisher           = {arXiv},
+  ranking             = {rank5},
+  system_metrics      = {Latency},
+}
+
+@Article{https://doi.org/10.48550/arxiv.2312.10256,
+  author              = {Huh, Dom and Mohapatra, Prasant},
+  title               = {Multi-agent Reinforcement Learning: A Comprehensive Survey},
+  year                = {2023},
+  algorithm           = {Q-learning;Actor-Critic},
+  communication       = {Decentralized},
+  copyright           = {Creative Commons Attribution 4.0 International},
+  doi                 = {https://doi.org/10.48550/arXiv.2312.10256},
+  keywords            = {Multiagent Systems (cs.MA), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  learning            = {Off-policy;Model-free},
+  performance_metrics = {Convergence;Stability},
+  publisher           = {arXiv},
+  ranking             = {rank5},
+  system_metrics      = {Memory},
+}

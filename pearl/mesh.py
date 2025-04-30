@@ -1,3 +1,5 @@
+import logging
+
 from dxlib.network.interfaces.internal import MeshService
 from dxlib.network.servers.http.fastapi import FastApiServer
 
@@ -8,7 +10,7 @@ def main(config=None):
     _, mesh_name, mesh_host, mesh_port = load_config(config)
     mesh = MeshService(mesh_name)
 
-    server = FastApiServer(mesh_host, mesh_port)
+    server = FastApiServer(mesh_host, mesh_port, log_level=logging.WARNING)
     server.register(mesh)
 
     try:

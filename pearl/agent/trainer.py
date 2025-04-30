@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 from pearl.agent.agent import Agent
 from pearl.agent.replay_buffer import ReplayBuffer
 from pearl.envs.multi.env_interface import EnvInterface
-from pearl.lib.benchmark import Benchmark
+from dxlib import Benchmark
 
 
 class RLTrainer:
@@ -87,6 +87,7 @@ class RLTrainer:
 
         except KeyboardInterrupt:
             pass
+        self.benchmark.report()
 
         writer.close()
 
@@ -106,19 +107,19 @@ class RLTrainer:
             if dones == set(self.envs):
                 break
 
-            self.benchmark.start("trainer", "act")
+            self.benchmark.record("trainer.act")
             batch_states = torch.tensor([states[env_id] for env_id in self.envs], dtype=torch.float32).cuda()
             actions, log_prob, _ = self.agent(batch_states)
-            self.benchmark.stop("trainer", "act")
+            self.benchmark.record("trainer.act")
 
             actions = {env_id: action.tolist() for env_id, action in zip(self.envs, actions)}
             log_prob = {env_id: log_prob.tolist() for env_id, log_prob in zip(self.envs, log_prob)}
 
-            self.benchmark.start("trainer", "step")
+            self.benchmark.record("trainer.step")
             response = self.envs.step(actions, timesteps)
-            self.benchmark.stop("trainer", "step")
+            self.benchmark.record("trainer.step")
 
-            self.benchmark.start("trainer", "reset")
+            self.benchmark.record("trainer.reset")
             for env_id, data in response.items():
                 if data.get("timeout", False) or data.get("busy", False):
                     # if busy the environment is very likely currently being step'd
@@ -136,7 +137,8 @@ class RLTrainer:
                 if data['done']:
                     dones.add(env_id)
                 states[env_id] = data['state']
-            self.benchmark.stop("trainer", "reset")
+            self.benchmark.record("trainer.reset")
         self.envs.reset(list(self.envs))
+
 
         return trajectories

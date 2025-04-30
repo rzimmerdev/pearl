@@ -10,7 +10,6 @@ from dxlib.storage import T
 from httpx import HTTPStatusError
 
 from pearl.lib import Router
-from pearl.lib.benchmark import Benchmark
 from pearl.lib.timer import Timer
 from pearl.envs.multi.multi_env import MarketEnv
 
@@ -55,7 +54,6 @@ class MarketEnvService(Service, MarketEnv):
         self.execute_lock = asyncio.Event()
         self.reset_flag = asyncio.Event()
 
-        self.benchmark = Benchmark()
 
     async def handle(self, identity, content):
         """Handle different types of messages asynchronously."""
@@ -112,9 +110,7 @@ class MarketEnvService(Service, MarketEnv):
             else:
                 if len(self.action_buffer) == 1:
                     asyncio.create_task(self.timer.start(self._execute_step))
-                self.benchmark.start(uuid, "action")
                 await self.sync["execute"].wait()
-                self.benchmark.stop(uuid, "action")
         return {
             "state": self.response["state"][uuid].tolist(),
             "reward": self.response["reward"][uuid],
@@ -138,7 +134,6 @@ class MarketEnvService(Service, MarketEnv):
             self.execute_lock.clear()
 
     async def execute_step(self):
-        self.benchmark.start("environment", "step")
         self.execute_lock.set()
         actions = {uuid: self.action_buffer[uuid] for uuid in self.action_buffer}
         self.action_buffer.clear()
@@ -148,7 +143,6 @@ class MarketEnvService(Service, MarketEnv):
         self.response = {"state": state, "reward": reward, "done": done, "trunc": trunc}
         self.sync["execute"].notify_all()
         self.execute_lock.clear()
-        self.benchmark.stop("environment", "step")
 
     def use_mesh(self, mesh_name, mesh_host, mesh_port):
         service_data = self.data()

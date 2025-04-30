@@ -13,4 +13,3 @@ You will then see a sequence of events in the terminal, as the cluster is starte
 2. Parallel individual environments, running in separate process or machine.
 3. Learner processes, which are responsible for training the agents and can connect to multiple individual environments.
 
-Learner processes can be l
