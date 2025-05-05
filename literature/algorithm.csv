@@ -1,0 +1,7 @@
+Label,Count
+Actor-Critic,6
+DQN/DDPG,4
+GORILA,1
+SAC,2
+PPO/Impala,2
+Q-learning,4
