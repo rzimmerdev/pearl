@@ -1,7 +1,7 @@
+import inspect
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from dataclasses import dataclass, astuple
-from typing import Optional
 
 
 @dataclass
@@ -12,16 +12,24 @@ class Config(ABC):
         pass
 
     @classmethod
-    def parse_args(cls, parser: ArgumentParser = None, args: Optional[list[str]] = None):
+    def parse_args(cls, parser: ArgumentParser = None, args = None):
         parser = parser or cls.parser(parser)
         parsed_args = parser.parse_args(args)
 
         # noinspection PyArgumentList
-        return cls(**vars(parsed_args))
+        return cls.from_dict(dict(**vars(parsed_args)))
 
     def __iter__(self):
         # noinspection PyTypeChecker
         return iter(astuple(self))
+
+    @classmethod
+    def from_dict(cls, args):
+        # noinspection PyArgumentList
+        return cls(**{
+            k: v for k, v in args.items()
+            if k in inspect.signature(cls).parameters
+        })
 
 @dataclass
 class MeshConfig(Config):
@@ -32,24 +40,11 @@ class MeshConfig(Config):
     @classmethod
     def parser(cls, parser: ArgumentParser = None) -> ArgumentParser:
         parser = parser or ArgumentParser(description="Mesh Configuration")
-        parser.add_argument("--mesh_name", default=cls.name)
-        parser.add_argument("--mesh_host", default=cls.host)
-        parser.add_argument("--mesh_port", type=int, default=cls.port)
+        parser.add_argument("--name", default=cls.name)
+        parser.add_argument("--host", default=cls.host)
+        parser.add_argument("--port", type=int, default=cls.port)
         return parser
 
-    @classmethod
-    def parse_args(cls, parser: ArgumentParser = None, args: Optional[list[str]] = None):
-        parser = parser or cls.parser(parser)
-        parsed_args = vars(parser.parse_args(args))
-
-        # Map prefixed args to dataclass fields
-        mapped_args = {
-            'name': parsed_args['mesh_name'],
-            'host': parsed_args['mesh_host'],
-            'port': parsed_args['mesh_port'],
-        }
-
-        return cls(**mapped_args)
 
 @dataclass
 class TrainConfig(Config):

@@ -1,6 +1,7 @@
 import argparse
 import os
 import multiprocessing
+import sys
 import time
 
 import numpy as np
@@ -79,19 +80,20 @@ if __name__ == "__main__":
     parser.add_argument("--n_envs", default=1, type=int)
     parser.add_argument("--k", default=1, type=int)
 
-    subparsers = parser.add_subparsers(dest="config_type", help="Choose a configuration type")
-
-    mesh_parser = subparsers.add_parser("mesh", help="Mesh configuration options")
-    MeshConfig.parser(mesh_parser)
-
-    train_parser = subparsers.add_parser("train", help="Training configuration options")
-    TrainConfig.parser(train_parser)
+    MeshConfig.parser(parser)
+    TrainConfig.parser(parser)
 
     args = parser.parse_args()
+
     config = {
-        "mesh": MeshConfig.parse_args(mesh_parser),
-        "train": TrainConfig.parse_args(train_parser),
+        "n_trainers": args.n_trainers,
+        "n_envs": args.n_envs,
+        "k": args.k,
+        "mesh": MeshConfig.parse_args(parser),
+        "train": TrainConfig.parse_args(parser)
     }
+
+    print(f"Running with config: {config}")
 
     out = pd.DataFrame()
     updates = pd.DataFrame()
@@ -99,7 +101,7 @@ if __name__ == "__main__":
     console = Console()
     try:
         for i in range(args.k):
-            console.print(f"[green]Running with n_envs={args.n_envs}, i={i}[/green]")
+            console.print(f"[green]Currently running n_envs={args.n_envs}, i={i}[/green]")
             wall_time, loss, num_updates = main(args.n_envs, args.n_trainers, config["mesh"], config["train"])
             n = len(wall_time)
             df = pd.DataFrame({
