@@ -316,7 +316,7 @@
 		\parbox[b][\paperheight]{\paperwidth}{
 			\vfill
 			\centering
-			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{img/CapaICMC.jpg}
+			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{images/cover}
 			\vfill
 }}}
 \makeatother
@@ -327,7 +327,7 @@
 		\parbox[b][\paperheight]{\paperwidth}{
 			\vfill
 			\centering
-			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{img/USPSC-PaginaEmBranco.jpg}
+			\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{images/empty}
 			\vfill
 }}}		
 \makeatother				

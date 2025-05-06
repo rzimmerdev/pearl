@@ -36,21 +36,11 @@ which we refer to as Parallel Environments for Asynchronous Reinforcement Learni
 \section{Environment and Agent Methodology}
 \label{sec:methodology}
 
-This thesis makes several key contributions to the field of distributed reinforcement learning by introducing a novel shared
-parallel environment architecture that addresses common inefficiencies in traditional systems.
-Our approach, called Parallel Environments for Asynchronous Reinforcement Learning (PEARL),
-is designed to enhance computational efficiency and learning performance in high-frequency trading applications.
-
-First, the proposed framework enables multiple RL agents (workers) to share a single environment instance rather than running isolated simulations.
-This design minimizes redundant computations and significantly reduces the communication overhead typically
+As mentioned in \autoref{ch:introduction}, the proposed PEARL framework enables multiple RL agents (workers)
+to share a single environment instance rather than running isolated simulations and thus
+minimize redundant computations and communication overhead typically
 encountered when synchronizing separate environment instances.
-Second, the system incorporates an asynchronous policy update mechanism.
-In our approach, workers continuously send their experience trajectories to a centralized learner without waiting for all processes to complete,
-thereby mitigating issues of data staleness and enhancing convergence stability in non-stationary environments
-
-Third, we validate the proposed architecture within the context of financial applications,
-such as high-frequency trading, demonstrating that the shared environment
-model can achieve superior computational efficiency and learning performance compared to conventional actor-learner designs.
+The dynamics of the simulator and the implemented agent used for testing the framework are described in the following subsections.
 
 \input{textual/development/environment}
 \input{textual/development/agent}
@@ -60,4 +50,3 @@ model can achieve superior computational efficiency and learning performance com
 
 \input{textual/development/distributed}
 \input{textual/development/communication}
-\input{textual/development/results}

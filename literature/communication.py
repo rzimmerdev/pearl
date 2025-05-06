@@ -1,7 +1,10 @@
+import csv
+
 import bibtexparser
 import matplotlib.pyplot as plt
 from collections import Counter
 
+plt.style.use('./style.mplstyle')
 BIBTEX_FILE = 'bibliography.bib'
 
 with open(BIBTEX_FILE, 'r') as bibtex_file:
@@ -39,4 +42,17 @@ axs[1].pie(counts_s, labels=labels_s, autopct='%1.1f%%', startangle=90, colors=[
 axs[1].set_title('Asynchronous vs Synchronous')
 
 plt.tight_layout()
-plt.show()
+plt.savefig("../paper/main/images/literature/communication.png")
+
+csv_file = 'communication.csv'
+with open(csv_file, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Label', 'Count'])
+
+    for label, count in centralization_counter.items():
+        writer.writerow([label, count])
+
+    for label, count in synchronization_counter.items():
+        writer.writerow([label, count])
+
+print(f"CSV saved as {csv_file}")

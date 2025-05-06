@@ -35,3 +35,78 @@ The bibliography analysis refeers to the remaining 33, where the tagged categori
     \item \textbf{System Metrics} (Wall Speed, Latency, Memory, Core Efficiency)
 \end{itemize}
 
+\subsection{Algorithmic Landscape}
+
+The analysis shows in \autoref{fig:algorithm} a clear preference for actor-critic architectures (6 out of 33 papers), followed by Q-learning variants including DQN and DDPG (4),
+and to a lesser extent SAC, PPO, and Impala.
+Only one paper made use of Gorila, despite its historical role in scaling Q-learning via distributed experience replay.
+This reflects a general trend toward architectures that decouple policy evaluation from improvement—either via off-policy learning or multi-threaded experience collection.
+The diversity suggests no one-size-fits-all solution, but rather that algorithmic selection is often tailored to the resource constraints and task structure at hand.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/literature/algorithm}
+    \caption{Algorithm classes}
+    \label{fig:algorithm}
+\end{figure}
+
+\subsection{Communication Models and Scalability}
+
+Decentralized architectures were most frequent for our search query (8 instances), often favored for scalability and fault tolerance.
+Centralized (5) and asynchronous (5) methods are frequently used in systems where shared state must be maintained across learners.
+Synchronous designs (4) were least common, likely due to their inefficiencies in environments with heterogeneous worker speeds,
+shown in \autoref{fig:communication}.
+The prevalence of asynchronous and decentralized schemes underscores the challenge of balancing policy staleness with communication overhead
+—a trade-off directly addressed in designs like IMPALA and SEED RL.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/literature/communication}
+    \caption{Communication layer architecture}
+    \label{fig:communication}
+\end{figure}
+
+\subsection{RL and Performance Metrics}
+
+Among RL-specific evaluation criteria, convergence and sample efficiency dominate (8 and 7 mentions respectively),
+highlighting the central importance of rapid learning and stable policy improvement, as shown in \autoref{fig:rl_metrics}.
+Stability and reward-related scores are also commonly used (6 each), though reward alone is rarely sufficient to benchmark system improvements in distributed settings.
+The frequent attention to convergence and efficiency metrics reflects a growing awareness that communication overhead and resource utilization can significantly
+impact learning dynamics, particularly in systems with many concurrent agents.
+
+Tagged system metrics are shown in \autoref{fig:system_metrics}.
+Wall speed (7), memory usage (5), and latency (5) are frequently reported, with core efficiency trailing slightly (4).
+These metrics are crucial when deploying RL systems in performance-sensitive environments like financial markets or real-time robotics.
+Wall speed, often used as a proxy for overall training throughput, receives particular attention,
+emphasizing care put in reducing time-to-solution.
+This aligns with our own motivation for optimizing PEARL to accommodate the throughput demands of high-frequency trading environments.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/literature/rl_metrics}
+        \caption{Reinforcement learning-based metrics}
+        \label{fig:rl_metrics}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/literature/system_metrics}
+        \caption{System and network metrics}
+        \label{fig:system_metrics}
+    \end{minipage}
+\end{figure}
+
+\subsection{Conclusion of the Literature Review}
+
+Overall, the literature points to a growing interest in modular, scalable, and asynchronous architectures that can adapt to diverse computational environments,
+while still maintaining acceptable training speeds and sample efficiency.
+Actor-Critic methods, particularly those employing off-policy or asynchronous updates, dominate the field due to their flexibility and sample efficiency.
+Communication remains a central bottleneck, with decentralization and batching strategies like those used in SEED RL emerging as practical solutions.
+
+Our proposed system—PEARL—builds on these insights by adopting asynchronous shared environments with minimal inter-process communication.
+This design explicitly targets environments such as financial simulations, where timing, throughput,
+and low-latency response are critical.
+In the following sections, we describe the architecture and implementation details of PEARL,
+and evaluate its performance in terms of wall time, latency, core efficiency and training reward.
