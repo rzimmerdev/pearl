@@ -12,3 +12,5 @@ runs/
 *.bbl
 *.blg
 *.dvi
+
+*.pyc
