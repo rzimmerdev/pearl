@@ -1,3 +1,4 @@
+import argparse
 import os
 import multiprocessing
 import time
@@ -11,39 +12,44 @@ from rich.console import Console
 import pearl.envs
 import pearl.train
 import pearl.mesh
+from pearl.config import MeshConfig, TrainConfig
 
-def run_env(n_envs, env_id, env_config):
+
+def run_env(env_host, mesh_config: MeshConfig, n_envs: int, env_idx: int):
     p = psutil.Process(os.getpid())
     available_cpus = psutil.cpu_count(logical=True)
-    core_id = env_id % available_cpus
+    core_id = env_idx % available_cpus
     p.cpu_affinity([core_id])
 
-    # Your actual logic here
-    pearl.env.main(n_envs, env_id, env_config)
+    pearl.env.main(env_host, mesh_config, n_envs, env_idx)
 
-def run_train(config=None, train_config=None, queue=None):
-    result = pearl.train.main(config, train_config)
+
+def run_train(mesh_config: MeshConfig, train_config: TrainConfig, queue=None):
+    result = pearl.train.main(mesh_config, train_config)
     if queue is not None:
         queue.put(result)
 
-def run_mesh(config=None):
-    pearl.mesh.main(config)
+
+def run_mesh(mesh_config: MeshConfig):
+    pearl.mesh.main(mesh_config)
 
 
-def main(n_envs, n_trainers, env_config, train_config):
-    mesh_process = multiprocessing.Process(target=run_mesh, args=(env_config,))
+def main(n_envs: int, n_trainers: int, mesh_config: MeshConfig, train_config: TrainConfig):
+    mesh_process = multiprocessing.Process(target=run_mesh, args=(mesh_config,))
     mesh_process.start()
     time.sleep(2)
 
     # Start env processes first
-    env_processes = [multiprocessing.Process(target=run_env, args=(n_envs, env_id, env_config,)) for env_id in range(n_envs)]
+    env_processes = [multiprocessing.Process(target=run_env, args=(n_envs, env_id, mesh_config,)) for env_id in
+                     range(n_envs)]
     for p in env_processes:
         p.start()
     time.sleep(2)
 
     # Start train processes
     queue = multiprocessing.Queue()
-    train_processes = [multiprocessing.Process(target=run_train, args=(env_config, train_config, queue)) for _ in range(n_trainers)]
+    train_processes = [multiprocessing.Process(target=run_train, args=(mesh_config, train_config, queue)) for _ in
+                       range(n_trainers)]
     for p in train_processes:
         p.start()
 
@@ -68,28 +74,13 @@ def main(n_envs, n_trainers, env_config, train_config):
 
 
 if __name__ == "__main__":
-    n_trainers = 1
-
-    env_config = {
-        "HOST": os.getenv("HOST", "localhost"),
-        "MESH_NAME": os.getenv("MESH_NAME", "pearl"),
-        "MESH_HOST": os.getenv("MESH_HOST", "localhost"),
-        "MESH_PORT": os.getenv("MESH_PORT", 5000),
-    }
-
-    train_config = {
-        "ROLLOUT_LENGTH": os.getenv("ROLLOUT_LENGTH", 2048),
-        "PATH": os.getenv("PATH", "runs"),
-        "NUM_EPISODES": os.getenv("NUM_EPISODES", 10),
-        "BATCH_SIZE": os.getenv("BATCH_SIZE", 64),
-    }
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--")
 
     k = 10
 
     out = pd.DataFrame()
     updates = pd.DataFrame()
-    # ["wall_time", "loss", "num_updates", "n_env", "iteration"]
-    # set the columns to the above
 
     console = Console()
     try:

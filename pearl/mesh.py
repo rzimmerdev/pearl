@@ -3,14 +3,14 @@ import logging
 from dxlib.network.interfaces.internal import MeshService
 from dxlib.network.servers.http.fastapi import FastApiServer
 
-from pearl.load_mesh import load_config
+from pearl.config import MeshConfig
 
 
-def main(config=None):
-    _, mesh_name, mesh_host, mesh_port = load_config(config)
-    mesh = MeshService(mesh_name)
+def main(mesh_config: MeshConfig):
+    name, host, port = mesh_config
+    mesh = MeshService(name)
 
-    server = FastApiServer(mesh_host, mesh_port, log_level=logging.WARNING)
+    server = FastApiServer(host, port, log_level=logging.WARNING)
     server.register(mesh)
 
     try:
@@ -22,4 +22,4 @@ def main(config=None):
 
 
 if __name__ == "__main__":
-    main()
+    main(MeshConfig())

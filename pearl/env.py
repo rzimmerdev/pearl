@@ -8,18 +8,19 @@ from dxlib.network.servers import Server
 from dxlib.network.interfaces.internal import MeshInterface
 from dxlib.network.servers.http.fastapi import FastApiServer
 
+from pearl.config import MeshConfig
 from pearl.envs.multi import MarketEnvService
-from pearl.load_mesh import load_config
 
 
-def main(max_envs: int, env_id, config=None):
-    host, mesh_name, mesh_host, mesh_port = load_config(config)
+def main(host,
+         mesh_config: MeshConfig,
+         max_envs: int,
+         env_id=None):
     server_intervals = range(5001, 5001 + max_envs)
-    router_intervals = range(5002 + max_envs, 5002 + 2*max_envs)
+    router_intervals = range(5002 + max_envs, 5002 + 2 * max_envs)
 
     mesh = MeshInterface()
-    mesh.register(Server(mesh_host, mesh_port))
-    # get existing services
+    mesh.register(Server(mesh_config.host, mesh_config.port))
     services = mesh.search_services()
 
     if env_id is not None:
@@ -56,7 +57,7 @@ def main(max_envs: int, env_id, config=None):
         thread.start()
         env.start()
         mesh.register_service(env.data(server.url))
-        env.router.use_mesh(mesh_name, mesh_host, mesh_port, env.name, env.service_id)
+        env.router.use_mesh(mesh_config.name, mesh_config.host, mesh_config.port, env.name, env.service_id)
         while env.running:
             pass
     except KeyboardInterrupt:

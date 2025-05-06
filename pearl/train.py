@@ -1,4 +1,4 @@
-from pearl.load_mesh import load_config
+from pearl.config import MeshConfig, TrainConfig
 from pearl.envs.multi.env_interface import EnvInterface
 
 from pearl.agent.models.mlp import MLP
@@ -7,25 +7,15 @@ from pearl.agent.ppo import PPOAgent, PPOParams
 from pearl.agent.trainer import RLTrainer
 
 
-def load_traing_config(config):
-    rollout_length = config.get("ROLLOUT_LENGTH", 2048)
-    path = config.get("PATH", "runs")
-    num_episodes = config.get("NUM_EPISODES", 1000)
-    batch_size = config.get("BATCH_SIZE", 64)
-
-    return rollout_length, path, num_episodes, batch_size
-
-
-def main(config=None, train_config=None) -> list:
-    host, mesh_name, mesh_host, mesh_port = load_config(config)
-    rollout_length, path, num_episodes, batch_size = load_traing_config(train_config)
+def main(mesh_config: MeshConfig, train_config: TrainConfig) -> list:
+    rollout_length, checkpoint_path, num_episodes, batch_size = train_config
 
     envs = EnvInterface()
     try:
-        envs.use_mesh(mesh_name, mesh_host, mesh_port)
+        envs.use_mesh(mesh_config.name, mesh_config.host, mesh_config.port)
     except Exception as e:
         print(f"Failed to connect to mesh service: {e}")
-        print(f"Are you sure the mesh service is running on {mesh_host}:{mesh_port} (try loading variables from .env)?")
+        print(f"Are you sure the mesh service is running on {mesh_config.host}:{mesh_config.port} (try loading variables from .env)?")
         raise e
 
     envs.register_user()
@@ -52,9 +42,5 @@ def main(config=None, train_config=None) -> list:
         batch_size=batch_size
     )
 
-    trainer = RLTrainer(agent, envs, path=path, rollout_length=rollout_length)
+    trainer = RLTrainer(agent, envs, path=checkpoint_path, rollout_length=rollout_length)
     return trainer.train(num_episodes=num_episodes)
-
-
-if __name__ == "__main__":
-    main()

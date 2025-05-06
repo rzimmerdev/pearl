@@ -1,0 +1,10 @@
+actor_loss = (-torch.min(surr1, surr2).mean() - self.entropy_coef * entropy) / batch_states.shape[0]
+critic_loss = nn.MSELoss()(state_values, batch_returns) / batch_states.shape[0]
+
+self.optimizer.zero_grad()
+actor_loss.backward()
+self.optimizer.step()
+
+self.optimizer.zero_grad()
+critic_loss.backward()
+self.optimizer.step()
