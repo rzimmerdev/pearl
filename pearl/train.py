@@ -8,7 +8,7 @@ from pearl.agent.trainer import RLTrainer
 
 
 def main(mesh_config: MeshConfig, train_config: TrainConfig) -> list:
-    rollout_length, checkpoint_path, num_episodes, batch_size = train_config
+    rollout_length, checkpoint_path, num_episodes, batch_size, learning_rate = train_config
 
     envs = EnvInterface()
     try:
@@ -39,7 +39,8 @@ def main(mesh_config: MeshConfig, train_config: TrainConfig) -> list:
             eps_clip=0.2,
             entropy_coef=0.01,
         ),
-        batch_size=batch_size
+        batch_size=batch_size,
+        lr=learning_rate
     )
 
     trainer = RLTrainer(agent, envs, path=checkpoint_path, rollout_length=rollout_length)
