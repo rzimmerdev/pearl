@@ -87,7 +87,6 @@ class RLTrainer:
 
         except KeyboardInterrupt:
             pass
-        self.benchmark.report()
 
         writer.close()
 

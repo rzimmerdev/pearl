@@ -30,10 +30,12 @@ def run_env(env_host, mesh_config: MeshConfig, n_envs: int, env_idx: int):
 
 
 def run_train(mesh_config: MeshConfig, train_config: TrainConfig, queue=None):
-    result = pearl.train.main(mesh_config, train_config)
-    if queue is not None:
-        queue.put(result)
-
+    try:
+        result, benchmark = pearl.train.main(mesh_config, train_config)
+        if queue is not None:
+            queue.put((result, benchmark))
+    except KeyboardInterrupt:
+        pass
 
 def main(n_envs: int, n_trainers: int, mesh_config: MeshConfig, train_config: TrainConfig):
     mesh_process = multiprocessing.Process(target=run_mesh, args=(mesh_config,))
@@ -67,11 +69,19 @@ def main(n_envs: int, n_trainers: int, mesh_config: MeshConfig, train_config: Tr
     for p in env_processes:
         p.join()
     mesh_process.join()
+    trainer_idx = 0
+
+    results = []
 
     while not queue.empty():
-        wall_time, loss_history, updates = queue.get()  # (time, reward)
+        f = queue.get()
+        (wall_time, loss_history, updates), benchmark = f  # (time, reward)
+        print(f"Trainer {trainer_idx} metrics:")
+        trainer_idx += 1
+        benchmark.report()
 
-        return np.array(wall_time), np.array(loss_history), np.array(updates)
+        results.append((np.array(wall_time), np.array(loss_history), np.array(updates)))
+    return results
 
 
 if __name__ == "__main__":
@@ -102,25 +112,31 @@ if __name__ == "__main__":
     try:
         for i in range(args.k):
             console.print(f"[green]Currently running n_envs={args.n_envs}, i={i}[/green]")
-            wall_time, loss, num_updates = main(args.n_envs, args.n_trainers, config["mesh"], config["train"])
-            n = len(wall_time)
-            df = pd.DataFrame({
-                "wall_time": wall_time[:, 0],
-                "loss": loss,
-                "n_envs": [args.n_envs] * n,
-                "iteration": [i] * n
-            })
-            num_updates = pd.DataFrame({
-                "num_updates": [num_updates],
-                "n_envs": [args.n_envs],
-                "iteration": [i]
-            })
-            out = pd.concat([out, df], ignore_index=True)
-            updates = pd.concat([updates, num_updates], ignore_index=True)
+            results = main(args.n_envs, args.n_trainers, config["mesh"], config["train"])
+            console.print(f"[green]Training finished successfully[/green]")
+            for idx, result in enumerate(results):
+                wall_time, loss, num_updates = result
+                n = len(wall_time)
+                df = pd.DataFrame({
+                    "trainer_idx": [idx] * n,
+                    "wall_time": wall_time[:, 0],
+                    "loss": loss,
+                    "n_envs": [args.n_envs] * n,
+                    "iteration": [i] * n
+                })
+                num_updates = pd.DataFrame({
+                    "trainer_idx": [idx],
+                    "num_updates": num_updates,
+                    "n_envs": [args.n_envs],
+                    "iteration": [i]
+                })
+                out = pd.concat([out, df], ignore_index=True)
+                updates = pd.concat([updates, num_updates], ignore_index=True)
     except KeyboardInterrupt:
         console.print(f"[yellow]Warning: Program interrupted prematurely by user[/yellow]")
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
+
 
     out.to_csv("results.csv", index=False)
     updates.to_csv("updates.csv", index=False)

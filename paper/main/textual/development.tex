@@ -12,7 +12,7 @@ a decentralized learner and worker structure, which periodically synchronizes th
 from the workers through gradient passing.
 This design enables significant scalability across heterogeneous computing resources and facilitates high-throughput training.
 
-As mentioned in \autoref{ch:introduction}, a key challenge present in these systems is the communication overhead incurred when transmitting experiences or
+As mentioned in \fullref{ch:introduction}, a key challenge present in these systems is the communication overhead incurred when transmitting experiences or
 updated policies between the learner and the workers.
 The IMPALA algorithm aggregates trajectories from multiple workers into
 batches for efficient gradient computation while managing the staleness of policy information.
@@ -23,7 +23,7 @@ enhancing data efficiency in scenarios where high-frequency data generation is c
 
 In the context of financial applications, RL environments often integrate realistic market simulators.
 These simulators statistically represent stylized facts of limit order book (LOB), which are discussed
-further in \autoref{subsec:environment}.
+further in \fullref{subsec:environment}.
 For such simulators, the distributed architecture must handle not only the high throughput of simulation data but also the
 precise timing of order execution and asynchronous policy updates.
 This thesis builds upon existing distributed algorithms through means of shared parallel environments,
@@ -36,7 +36,7 @@ which we refer to as Parallel Environments for Asynchronous Reinforcement Learni
 \section{Environment and Agent Methodology}
 \label{sec:methodology}
 
-As mentioned in \autoref{ch:introduction}, the proposed PEARL framework enables multiple RL agents (workers)
+As mentioned in \fullref{ch:introduction}, the proposed PEARL framework enables multiple RL agents (workers)
 to share a single environment instance rather than running isolated simulations and thus
 minimize redundant computations and communication overhead typically
 encountered when synchronizing separate environment instances.

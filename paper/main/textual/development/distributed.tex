@@ -13,25 +13,26 @@
     \subsection{Parallel Environments for Asynchronous Reinforcement Learning (PEARL)}
     \label{subsec:pearl}
     The proposed architecture builds on the core idea of sharing a single, highly parallel environment among multiple agents while
-    maintaining an efficient and scalable actor–learner framework.
+    still allowing multiple environments to be run in parallel.
     In contrast to conventional distributed MARL systems—where each worker simulates an independent environment instance—
     the proposed shared environment unifies multiple independent simulations concurrently accessed by multiple workers
     (see Figure~\ref{fig:pearl_architecture}).
     This design minimizes redundant computations and memory overhead,
     which is especially critical in high-frequency trading simulations where the fidelity and speed of the limit order book (LOB) dynamics are paramount.
 
-    At the heart of the architecture lies a central learner that manages the global policy.
-    Upon initialization, the learner spawns several worker processes using Python's multiprocessing library.
-    Each worker retrieves the latest version of the shared policy and uses it to interact with the common environment.
+    At the heart of the architecture lies a central service mesh that manages discovery of the available environments.
+    Upon initialization, a learner can spawn as many workers processes as necessary,
+    which in turn connect to discovered environments using a dealer/router pattern.
     In this setup, workers act as both data collectors and order executors: they send orders (actions) to the LOB simulation,
     receive market updates, and construct trajectories that capture the sequence of states, actions, and rewards.
-    By sharing the environment, workers benefit from a consistent and synchronized view of the simulated market,
-    which enhances the quality of the experience data collected.
+    By sharing the environment, workers from different learners benefit from a consistent and synchronized view of the simulated market,
+    which besides reducing the number of CPU time used to generate similar data to send to individual agents,
+    also serves to enhance the quality of the observable experience data.
 
     Communication between the learner and workers is designed to be asynchronous.
-    Workers submit their generated trajectories to the learner via a high-performance messaging layer implemented with ZeroMQ\@.
-    This asynchronous mechanism enables workers to operate independently—without waiting for policy updates—
-    thereby reducing idle time and mitigating the staleness issues often encountered in distributed setups
+    Workers gather their generated trajectories to the learner via the ZeroMQ asynchronous messaging layer,
+    enabling workers to operate independently of each other—without waiting for unrelated environment steps—
+    thereby reducing idle time and mitigating the straggler issues often encountered in distributed setups
 
     % graphics for diagrams/pearl_architecture.pdf
     \begin{figure}[htb]
@@ -41,19 +42,17 @@
         \label{fig:pearl_architecture}
     \end{figure}
 
-    Meanwhile, the learner continuously processes incoming trajectories from the workers, updates the global policy using reinforcement learning algorithms,
-    and the workers can call the shared agent parameters at any time.
+    Meanwhile, the learner continuously processes incoming trajectories from the workers,
+    and updates the global policy using the RL algorithm after the environments are all finished.
     This cycle ensures that while each worker may temporarily operate on slightly outdated policy parameters,
     the overall system converges steadily as fresh data are incorporated into the learner's updates.
 
-    By allowing the workers to share a common environment and asynchronously update the global policy,
-    the proposed architecture aims to strike a balance between computational efficiency and learning performance.
-    The computational load—especially during intensive simulations and gradient computations—is balanced effectively
-    across the workers, due to the pooled resource utilization.
+    By allowing the workers to share a common environment and asynchronously gather trajectories,
+    the proposed architecture aims to strike a balance between computational efficiency and scalability.
     The worker pool design also contributes to reducing the overall system latency,
-    as workers can operate and unlock their individual threads while waiting for the environment to synchronize other agents and return a new state.
+    as workers can operate and unlock individual cores and sockets while waiting for the environment to synchronize other agents and return a new state.
     In traditional architectures, the cost of transferring model parameters and simulation data between isolated environment instances can introduce significant delays.
-    By contrast, our approach minimizes such overhead by centralizing the learner weights and leveraging efficient, low-latency communication channels.
+    By contrast, our approach minimizes such overhead by centralizing the learner weights.
     This architecture is particularly well-suited for real-time applications, such as high-frequency trading,
     where even minor delays can adversely affect performance.
 
@@ -83,22 +82,23 @@
         \label{alg:trajectory}
     \end{algorithm}
 
-    Internally, the learner creates a worker pool before starting the training loop, and the Dealer is then responsible
-    for sending each step request asynchronously to each environment Router.
-    The environment then waits for either all actions to be received or for a small timeout interval to be reached,
-    and returns the results to the learner.
-    Since all environments are executed in separate processes/distributed nodes, the learner can continue to process the
+    Internally, the learner creates a worker pool before starting the training loop, and is then responsible
+    for sending each step request asynchronously to each environment's router.
+    The environment then waits for either all actions to be received or for a constant timeout interval to be reached, returning the results to the learner.
+    Since all environments are executed in separate processes/distributed cores, the learner can continue to process the
     received trajectories while waiting for each asynchronous environment to respond,
     and thus the rollout speed is determined by the speed of the slowest environment.
-    This is becomes a significant bottleneck if the environments have different processing speeds,
+    This becomes a significant bottleneck if the environments have different processing speeds,
     but due to the nature of the limit order book simulation, the processing time is, although large,
-    still relatively consistent across all environments, and the hard timeout also contributes to minimizing stragglers.
+    still relatively consistent across all environments, and the fixed timeout rate also contributes to minimizing stragglers.
+    A diagram of the trajectory the individual observations make before reaching the agents' replay buffers within the PEARL framework
+    is shown in \cref{fig:pipeline}.
 
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\textwidth]{diagrams/pipeline.pdf}
+        \includegraphics[width=1\textwidth]{diagrams/pipeline.pdf}
         \caption{Illustration of the pipeline between learners, their workers and a single environment instance.}
-        \label{fig:lob_simulation}
+        \label{fig:pipeline}
     \end{figure}
 
     In summary, this integrated system architecture—comprising a shared simulation environment, an asynchronous actor–learner framework, and
@@ -108,7 +108,19 @@
     We implemented both the independent process workers and shared process for learner/workers,
     and decided to use the shared process due to the increased efficiency of running the forward and backward batched passes
     for all environments being faster than the speed gain of running the rollout in parallel.
-    That is, instead of gathering the gradients from each worker, we gather the experiences and perform
-    a single backward pass for all workers, which we observed to be faster for our use case.
+    That is, instead of sampling actions for each observation independently per worker,
+    we gather the state buffers into the centralized learner and perform a batched forward pass on all state tensors.
+
+    We compared the policy act times for both approaches in~\fullref{sec:results},
+    and as expected, this did not affect the environment step times in any way.
+    It did affect the policy speed, as sampling policy actions on individual environment states instead of
+    centralizing the state variable and using a batched approach resulted in significantly longer update times\footnote{
+        We attributed the difference in processing times to the overhead of sending and retrieving data from the GPU.
+        Even though performing this step in a distributed fashion could increase processing speeds if more GPU computing power was used,
+        discussions regarding distributed learners have already been extensively explored in works such as IMPALA and APE-X,
+        and are beyond the scope of this thesis.
+    }.
+    This comparison was our main motivation behind centralizing the actor act method into a batched space tensor
+    before performing the policy network forward pass.
 
 \end{document}

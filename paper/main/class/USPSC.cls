@@ -168,11 +168,11 @@
 \addto\captionsenglish{% ingles
 	%% adjusts names from abnTeX2 
 	\renewcommand{\bibname}{References}
-	\renewcommand{\folhaderostoname}{Title page}
-	\renewcommand{\folhaderostonamem}{Title page}
-	\renewcommand{\folhaderostoaltname}{Title page}
+	\renewcommand{\folhaderostoname}{Primary title page}
+	\renewcommand{\folhaderostonamem}{Primary title page}
+	\renewcommand{\folhaderostoaltname}{Primary title page}
 	%\renewcommand{\folhaderostoaltnamem}{Title page}
-	\renewcommand{\folhaderostoadicname}{Title page additional}
+	\renewcommand{\folhaderostoadicname}{Secondary title page}
 	\renewcommand{\epigraphname}{Epigraph}
 	\renewcommand{\dedicatorianame}{Dedication}
 	\renewcommand{\errataname}{Errata}
@@ -186,7 +186,7 @@
 	\renewcommand{\coorientadorname}{Coadvisor:}
 	\renewcommand{\folhadeaprovacaoname}{Approval}
 	%\renewcommand{\resumoname}{Abstract} 
-	\renewcommand{\resumoname}{Resumo} 
+	\renewcommand{\resumoname}{Resumo}
 	\renewcommand{\listadesiglasname}{List of abbreviations and acronyms}
 	\renewcommand{\listadesimbolosname}{List of symbols}
 	\renewcommand{\quadroname}{Frame}

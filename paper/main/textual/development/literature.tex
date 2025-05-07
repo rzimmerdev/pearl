@@ -9,7 +9,8 @@ To gather relevant literature, we searched the Web of Science database using the
 while limiting the results to the last 5 years:
 
 \begin{verbatim}
-    ALL=(
+    ALL=
+    (
         (
             "distributed" OR "parallel" OR
             "multi-agent" OR "asynchronous"
@@ -23,9 +24,9 @@ while limiting the results to the last 5 years:
     )
 \end{verbatim}
 
-Initially, a total of 68 papers matched the search query, with 34 being deemed unfit or irrelevant to the
-present research question.
-The bibliography analysis refeers to the remaining 33, where the tagged categories are as shown:
+Initially, a total of 68 papers matched the search query, with 34 being deemed irrelevant to the
+present research question or lacking sufficient scientific validity.
+The remaining 33 references were analyzed, and tagged according to the following categories:
 
 \begin{itemize}[leftmargin=*, label={--}]
     \item \textbf{Algorithm Categories} (e.g., Q-learning, Actor-Critic, Policy Gradients)
@@ -37,10 +38,10 @@ The bibliography analysis refeers to the remaining 33, where the tagged categori
 
 \subsection{Algorithmic Landscape}
 
-The analysis shows in \autoref{fig:algorithm} a clear preference for actor-critic architectures (6 out of 33 papers), followed by Q-learning variants including DQN and DDPG (4),
-and to a lesser extent SAC, PPO, and Impala.
+The algorithm categories analyzed, as shown in \cref{fig:algorithm}, revealed a clear preference for actor-critic architectures (6 out of 33 papers),
+followed by Q-learning variants including DQN and DDPG (4), and to a lesser extent SAC, PPO, and Impala.
 Only one paper made use of Gorila, despite its historical role in scaling Q-learning via distributed experience replay.
-This reflects a general trend toward architectures that decouple policy evaluation from improvement—either via off-policy learning or multi-threaded experience collection.
+This reflects a general trend toward architectures that decouple policy evaluation from improvement—either via off-policy learning or multithreaded experience collection.
 The diversity suggests no one-size-fits-all solution, but rather that algorithmic selection is often tailored to the resource constraints and task structure at hand.
 
 \begin{figure}
@@ -54,27 +55,27 @@ The diversity suggests no one-size-fits-all solution, but rather that algorithmi
 
 Decentralized architectures were most frequent for our search query (8 instances), often favored for scalability and fault tolerance.
 Centralized (5) and asynchronous (5) methods are frequently used in systems where shared state must be maintained across learners.
-Synchronous designs (4) were least common, likely due to their inefficiencies in environments with heterogeneous worker speeds,
-shown in \autoref{fig:communication}.
+Synchronous designs (4) were the least common, likely due to their inefficiencies in environments with heterogeneous worker speeds,
+shown in \cref{fig:communication_type}.
 The prevalence of asynchronous and decentralized schemes underscores the challenge of balancing policy staleness with communication overhead
 —a trade-off directly addressed in designs like IMPALA and SEED RL.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/literature/communication}
-    \caption{Communication layer architecture}
-    \label{fig:communication}
+    \caption{Communication type}
+    \label{fig:communication_type}
 \end{figure}
 
 \subsection{RL and Performance Metrics}
 
 Among RL-specific evaluation criteria, convergence and sample efficiency dominate (8 and 7 mentions respectively),
-highlighting the central importance of rapid learning and stable policy improvement, as shown in \autoref{fig:rl_metrics}.
+highlighting the central importance of rapid learning and stable policy improvement, as shown in \cref{fig:rl_metrics}.
 Stability and reward-related scores are also commonly used (6 each), though reward alone is rarely sufficient to benchmark system improvements in distributed settings.
 The frequent attention to convergence and efficiency metrics reflects a growing awareness that communication overhead and resource utilization can significantly
 impact learning dynamics, particularly in systems with many concurrent agents.
 
-Tagged system metrics are shown in \autoref{fig:system_metrics}.
+Tagged system metrics are shown in \cref{fig:system_metrics}.
 Wall speed (7), memory usage (5), and latency (5) are frequently reported, with core efficiency trailing slightly (4).
 These metrics are crucial when deploying RL systems in performance-sensitive environments like financial markets or real-time robotics.
 Wall speed, often used as a proxy for overall training throughput, receives particular attention,

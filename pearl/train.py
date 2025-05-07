@@ -1,3 +1,7 @@
+from typing import Tuple
+
+from dxlib import Benchmark
+
 from pearl.config import MeshConfig, TrainConfig
 from pearl.envs.multi.env_interface import EnvInterface
 
@@ -7,7 +11,7 @@ from pearl.agent.ppo import PPOAgent, PPOParams
 from pearl.agent.trainer import RLTrainer
 
 
-def main(mesh_config: MeshConfig, train_config: TrainConfig) -> list:
+def main(mesh_config: MeshConfig, train_config: TrainConfig) -> Tuple[list, Benchmark]:
     rollout_length, checkpoint_path, num_episodes, batch_size, learning_rate = train_config
 
     envs = EnvInterface()
@@ -44,4 +48,4 @@ def main(mesh_config: MeshConfig, train_config: TrainConfig) -> list:
     )
 
     trainer = RLTrainer(agent, envs, path=checkpoint_path, rollout_length=rollout_length)
-    return trainer.train(num_episodes=num_episodes)
+    return trainer.train(num_episodes=num_episodes), trainer.benchmark

@@ -7,47 +7,52 @@
 \label{ch:introduction}
 
 The increasing availability of large-scale computing infrastructure has driven significant advances
-in Reinforcement Learning (RL) across several application domains, such as robotics, video games, and finance.
-In parallel, the widespread adoption of deep learning methods has fostered the development of scalable distributed architectures,
-enabling RL agents to train in complex environments with improved data throughput and convergence rates.
-The RL paradigm formalizes sequential decision-making as the process of learning a policy that maximizes the expected return via interaction with an environment,
-either directly or through a known model of its dynamics.
+in Reinforcement Learning (RL) across several domains, such as robotics, video games, and finance.
+Further advances in both computational power and deep learning methods enabled RL agents to leverage powerful neural networks
+as policy estimators, capable of dealing with complex environments with improved data throughput and convergence rates.
+In summary, the RL paradigm formalizes sequential decision-making as the process of learning a policy aiming to maximize expected return
+via interaction with an environment, either directly or through a known model of its dynamics.
 
-To scale RL to high-dimensional or computationally expensive settings, the standard approach has evolved from single-agent
-training toward distributed setups that decouple experience collection from policy optimization.
-This is commonly achieved by parallelizing the simulation of environments and distributing agent interactions across multiple workers,
-referred to as actors in the context of actor-critic methods.
-These actors interact with separate environment instances and asynchronously send data to a central learner,
-which in turn updates the centralized policy through aggregate gradient updates, allowing for decentralized resource allocation during training.
+When environments become too complex, processing high-dimensional or computationally expensive dynamics and simulations
+can become extremely expensive and often infeasible on individual machines.
+With the rise of modern RL frameworks, the standard approach evolved from a single-agent setup towards
+distributed systems of agent and environments, which decouple experience collection from policy optimization.
+This is commonly achieved by parallelizing the simulation of environments and delegating agent interactions across multiple workers.
+These workers interact with separate environment instances and asynchronously send data or gradient updates to a central learner,
+which in turn are aggregated into the centralized policy, allowing for decentralized resource allocation during training.
 This setup allows for efficient resource allocation by separating the CPU-bound data collection phase from the GPU-intensive training phase.
 
 Despite their performance gains, conventional distributed RL architectures exhibit critical inefficiencies when
-deployed in domains where the environment dynamics are highly similar across agents.
+deployed in domains where environment dynamics are highly similar for multiple agents.
 High-frequency trading (HFT) is a paradigmatic case of this scenario: market making environments typically share nearly
-identical state transition characteristics across simulations.
-As a result, using separate environment instances per agent leads to redundant computations, duplicated order flow modeling, and unnecessary latency overhead.
-In latency-sensitive settings such as algorithmic trading, these inefficiencies directly degrade policy quality and responsiveness.
-Furthermore, communication delays, data staleness, and the presence of straggler workers contribute to instability during training,
-compounding the difficulties in environments governed by non-stationary market regimes.
+identical state transition characteristics across simulations for the same financial securities.
+As a result, using separate environment simulators for each individual worker can easily result in redundant computations being performed,
+by means of duplicated order flow, and thus unnecessarily increasing processing time.
+In a latency-sensitive setting such as algorithmic trading, these inefficiencies directly degrade policy quality and responsiveness.
+Furthermore, communication delays, data staleness, and the presence of straggler workers can further contribute to training instability,
+making it even harder for policies to learn how to trade on non-stationary market regimes.
 
-This thesis introduces a distributed RL architecture specifically designed to address these limitations in the context of high-frequency financial environments.
+This thesis introduces a distributed RL architecture specifically designed to address the simulation redundancy of high-frequency financial environments.
 By replacing independent environment replicas with a shared, parallelized environment structure,
-the proposed system reduces computational redundancy and allows agents to asynchronously interact with a common market simulator.
+the proposed system reduces computational redundancy and allows agents to simultaneously and asynchronously interact with a common market simulator.
+The simulator is then replicated only when parallel processing is advantageous, that is,
+to match the number of computational cores available.
 The architecture separates policy learning and trajectory collection while eliminating the overhead incurred by reducing computations on similar market dynamics.
 This design leverages the fact that in realistic market simulation, the underlying dynamics
----such as order arrivals and cancellations---can be modeled centrally without requiring independent instantiations per agent.
+---such as order arrivals and cancellations---can be modeled centrally without requiring independent order flow processes per agent.
 
 In what follows, we examine the primary challenges of distributed RL under non-stationary and asynchronous conditions,
 identify the architectural limitations of existing systems in latency-critical domains, and motivate the need for a shared environment structure.
-The system proposed herein, PEARL (Parallel Environments for Asynchronous Reinforcement Learning),
-implements this approach using a brokerless asynchronous messaging layer and an environment model calibrated to reproduce stylized facts of limit order books.
-We evaluate the system's performance using a distributed PPO-based learner and demonstrate improvements in
-throughput, convergence, and learning stability over conventional MARL baselines.
+The system proposed herein, nicknamed PEARL for Parallel Environments for Asynchronous Reinforcement Learning,
+implements this approach using a brokerless messaging layer for asynchronous communication and an environment model
+calibrated to reproduce stylized facts of an exchange's limit order book.
+We evaluate the system's performance using a PPO-based model and demonstrate improvements in
+throughput, convergence, and learning stability, testing it under multiple scenarios, including shared and non-shared environments, and competing traders.
 
 \section{Challenges in Distributed Reinforcement Learning}
 \label{sec:challenges}
 
-Even though distributed architectures facilitate policy learning and allow for scaling the training of RL strategies for
+Even though distributed architectures facilitate scaling the training of RL strategies for
 high-dimensional tasks, they still present inherent challenges when deployed in real-time, non-stationary environments.
 Among the most impactful inefficiencies lies communication overhead and synchronization delays.
 Regarding decentralized RL training loops, communication overhead arises from exchanging either trajectory paths or gradient updates
@@ -56,22 +61,23 @@ Synchronization delays, often caused by heterogeneous processing times among wor
 lead to inefficiencies in the training pipeline.
 
 Additionally, in HFT environments, the agent operates under volatile and evolving market regimes shaped by latent and exogenous factors.
-Regime shifts also alter the underlying reward and transition dynamics, which can violate the Markov property assumed by the Bellman operator.
+Regime shifts also alter the underlying reward and transition dynamics, which can violate the Markov property assumed by the Bellman operator
+on which the generalized policy algorithm is based on.
 In such cases, the environment dynamics may no longer be sufficiently captured by a stationary transition kernel,
 undermining the theoretical convergence guarantees of classical RL algorithms.
-Learners may exhibit high sensitivity to delayed updates or incorrectly prioritized experiences in the replay buffer,
-making robust policy learning significantly more difficult.
+Learners may exhibit high sensitivity to delayed updates or incorrectly prioritize certain experiences in the replay buffer,
+which cna slow down training significantly.
 
-To mitigate these bottlenecks, many distributed RL frameworks adopt asynchronous communication schemes both
-to improve training speeds by increasing sample efficiency, and to reduce training instability and increase convergence chances.
+To mitigate these bottlenecks, many distributed RL frameworks adopt asynchronous communication schemes
+to improve both training speeds by increasing sample efficiency, and to reduce training instability and increase chances of converging.
 However, the asynchronous design introduces a different class of instability related to data staleness:
 workers may act on outdated policies and contribute updates based on trajectories collected under older versions of the policy.
-When outdated trajectories are used to update algorithms that rely on on-policy assumptions,
+When outdated trajectories are used to update RL algorithms that rely on on-policy assumptions,
 especially in highly dynamic and non-stationary environments,
-suboptimal policy changes learn to undesired effects on the reward curve and sometimes even increase chances of divergence during training.
+suboptimal policy changes lead to undesired effects on the reward curve and lower guarantees of convergence.
 
 Thus, a trade-off between minimizing communication overhead and preserving the timeliness of policy synchronization
-becomes a centerpiece consideration when designing distributed RL algorithms.
+becomes an important consideration to make when designing distributed RL algorithms.
 An algorithm that addresses this trade-off is the V-trace algorithm, proposed in the Impala framework,
 which corrects off-policy trajectories by means of a truncated importance sapling regimes,
 reducing data the effects of data staleness on the asynchronous policy gradient updates.
@@ -83,7 +89,6 @@ Moreover, maintaining a consistent and representative replay buffer becomes non-
 Slight inconsistencies or delays in the trajectory gathering steps can amplify instability,
 particularly when the timestep of each event, such as order placements or cancellations, is critical to agent performance.
 Data staleness and worker lag, if not explicitly accounted for, lead to an erosion of policy quality and increased training variance.
-This is specially problematic under asynchronous actor-learner configurations where the buffer can be populated with trajectories misaligned with the current market regime.
 
 Although distributed RL reduces overall training time and supports scaling to large actor populations,
 the joint requirement of stability, low latency, and robustness to regime shifts imposes stricter design constraints.
@@ -93,7 +98,7 @@ for the reliable deployment of RL-based decision systems in financial markets.
 \section{Motivation and Proposed Solution}
 \label{sec:motivation}
 
-In this thesis we propose a distributed algorithm for training reinforcemnet learning agents on high-frequency trading environments.
+In this thesis we propose a distributed algorithm for training reinforcement learning agents on high-frequency trading environments.
 The proposed system addresses two primary limitations observed in such environments:
 the computational burden of replicating multiple independent environment instances and the instability caused by
 policy lag and data staleness when training is performed asynchronously.
@@ -107,8 +112,8 @@ This shared model eliminates the redundancy of simulating nearly identical marke
 thereby reducing both memory usage and CPU scheduling overhead.
 Furthermore, by sharing environment dynamics, multiple agents observe similar regime transitions and share exogenous event observations,
 which is particularly important in simulating realistic market microstructure behavior
-\footnote{Although the current state of the art in exogenous event modeling is achieved through world models or agents,
-we decided to not use world agents as this would go outside the scope of this work.}.
+\footnote{Although the current state of the art in exogenous limit order book event modeling is achieved through world models or agents,
+we decided to not use those as they would require additional discussions outside the scope of this work.}.
 
 A key design feature of the algorithm is the decoupled worker-environment architecture:
 we separate the workers from the environments by inserting a communication layer for trajectory passing.
@@ -122,7 +127,7 @@ allowing workers to operate at their own pace---a critical property when the env
 thus resulting in heterogeneous processing times.
 
 As long as enough processing cores exist, workers can be added to increase throughput, as long
-as sufficiently enough environments exist to accomodate the created workers.
+as sufficiently enough environments exist to accommodate the created workers.
 While this work focuses on homogeneous policy learning, the architecture also naturally supports multi-policy training setups.
 In contrast to prior work that emphasizes scaling via massive actor populations,
 our system emphasizes resource efficiency and realism by additionally considering computational constraints of small quantitative trading funds.
@@ -133,24 +138,23 @@ between the policy used for data collection and the policy being updated.
 
 Overall, the proposed architecture aims to balance scalability and learning stability,
 which are necessary for both training reinforcement learning agents and fine-tuning them to daily changes
-in market rates, such as expected return and volatity.
+in market rates, such as expected return and volatility.
 By explicitly addressing the trade-offs between communication latency, synchronization lag, and stability,
 this system serves as a step toward scalable and time viable RL systems in financial domains.
 
 \section{Overview and Contributions}
 \label{sec:overview}
 
-In ~\autoref{subsec:pearl} we introduce the details for implementing the Parallel Environments for Asynchronous Reinforcement Learning (PEARL) framework,
+In \fullref{subsec:pearl} we introduce the details for implementing the Parallel Environments for Asynchronous Reinforcement Learning (PEARL) framework,
 and test it using a simulated trading environment that incorporates a realistic limit order book (LOB) mechanism
-by using a mixture of stochastic processes to model underlying market dynamics, described in ~\autoref{subsec:environment}
-The processes are chosen so as to mimic known stylized facts of financial markets, such as heavy-tailed price returns and
+by using a mixture of stochastic processes to model underlying market dynamics, described in \fullref{subsec:environment}
+The processes are chosen to mimic known stylized facts of financial markets, such as heavy-tailed price returns and
 volatility clustering, and are calibrated to match the statistical properties of real-world financial data.
 
 The PEARL architecture is designed to enable multiple agents to interact with a shared environment concurrently and asynchronously,
 and we test the training performance of the system using a distributed version of the Proximal Policy Optimization (PPO) algorithm
-as the learning agent, described in ~\autoref{sec:agent}.
+as the learning agent, described in \fullref{subsec:agent}.
 We evaluate the system's performance in terms of computational efficiency, speedup, learning stability, and convergence speed,
 comparing its performance for different numbers of workers and environment nodes.
-The results in ~\autoref{sec:results} demonstrate that the shared environment model
-achieved superior computational efficiency and learning performance compared to
-conventional multi-agent reinforcement learning frameworks (MARL), such as IMPALA and R2D2 for the same environment.
+The results in \fullref{sec:results} demonstrate that the shared environment model
+achieving efficient distributed workers and speedup when compared to centralized replicated environments.

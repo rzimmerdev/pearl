@@ -15,26 +15,30 @@
     \label{subsec:environment}
     The simulated environment is designed to replicate key aspects of a modern financial market by incorporating a limit order book (LOB) mechanism.
     A LOB is the core structure in many electronic trading systems, where buy and sell orders are organized by price and time priority,
-    thereby reflecting the real-time supply and demand of an asset.
+    and can be quoted continuously, thereby reflecting the real-time supply and demand of an asset.
+    At any given moment, the orders available in the book are accessible to traders in a sorted fashion, organized per price level,
+    as shown in \cref{fig:lob}.
 
-    In this environment, agents interact with the market by submitting orders that represent their actions.
-    Specifically, each action corresponds to placing a limit order—a directive to buy or sell a specified quantity at a predetermined price.
+    Market participants interact with the exchange by submitting orders that represent their intention to buy, called a bid order,
+    or their intention to sell, called an ask order.
+    Specifically, each action corresponds to placing a limit order—detailing a specified quantity at a predetermined price.
     When an agent submits an order, it is added to the appropriate side of the LOB, where orders are queued according to their price and
     the time at which they were submitted.
-    An order is executed if there is a matching order on the opposite side of the book that satisfies the price condition;
-    otherwise, it remains in the book until a suitable counter-order appears or the order is cancelled by the agent.
-    This event-driven process mimics the intricate dynamics of order matching observed in real markets.
+    An order is executed if there is a matching order on the opposite side of the book that satisfies the price condition,
+    or if it is a market order, in which case no price is specified and the order is matched at the best available price;
+    otherwise, it remains in the book until a suitable counter-order appears or if it is cancelled by the trader.
 
     The simulation employs a discrete-event framework to model these processes accurately.
     At each simulation step, the environment generates an observation that includes critical details such as the best bid and ask prices,
     the order book depth across various price levels, and records of recent trade executions.
     These observations are then provided to the agents, enabling them to update their strategies based on the evolving market state.
+    This event-driven process is incorporated into the simulator, as it mimics the intricate dynamics of order matching observed in real markets.
 
     Order submission and execution in the simulated environment are handled asynchronously.
-    Agents send their orders via a messaging layer—implemented with a high-performance protocol like
-    ZeroMQ—to ensure that multiple agents can interact with the shared LOB concurrently without incurring significant delays.
+    Agents send their orders via a messaging layer implemented with the ZeroMQ framework, a high-performance messaging library,
+    to ensure that multiple agents can interact with the shared LOB concurrently without incurring in significant latency.
     This asynchronous architecture not only improves simulation throughput but also closely aligns with
-    the latency-sensitive nature of high-frequency trading environments.
+    the latency-sensitive nature of high-frequency trading environments, usually measured in the milliseconds.
 
     By integrating a realistic LOB into the simulation, the environment provides a robust testbed for exploring how
     distributed reinforcement learning algorithms can learn and adapt in complex, dynamic markets.
@@ -48,9 +52,11 @@
         \label{fig:lob}
     \end{figure}
 
-    The order book is implemented using a Red-Black tree data structure, which allows for efficient insertion, deletion, and retrieval of orders.
-    Each order is represented as a node in the tree, with the price as the key and the order details (e.g., quantity, timestamp) as the value.
-    New orders are sampled from a mixture of processes, and at each time step, the environment checks for order matches and executes trades accordingly,
+    The LOB is implemented using a Red-Black tree data structure, which allows for efficient insertion, deletion,
+    and sorted or reversed traversal per price level.
+    Each price level is represented as a node in the tree, with the price as the key and a queue of posted order details
+    (e.g., client id, quantity, timestamp) as the value.
+    New orders are sampled from a mixture of processes, and at each time step, the environment checks for crossing orders and executes trades accordingly,
     updating the order book and the agent's state, as well as the reward signal.
 
     The system dynamics are modeled as a continuous-time Markov Decision Process (MDP), where the transition probabilities
@@ -90,17 +96,15 @@
     The drift \( \mu_t \) follows a mean-reverting Ornstein-Uhlenbeck process, while the spread \( s_t \) follows a Cox-Ingersoll-Ross process,
     ensuring a positive spread.
     The midprice \( X_{\text{mid}} \) is calculated as the average of the current bid and ask prices.
-    In the absence of orders, the midprice is based on the last traded price or an initial value.
+    In the absence of orders, the midprice is based on the last traded price or an initial value,
+    while price volatility is modeled using a GARCH(1,1) process:
 
-    \[
-        X_{\text{mid}} = \frac{X_{\text{ask}} + X_{\text{bid}}}{2}
-    \]
-
-    Price volatility is modeled using a GARCH(1,1) process:
-
-    \[
-        \sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2
-    \]
+    \begin{equation*}
+        \begin{aligned}
+            X_{\text{mid}} &= \frac{X_{\text{ask}} + X_{\text{bid}}}{2} \\
+            \sigma_t^2 &= \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2
+        \end{aligned}
+    \end{equation*}
 
     where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
     Order quantities \( q_{\text{ask}} \) and \( q_{\text{bid}} \) are modeled as Poisson random variables with arrival rate \( \lambda_q \),

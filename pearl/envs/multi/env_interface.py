@@ -50,11 +50,14 @@ class EnvInterface(Interface):
 
     def register_user(self):
         response = self._send(self.encode({"type": "connect"}))
-        print(f"Registered user with agent_id: {response}")
+        keys = list(response.keys())
+        user_id = None
         for env_id, msg in response.items():
             if msg.get('status', None) != 'connected':
                 raise ValueError(f"Failed to connect to env: {env_id}")
             self._envs[env_id].agent_id = msg['user']
+            user_id = msg['user']
+        print(f"Registered user with id {user_id} to {len(keys)} environments.")
 
     def step(self, actions, timesteps):
         response = self._send({
