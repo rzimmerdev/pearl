@@ -21,6 +21,13 @@ $(PDF): main.tex | $(OUTSUBDIRS)
 	$(pdflatex) -output-directory=$(OUTDIR) main.tex
 	$(pdflatex) -output-directory=$(OUTDIR) main.tex
 
+latexmk_cmd = latexmk
+
+latexmk: $(OUTSUBDIRS)
+	mkdir -p $(OUTDIR)
+	latexmk -pdf -bibtex -output-directory=$(OUTDIR) main.tex
+
+
 clean:
 	find $(OUTDIR) -type f ! -name "main.pdf" -delete
 	find $(OUTDIR) -mindepth 1 -type d -empty -delete

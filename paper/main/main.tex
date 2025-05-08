@@ -55,6 +55,7 @@
 \usepackage{algpseudocode}
 \usepackage{siunitx}
 \usepackage{hyperref}
+\usepackage{natbib}
 
 % Pacotes de citações
 % Citações padrão ABNT
@@ -69,12 +70,12 @@
 % Sistema Numérico
 % Para citações numéricas, sistema adotado pelo IFSC, incluir % no início dos comandos acima e retirar a % dos comandos abaixo
 
-\usepackage{cite}              % agrupa citações numéricas consecutivas
-\usepackage[num, abnt-emphasize=bf, abnt-thesis-year=both, abnt-repeated-author-omit=no, abnt-last-names=abnt, abnt-etal-cite=3, abnt-etal-list=3, abnt-etal-text=it, abnt-and-type=e, abnt-doi=doi, abnt-url-package=none, abnt-verbatim-entry=no]{abntex2cite}
+%\usepackage{cite}              % agrupa citações numéricas consecutivas
+%\usepackage[num, abnt-emphasize=bf, abnt-thesis-year=both, abnt-repeated-author-omit=no, abnt-last-names=abnt, abnt-etal-cite=3, abnt-etal-list=3, abnt-etal-text=it, abnt-and-type=e, abnt-doi=doi, abnt-url-package=none, abnt-verbatim-entry=no]{abntex2cite}
 % \bibliographystyle{class/abntex2-num-USPSC}
 
 % Se o idioma for o inglês, exclua % no comando acima ou do comando abaixo
-\bibliographystyle{class/abntex2-numeng-USPSC}
+%\bibliographystyle{class/abntex2-numeng-USPSC}
 
 % Há diversa opções para nota de rodapé no Sistema Numérico.  Para o IFSC, habilitade o comando abaixo.
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}  %Comando para inserção de símbolos em nota de rodapé
@@ -103,7 +104,6 @@
 \usepackage{array}
 
 % Compatibilização com a ABNT NBR 6023:2018 e 10520:2023
-\usepackage{class/ABNT6023-10520}
 % As demais compatibilizações estão nos arquivos abntex2-alf-USPSC.bst,abntex2-alfeng-USPSC.bst, abntex2-num-USPSC.bst e abntex2-numeng-USPSC.bst, dependendo do idioma do textos e se o sistemas de chamada for autor-data ou numérico, conforme explicitado acima.
 \usepackage{standalone}
 % ---
@@ -136,7 +136,7 @@
     bookmarksdepth=4
 }
 \makeatother
-
+\usepackage{tabularx}
 \renewcommand{\subsectionautorefname}{Subsection}
 
 \siglaunidade{ICMC-TCC}
@@ -276,6 +276,7 @@
 
 % Referências bibliográficas
 %\bibliography{USPSC-bib/uspbib}
+    \bibliographystyle{plainnat}
     \bibliography{bib/bibliograpy}
 
 % Glossário

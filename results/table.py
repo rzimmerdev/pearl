@@ -1,35 +1,55 @@
-import numpy as np
 import pandas as pd
 
 # Read the CSV file
 df = pd.read_csv('results.csv')
 
-# Group by n_env and iteration, aggregating wall_time and loss
-grouped = df.groupby(['n_env', 'iteration']).agg({
-    'wall_time': 'sum',
-    'loss': 'sum'
-}).reset_index()
+# Sort the dataframe by n_env and iteration to ensure the last rows are correctly selected
+df = df.sort_values(by=['n_env', 'iteration'])
 
-# Calculate the loss per wall time (efficiency metric)
-grouped['loss_per_wall_time'] = -np.log(grouped['loss']) / grouped['wall_time']
-grouped['loss_per_wall_time'] /= grouped['loss_per_wall_time'][0]
+# Get the last row for each iteration within each n_env
+last_iteration_rows = df.groupby(['n_env', 'iteration']).last().reset_index()
 
-# Now group by n_env to get the mean and std dev of both loss_per_wall_time and wall_time
-summary = grouped.groupby('n_env').agg({
-    'loss_per_wall_time': ['mean', 'std'],
-    'wall_time': ['mean', 'std']
+# Now group by n_env to get the mean and std dev of wall_time and loss
+summary = last_iteration_rows.groupby('n_env').agg({
+    'wall_time': ['mean', 'std'],
+    'loss': ['mean', 'std']
 }).reset_index()
 
 # Flatten multi-level columns
-summary.columns = ['n_env', 'lpwt_mean', 'lpwt_std', 'wt_mean', 'wt_std']
+summary.columns = ['n_env', 'wt_mean', 'wt_std', 'loss_mean', 'loss_std']
 
 # Format output columns as mean ± std
-summary['loss_per_wall_time (mean ± std)'] = summary.apply(
-    lambda row: f"{row['lpwt_mean']:.4f} ± {row['lpwt_std']:.4f}", axis=1)
+summary['loss (mean ± std)'] = summary.apply(
+    lambda row: f"{row['loss_mean']:.4f} ± {row['loss_std']:.4f}", axis=1)
 
 summary['wall_time (mean ± std)'] = summary.apply(
     lambda row: f"{row['wt_mean']:.2f} ± {row['wt_std']:.2f}", axis=1)
 
-# Select and print the final table
-final_table = summary[['n_env', 'loss_per_wall_time (mean ± std)', 'wall_time (mean ± std)']]
-print(final_table.to_string(index=False))
+# Optionally, you can drop the columns with mean and std values if you only want the formatted output
+summary = summary[['n_env', 'loss (mean ± std)', 'wall_time (mean ± std)']]
+
+# Create LaTeX table with custom design
+latex_table = """
+\\begin{table}[h!]
+    \\centering
+    \\begin{tabular}{|c|c|c|}
+        \\hline
+        \\textbf{n\_env} & \\textbf{loss (mean ± std)} & \\textbf{wall\_time (mean ± std)} \\\\
+        \\hline
+"""
+
+# Add the rows of the DataFrame to the LaTeX table
+for index, row in summary.iterrows():
+    latex_table += f"        {row['n_env']} & {row['loss (mean ± std)']} & {row['wall_time (mean ± std)']} \\\\ \n"
+
+# Close the table and add caption/label
+latex_table += """
+        \\hline
+    \\end{tabular}
+    \\caption{Summary of loss and wall time (mean ± std) for different n\_env values.}
+    \\label{tab:summary}
+\\end{table}
+"""
+
+# Print LaTeX table
+print(latex_table)
