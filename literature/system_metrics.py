@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 # SETTINGS
-BIBTEX_FILE = 'bibliography.bib'  # change to your actual file name
+BIBTEX_FILE = '../paper/main/bib/bibliograpy.bib'
 TAG_GROUP = 'system_metrics'
 
 # Read the BibTeX file

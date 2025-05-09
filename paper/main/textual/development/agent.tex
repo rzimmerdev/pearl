@@ -70,21 +70,6 @@
     These updates are performed iteratively, using a neural network with backpropagation to minimize the loss and improve the policy.
     PPO ensures stability by limiting the policy update size.
 
-    To benchmark the agent, we use a closed-form expression for the optimal bid-ask spread, as proposed by Avellaneda et al. (2008):
-
-    \[
-        \delta^* = \sigma \sqrt{2} \, \text{erf}^{-1} \left( \frac{1}{2} \left( 1 + \frac{\mu}{\sigma} \right) \right)
-    \]
-
-    where \( \sigma \) is the volatility, \( \mu \) is the mean spread, and \( \text{erf}^{-1} \) is the inverse error function.
-    The optimal bid-ask spread pair is then:
-
-    \[
-        p_{\text{bid}} = \mu - \delta^*, \quad p_{\text{ask}} = \mu + \delta^*
-    \]
-
-    This closed-form expression serves as a simpler model to compare the agent's performance against a more complex environment.
-
     \begin{figure}[htb]
         \centering
         \includegraphics[width=0.8\textwidth]{diagrams/policy.pdf}

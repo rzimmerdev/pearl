@@ -17,7 +17,7 @@
     A LOB is the core structure in many electronic trading systems, where buy and sell orders are organized by price and time priority,
     and can be quoted continuously, thereby reflecting the real-time supply and demand of an asset.
     At any given moment, the orders available in the book are accessible to traders in a sorted fashion, organized per price level,
-    as shown in \cref{fig:lob}.
+    as shown in~\cref{fig:lob}.
 
     Market participants interact with the exchange by submitting orders that represent their intention to buy, called a bid order,
     or their intention to sell, called an ask order.
@@ -69,8 +69,8 @@
     Here, \( a \) represents the action chosen by the control agent according to a policy \( \pi(s) \), and \( L(x|s, a, t) \) is the generator operator,
     which defines the dynamics of state transitions at any given time \( t \).
     Solving for the transition probabilities is often approached either analytically through closed-form solutions,
-    as in earlier works (Avellaneda et al., 2008; Gueant et al., 2017),
-    or numerically via approximations (e.g., by simulating trajectories or using reinforcement learning methods).
+    as in earlier works~\citep{Avellaneda2008, Gueant2017},
+    or numerically via approximations (e.g., by simulating trajectories or using reinforcement learning methods)~\citep{Gueant2022, Gasperov2022, Guo2023}.
 
     The market-making problem is modeled using online reinforcement learning, where the simulator represents a
     limit order book (LOB) that reflects stylized market behaviors.
@@ -109,7 +109,7 @@
     where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
     Order quantities \( q_{\text{ask}} \) and \( q_{\text{bid}} \) are modeled as Poisson random variables with arrival rate \( \lambda_q \),
     reflecting stochastic order arrivals.
-    All market regime variables (e.g., spread, order arrival rate, and price drift, are sampled according to the afforementioned process,
+    All market regime variables (e.g., spread, order arrival rate, and price drift, are sampled according to the aforementioned process,
     and their mixture form the order book dynamics.
 
 

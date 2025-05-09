@@ -1,0 +1,37 @@
+%% USPSC-Abstract.tex
+%\autor{Silva, M. J.}
+\begin{resumo}[Abstract]
+ \begin{otherlanguage*}{english}
+	\begin{flushleft} 
+		\setlength{\absparsep}{0pt} % ajusta o espaçamento dos parágrafos do resumo		
+ 		\SingleSpacing  		\imprimirautorabr~~\textbf{\imprimirtitleabstract}.	\imprimirdata.  \pageref{LastPage} p. 
+		%Substitua p. por f. quando utilizar oneside em \documentclass
+		%\pageref{LastPage} f.
+		\imprimirtipotrabalhoabs~-~\imprimirinstituicao, \imprimirlocal, 	\imprimirdata. 
+ 	\end{flushleft}
+	\OnehalfSpacing
+    The increasing complexity and computational demands of high-frequency trading (HFT) environments present significant challenges for
+    deploying Reinforcement Learning (RL) agents in distributed training systems.
+    Conventional distributed RL architectures replicate environment simulators across workers,
+    leading to similar computations being replicated in separate environments.
+    The usual approach to multi-agent reinforcement learning has agents utilizing shared environments,
+    but rarely parallelize multiple environments in a way that minimizes overhead, reduces communication overhead all while maintaining training stability,
+    especially when multiple agents interact with computation intensive non-stationary market dynamics.
+    This thesis introduces the usage of parallel environments for asynchronous reinforcement learning in a multi-agent context,
+    designed to reduce computational overhead and improve learning stability in the high-frequency trading domain.
+    Our approach, which we nicknamed parallel environments for asynchronous reinforcement learning (PEARL) replaces per-worker environment replicas with shared,
+    parallelized market simulators that adapts the multi-agent RL paradigm for asynchronous interactions with parallel limit order book simulators.
+    The system leverages a brokerless messaging layer to decouple trajectory collection from policy learning,
+    reducing synchronization lag and enabling higher throughput.
+    Empirical evaluation using a PPO-based agent shows that PEARL achieves improved convergence rates, greater sample efficiency,
+    and lower latency compared to traditional setups.
+    By explicitly addressing simulation redundancy and communication delays,
+    this architecture advances scalable and time-sensitive RL deployment in financial markets.
+
+   \vspace{\onelineskip}
+ 
+   \noindent 
+   \textbf{Keywords}: Reinforcement Learning, Distributed Computing, Market Making, High-Frequency Trading, Deep Learning.
+ \end{otherlanguage*}
+\end{resumo}
+l

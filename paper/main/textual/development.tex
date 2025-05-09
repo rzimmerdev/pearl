@@ -4,10 +4,10 @@
 %Divide-se em seções e subseções, em conformidade com a abordagem do tema e do método, abrangendo:
 %revisão bibliográfica, materiais e métodos, técnicas utilizadas, resultados obtidos e discussão.
 Distributed reinforcement learning (RL) has evolved considerably in response to the demands of complex tasks such as game playing and financial trading.
-Early methods such as the Asynchronous Advantage Actor-Critic (A3C)
+Early methods such as the Asynchronous Advantage Actor-Critic (A3C)~\citep{Mnih2016}
 algorithm introduced the concept of multiple parallel workers collecting experiences independently,
 which helped to reduce update variance and speed up training.
-Building on these ideas, architectures like IMPALA and Gorila have decoupled data collection from model training by using
+Building on these ideas, architectures like IMPALA and Gorila~\citep{Espeholt2018,Nair2015} have decoupled data collection from model training by using
 a decentralized learner and worker structure, which periodically synchronizes the policy with the updated gradient
 from the workers through gradient passing.
 This design enables significant scalability across heterogeneous computing resources and facilitates high-throughput training.
@@ -16,9 +16,9 @@ As mentioned in \fullref{ch:introduction}, a key challenge present in these syst
 updated policies between the learner and the workers.
 The IMPALA algorithm aggregates trajectories from multiple workers into
 batches for efficient gradient computation while managing the staleness of policy information.
-More recent approaches, such as SEED RL, have further optimized communication by bundling inference with training updates.
+More recent approaches, such as SEED RL\citep{Espeholt2020}, have further optimized communication by bundling inference with training updates.
 This reduces the latency associated with model parameter transmission and minimizes network congestion, thereby improving overall training efficiency.
-In parallel, methods like Ape-X have introduced distributed prioritized experience replay, where critical experiences are sampled with higher probability,
+In parallel, methods like Ape-X\citep{Horgan2018} have introduced distributed prioritized experience replay, where critical experiences are sampled with higher probability,
 enhancing data efficiency in scenarios where high-frequency data generation is crucial.
 
 In the context of financial applications, RL environments often integrate realistic market simulators.
@@ -36,10 +36,9 @@ which we refer to as Parallel Environments for Asynchronous Reinforcement Learni
 \section{Environment and Agent Methodology}
 \label{sec:methodology}
 
-As mentioned in \fullref{ch:introduction}, the proposed PEARL framework enables multiple RL agents (workers)
+As mentioned in \fullref{ch:introduction}, the proposed framework enables multiple RL agents
 to share a single environment instance rather than running isolated simulations and thus
-minimize redundant computations and communication overhead typically
-encountered when synchronizing separate environment instances.
+minimize redundant computations and communication overhead from synchronizing workers interacting with independent environment instances.
 The dynamics of the simulator and the implemented agent used for testing the framework are described in the following subsections.
 
 \input{textual/development/environment}

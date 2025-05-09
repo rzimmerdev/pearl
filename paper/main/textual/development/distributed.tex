@@ -23,8 +23,9 @@
     At the heart of the architecture lies a central service mesh that manages discovery of the available environments.
     Upon initialization, a learner can spawn as many workers processes as necessary,
     which in turn connect to discovered environments using a dealer/router pattern.
-    In this setup, workers act as both data collectors and order executors: they send orders (actions) to the LOB simulation,
-    receive market updates, and construct trajectories that capture the sequence of states, actions, and rewards.
+    In this setup, workers act as both data collectors and order executors:
+    they send action vectors containing continuous order quotes to the LOB simulation,
+    receive market updates, and record episodic trajectories that capture the sequence of states, actions, and rewards into a replay buffer.
     By sharing the environment, workers from different learners benefit from a consistent and synchronized view of the simulated market,
     which besides reducing the number of CPU time used to generate similar data to send to individual agents,
     also serves to enhance the quality of the observable experience data.
@@ -32,7 +33,8 @@
     Communication between the learner and workers is designed to be asynchronous.
     Workers gather their generated trajectories to the learner via the ZeroMQ asynchronous messaging layer,
     enabling workers to operate independently of each other—without waiting for unrelated environment steps—
-    thereby reducing idle time and mitigating the straggler issues often encountered in distributed setups
+    thereby reducing idle time and mitigating the straggler issues often encountered in distributed setups.
+    The intrinsic details of the messaging pipeline is discussed further in~\fullref{subsec:communication}.
 
     % graphics for diagrams/pearl_architecture.pdf
     \begin{figure}[htb]

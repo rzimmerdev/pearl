@@ -1,0 +1,31 @@
+%% USPSC-Resumo.tex
+\setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo		
+\begin{resumo}
+	\begin{flushleft} 
+			\setlength{\absparsep}{0pt} % ajusta o espaçamento da referência	
+			\SingleSpacing 
+			\imprimirautorabr~~\textbf{\imprimirtituloresumo}.	\imprimirdata. \pageref{LastPage} p. 
+			%Substitua p. por f. quando utilizar oneside em \documentclass
+			%\pageref{LastPage} f.
+			\imprimirtipotrabalho~-~\imprimirinstituicao, \imprimirlocal, \imprimirdata. 
+ 	\end{flushleft}
+\OnehalfSpacing 			
+% O resumo deve ressaltar o  objetivo, o método, os resultados e as conclusões do documento.
+% A ordem e a extensão  destes itens dependem do tipo de resumo (informativo ou indicativo) e do tratamento que cada item recebe no documento original.
+    A crescente complexidade e as exigências computacionais dos ambientes de negociação de alta frequência (HFT) apresentam desafios significativos para
+    a implantação de agentes de Aprendizado por Reforço (RL) em sistemas de treinamento distribuído.
+    Arquiteturas convencionais de RL distribuído replicam simuladores de ambiente entre os trabalhadores,
+    levando a cálculos redundantes e ineficiências, especialmente quando múltiplos agentes interagem com dinâmicas de mercado quase idênticas.
+    Esta tese introduz o PEARL (Ambientes Paralelos para Aprendizado por Reforço Assíncrono),
+    uma nova framework de RL distribuído projetada para reduzir a sobrecarga computacional e melhorar a estabilidade do aprendizado em domínios sensíveis à latência.
+    O PEARL substitui as réplicas de ambiente por trabalhador por um simulador de mercado compartilhado e paralelizado, que permite
+    que múltiplos agentes interajam assíncronamente com um livro de ofertas estocástico comum.
+    O sistema utiliza uma camada de mensageria sem corretor para desacoplar a coleta de trajetórias do aprendizado de políticas,
+    reduzindo o atraso de sincronização e permitindo maior throughput.
+    A avaliação empírica utilizando um agente baseado no PPO mostra que o PEARL alcança taxas de convergência melhoradas, maior eficiência amostral,
+    e menor latência em comparação com as configurações tradicionais.
+    Ao abordar explicitamente a redundância de simulação e os atrasos de comunicação,
+    esta arquitetura avança na implantação escalável e sensível ao tempo de RL nos mercados financeiros.
+
+ \textbf{Palavras-chave}: Aprendizado por Reforço, Computação Distribuída, Market Making, Negociação de Alta Frequência, Aprendizado Profundo.
+\end{resumo}

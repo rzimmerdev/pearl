@@ -28,7 +28,7 @@
 ]{class/USPSC}
 %]{class/USPSC1} %- páginas ímpares: com seções ou subseções e o número da página e páginas pares: com o número da página e o título do capítulo
 
-% Pacotes básicos - Fundamentais
+
 \usepackage[T1]{fontenc}        % Seleção de códigos de fonte.
 \usepackage[utf8]{inputenc}        % Codificação do documento (conversão automática dos acentos)
 \usepackage{lmodern}            % Usa a fonte Latin Modern
@@ -146,6 +146,7 @@
 \newcommand{\Fullref}[1]{\hyperref[#1]{Section~\ref*{#1}}}
 \newcommand{\fullref}[1]{\hyperref[#1]{section~\ref*{#1}}}
 
+
 % Espaçamentos entre linhas e parágrafos
 
 % O tamanho do parágrafo é dado por:
@@ -226,8 +227,8 @@
 % Se o idioma do texto for em inglês, o abstract deve preceder o resumo em português
 
 % Abstract
-    \input{pretextual/USPSC-Abstract}
-    \input{pretextual/USPSC-Resumo}
+    \input{pretextual/abstract}
+    \input{pretextual/resumo}
 
 % inserir lista de figurass
 %\pdfbookmark[0]{\listfigurename}{lof}
@@ -283,7 +284,7 @@
 %\glossary
 
 % Apêndices
-%\include{USPSC-TA-PosTextual/USPSC-Apendices}
+    \include{postextual/appendix}
 
 % Anexos
 %\include{USPSC-TA-PosTextual/USPSC-Anexos}

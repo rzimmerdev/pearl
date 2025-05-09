@@ -76,9 +76,9 @@ The frequent attention to convergence and efficiency metrics reflects a growing 
 impact learning dynamics, particularly in systems with many concurrent agents.
 
 Tagged system metrics are shown in \cref{fig:system_metrics}.
-Wall speed (7), memory usage (5), and latency (5) are frequently reported, with core efficiency trailing slightly (4).
+Wall time (7), memory usage (5), and latency (5) are frequently reported, with core efficiency trailing slightly (4).
 These metrics are crucial when deploying RL systems in performance-sensitive environments like financial markets or real-time robotics.
-Wall speed, often used as a proxy for overall training throughput, receives particular attention,
+Wall time, often used as a proxy for overall training throughput, receives particular attention,
 emphasizing care put in reducing time-to-solution.
 This aligns with our own motivation for optimizing PEARL to accommodate the throughput demands of high-frequency trading environments.
 
@@ -109,5 +109,5 @@ Communication remains a central bottleneck, with decentralization and batching s
 Our proposed system—PEARL—builds on these insights by adopting asynchronous shared environments with minimal inter-process communication.
 This design explicitly targets environments such as financial simulations, where timing, throughput,
 and low-latency response are critical.
-In the following sections, we describe the architecture and implementation details of PEARL,
+In the following sections, we describe the architecture and implementation details of the system,
 and evaluate its performance in terms of wall time, latency, core efficiency and training reward.

@@ -15,7 +15,7 @@
     \begin{figure}[htb]
         \centering
         \includegraphics[width=0.5\textwidth]{diagrams/service_mesh}
-        \caption{Overview of the service mesh architecture for communication between agents and the central learner.}
+        \caption{Overview of the service mesh used to register environments to be discovered by agents.}
         \label{fig:service_mesh}
     \end{figure}
 
@@ -39,7 +39,13 @@
     \begin{figure}[htb]
         \centering
         \includegraphics[width=0.8\textwidth]{diagrams/communication}
-        \caption{Communication flow between agents and the central learner using ZeroMQ messaging.}
+        \caption{
+            Communication flow between agents and the central learner using ZeroMQ messaging.\\
+            Steps 1 and 2 show the initial setup phase, where newly created agents request existing environment services.\\
+            Step 3 shows the agent sending an inital request to register itself in each individual environment's connected agent records.\\
+            Finally, steps 4 and 5 show the main trajectory gathering loop, in which agents send their actions and
+            record environment responses until the end-of-episode is reached and the environment is reset.
+        }
         \label{fig:communication}
     \end{figure}
 

@@ -257,8 +257,8 @@
 \newcommand{\unidademin}[1]{\renewcommand{\imprimirunidademin}{#1}}
 
 % Comando para definição da Unidade
-%\providecommand{\imprimirsiglaunidade}{}
-%\newcommand{\siglaunidade}[1]{\renewcommand{\imprimirsiglaunidade}{#1}}
+\providecommand{\imprimirsiglaunidade}{}
+\newcommand{\siglaunidade}[1]{\renewcommand{\imprimirsiglaunidade}{#1}}
 
 
 % Comando para definição da Universidade
