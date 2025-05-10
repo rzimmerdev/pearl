@@ -111,4 +111,4 @@ The code used to generate such graphics is available under the `results/` direct
 ## Thesis
 
 Authored by Rafael Zimmer, 2025.
-View the complete document here, or simply access the [file's latest commit](paper.pdf).
+View the print version [here](https://icmc.usp.br), or simply access the [file directly](paper.pdf).
