@@ -14,14 +14,15 @@ shared-environment setting, this approach aimed to utilize compute resources mor
 if not enhancing---the statistical diversity of sampled trajectories.
 
 
-\section{Results}
+\section{Experiments and Results}
 \label{sec:results}
 
 Throughout the design and evaluation process, emphasis was placed on reducing the straggler problem extend improving training throughput.
 The use of a brokerless ZeroMQ Router/Dealer communication layout enabled asynchronous, low-latency interactions between workers and the central learner.
 This design reduced idle time in the learning loop and facilitated scalable coordination across heterogeneous agents operating at different speeds.
 
-The experimental results substantiate several of the design hypotheses.
+The experimental results we obtained substantiate several of the design hypotheses.
+The first tests we performed were made to decide between using a distributed or centralized policy, as discussed in \fullref{subsec:pearl}.
 As shown in \cref{tab:benchmarks}, using a centralized policy for batched inference dramatically reduced the average time spent in the `act' step,
 where the learner generates the action tensor to be sent to the environments.
 When the state tensors are centralized and batched for the policy network forward pass, which we named \textit{centralized policy},
@@ -48,10 +49,17 @@ The main contribution of this work is the empirical demonstration that asynchron
 can be shared between multiple learners to reduce redundant computations, while retaining stability for non-stationary simulators representative of financial market dynamics.
 These dynamics, characterized by frequent regime shifts and exogenous shocks, are particularly prone to introducing non-Markovian effects that degrade learning performance.
 The architecture’s ability to tolerate these conditions and increase learning efficiency highlights its applicability to real-world algorithmic trading systems.
-To test our hypothesis that the PEARL framework is able to efficiently reuse simulator dynamics, we conducted tests using two trainers with $n$ environments,
-ranging from $1$ to $32$ increasing in powers of $2$, that is, $n \in \left\{1, 2, 4, 8, 16, 32\right\}$.
+
+For our main hypothesis that the PEARL framework is able to efficiently reuse simulator dynamics, we conducted additional tests using two trainers with an
+increasing number of $n$ environments, ranging from $1$ to $32$ incremented in powers of $2$, that is, $n \in \left\{1, 2, 4, 8, 16, 32\right\}$.
 We then recorded the episodic loss for $k = 10$ iterations per number of environment, at the end of $100$ episodes, averaging them into a single loss curve per environment count.
-In \cref{fig:loss}, we plot the episodic loss, and in \cref{fig:performance} we plot the final average negative log loss per count of shared environments.
+These tests were performed on a AMD Ryzen 7 5700G CPU, with 32GB of DDR4 DRAM.
+Additionally, both the agent act method and update method, which performed the policy's forward and backward passes, respectively,
+made use of a NVIDIA GTX 1080 GPU, with 8GB of GDDR5X VRAM.
+For details on the environment setup, as well as for the choice of hyperparameters regarding the PPO algorithm,
+we suggest interested readers to look at the repositories containing code implementation for the environment,
+the simulator and the agent, annexed in \fullref{ch:code}.
+In \cref{fig:loss}, we plot the episodic loss, and in \cref{fig:performance} we plot the final average negative log loss per count of shared environments for the experiments.
 The performance at the end of the $100$ episodes scales positively with the number of shared environments, up to $8$ environments,
 when it starts to decrease.
 We attribute this behavior to the test machine's $8$ physical CPU cores, which limit training scalability.

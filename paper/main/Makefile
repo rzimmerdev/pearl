@@ -28,6 +28,10 @@ latexmk: $(OUTSUBDIRS)
 	latexmk -pdf -bibtex -output-directory=$(OUTDIR) main.tex
 
 
+export_paper:
+	cp out/main.pdf ../../paper.pdf
+
+
 clean:
 	find $(OUTDIR) -type f ! -name "main.pdf" -delete
 	find $(OUTDIR) -mindepth 1 -type d -empty -delete
