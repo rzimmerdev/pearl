@@ -38,7 +38,7 @@ the proposed system reduces computational redundancy and allows agents to simult
 The simulator is then replicated only when parallel processing is advantageous, that is,
 to match the number of computational cores available.
 The architecture separates policy learning and trajectory collection while eliminating the overhead incurred by reducing computations on similar market dynamics.
-This design leverages the fact that in realistic market simulation, the underlying dynamics
+This design leverages the fact that in realistic market simulations, the underlying dynamics
 ---such as order arrivals and cancellations---can be modeled centrally without requiring independent order flow processes per agent.
 
 In what follows, we examine the primary challenges of distributed RL under non-stationary and asynchronous conditions~\citep{Huh2023},
@@ -81,11 +81,15 @@ suboptimal policy changes lead to undesired effects on the reward curve and lowe
 Thus, a trade-off between minimizing communication overhead and preserving the timeliness of policy synchronization
 becomes an important consideration to make when designing distributed RL algorithms.
 An algorithm that addresses this trade-off is the V-trace algorithm, proposed in the Impala framework~\citep{Espeholt2018},
-which corrects off-policy trajectories by means of a truncated importance sapling regimes,
-reducing data the effects of data staleness on the asynchronous policy gradient updates.
-While effective both in finance and other domains, its application in high-frequency contexts can be more delicate
-and require additional consideration due to the additional processing delays it adds as well as the requirement for a
-centralized learner.
+which reduces the effects of data staleness on the asynchronous policy gradient updates by
+correcting off-policy trajectories through a truncated importance sampling regime.
+While effective both in finance and other domains,
+the use of V-trace restricts implementation to a decentralized learner architecture\footnote{
+    learner in this context is the part of the code actually responsible for policy updates,
+    and in the Impala algorithm, the learners are decentralized, aggregating policy gradient updates between eachother.
+} and introduces processing delays due to the correction of off-policy trajectories.
+These factors are particularly impactful in the context of high-frequency applications,
+and requires additional consideration when deciding whether to effectively use a decentralized learner with the V-trace algorithm or not.
 
 Moreover, maintaining a consistent and representative replay buffer becomes non-trivial in low-latency domains.
 Slight inconsistencies or delays in the trajectory gathering steps can amplify instability,
@@ -129,8 +133,7 @@ This architecture supports high-throughput, low-latency learning by avoiding syn
 allowing workers to operate at their own pace---a critical property when the environment's regimes drift and
 thus resulting in heterogeneous processing times.
 
-As long as enough processing cores exist, workers can be added to increase throughput, as long
-as sufficiently enough environments exist to accommodate the created workers.
+As long as enough processing cores exist, environments can be added to increase throughput, and thus accommodate additional workers.
 While this work focuses on homogeneous policy learning, the architecture also naturally supports multi-policy training setups.
 In contrast to prior work that emphasizes scaling via massive actor populations,
 our system emphasizes resource efficiency and realism by additionally considering computational constraints of small quantitative trading funds.
@@ -159,5 +162,5 @@ and we test the training performance of the system using a distributed version o
 as the learning agent, described in \fullref{subsec:agent}.
 We evaluate the system's performance in terms of computational efficiency, speedup, learning stability, and convergence speed,
 comparing its performance for different numbers of workers and environment nodes.
-The results in \fullref{sec:results} demonstrate that the shared environment model
-achieving efficient distributed workers and speedup when compared to centralized replicated environments.
+The results in \fullref{sec:results} demonstrate that the proposed distributed framework
+was able to efficiently parallelize the shared environments and speedup the learning process compared to a single environment multi-agent setup.

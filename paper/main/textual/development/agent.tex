@@ -13,40 +13,36 @@
     \subsection{Chosen Agent Architecture}
     \label{subsec:agent}
 
-    The reinforcement learning problem is formulated as a Markov Decision Process (MDP) with a state space \( S \),
-    action space \( A \), transition probabilities \( P(s'|s, a) \), and rewards \( R(s, a) \).
-    The underlying goal is to learn a policy \( \pi \) that maximizes the expected return over time.
+    As discussed in \fullref{subsec:environment}, the reinforcement learning problem is formulated as a MDP with a state space \( S \),
+    action space \( A \), transition probabilities \( P(s'|s, a) \), and reward function \( R(s', a, s) \).
+    The underlying goal is to learn a policy \( \pi(s) \) that maximizes the expected return over time,
+    and depends only on the current state.
 
     In reinforcement learning, the Bellman equation recursively defines the value of a state, \( V(s) \),
-    in terms of the reward and the expected future state values.
-    For a given policy \( \pi \), the Bellman equation for the value function \( V^{\pi}(s) \) is:
+    in terms of the reward and the conditional expected future state values.
+    For a given policy \( \pi(s) \), the Bellman equation for the value function \( V^{\pi}(s) \) is:
 
     \[
         V^{\pi}(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s, a) \left( R_t + \gamma V^{\pi}(s') \right)
     \]
 
-    where \( R_t \) is the reward at time \( t \), and \( \gamma \) is the discount factor.
+    where \( R_t = R(s', a_t, s)\) is the value for the reward function starting in the state $s$, and reaching state $s'$ through
+    action $a_t$ at timestep $t$. \( \gamma \) is the discount factor.
     The goal is to find the optimal policy \( \pi^* \) that maximizes the expected return, which is given by:
 
     \[
         V^*(s) = \max_a \mathbb{E}[R_t + \gamma V^*(s') | s = s, a = a]
     \]
 
-    Policy iteration and value iteration are methods to solve this equation, but they become computationally expensive for large state spaces.
+    Policy iteration and value iteration are methods to approximate this equation numerically,
+    but they become computationally expensive for large state spaces.
     In such cases, neural networks are used to approximate the value function or the policy itself, making them suitable for complex environments.
     The Generalized Policy Iteration is a framework that unifies these methods by iteratively evaluating and improving the policy.
     Most modern reinforcement learning algorithms and the current state-of-the-art methods are based on this framework,
     including but not limited to Q-learning, Actor-Critic (and variations), and Policy Gradient methods.
 
-    % diagrams/gpi.pdf
-    \begin{figure}[htb]
-        \centering
-        \includegraphics[width=0.8\textwidth]{diagrams/gpi.pdf}
-        \caption{Generalized Policy Iteration (GPI) diagram for Policy Gradient methods.}
-        \label{fig:gpi}
-    \end{figure}
-
-    Policy Gradient methods are particularly well-suited for continuous action spaces and have been widely used in finance and trading applications.
+    Policy Gradient methods are particularly well-suited for continuous action spaces and have been widely used in finance and trading applications
+    ~\citep{Guo2023, Gasperov2022}
     The approach involves parameterizing the policy \( \pi_\theta(a|s) \) with a neural network and optimizing it directly to maximize the expected return.
     The policy gradient given a state-action pair \( (s, a) \) and policy network \( \pi_\theta \) is:
 
@@ -69,6 +65,14 @@
 
     These updates are performed iteratively, using a neural network with backpropagation to minimize the loss and improve the policy.
     PPO ensures stability by limiting the policy update size.
+
+    % diagrams/gpi.pdf
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=0.8\textwidth]{diagrams/gpi.pdf}
+        \caption{Generalized Policy Iteration (GPI) diagram for Policy Gradient methods.}
+        \label{fig:gpi}
+    \end{figure}
 
     \begin{figure}[htb]
         \centering

@@ -78,8 +78,8 @@
 %\bibliographystyle{class/abntex2-numeng-USPSC}
 
 % Há diversa opções para nota de rodapé no Sistema Numérico.  Para o IFSC, habilitade o comando abaixo.
-\renewcommand{\thefootnote}{\fnsymbol{footnote}}  %Comando para inserção de símbolos em nota de rodapé
-
+%\renewcommand{\thefootnote}{\fnsymbol{footnote}}  %Comando para inserção de símbolos em nota de rodapé
+\renewcommand{\thefootnote}{\arabic{footnote}}
 % oopções para nota de rodapé no Sistema Numérico:
 %\renewcommand{\thefootnote}{\alph{footnote}}      %Comando para inserção de letras minúscula em nota de rodapé
 %\renewcommand{\thefootnote}{\Alph{footnote}}      %Comando para inserção de letras maiúscula em nota de rodapé
@@ -263,6 +263,8 @@
 
 % Capítulo 1 - Introdução
     \include{textual/introduction}
+
+    \include{textual/literature}
 
 % Capítulo 2
     \include{textual/development}

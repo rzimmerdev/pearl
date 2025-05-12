@@ -22,10 +22,11 @@
     que múltiplos agentes interajam assíncronamente com um livro de ofertas estocástico comum.
     O sistema utiliza uma camada de mensageria sem corretor para desacoplar a coleta de trajetórias do aprendizado de políticas,
     reduzindo o atraso de sincronização e permitindo maior throughput.
-    A avaliação empírica utilizando um agente baseado no PPO mostra que o PEARL alcança taxas de convergência melhoradas, maior eficiência amostral,
-    e menor latência em comparação com as configurações tradicionais.
+    A avaliação empírica utilizando um agente baseado no algoritmo proximal policy optimization mostrou que a arquitetura PEARL
+    levou a incrementos nas taxas de convergência, maior eficiência amostral,
+    e menor latência em comparação com uma configuração de ambientes replicados.
     Ao abordar explicitamente a redundância de simulação e os atrasos de comunicação,
-    esta arquitetura avança na implantação escalável e sensível ao tempo de RL nos mercados financeiros.
+    buscamos implementar uma solução escalável e com maior eficiência de treino para agentes de RL voltados à market making em mercados financeiros.
 
  \textbf{Palavras-chave}: Aprendizado por Reforço, Computação Distribuída, Market Making, Negociação de Alta Frequência, Aprendizado Profundo.
 \end{resumo}

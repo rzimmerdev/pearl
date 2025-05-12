@@ -40,10 +40,11 @@
     This asynchronous architecture not only improves simulation throughput but also closely aligns with
     the latency-sensitive nature of high-frequency trading environments, usually measured in the milliseconds.
 
-    By integrating a realistic LOB into the simulation, the environment provides a robust testbed for exploring how
-    distributed reinforcement learning algorithms can learn and adapt in complex, dynamic markets.
-    The detailed representation of market microstructure, combined with the precise handling of order events,
-    allows for rigorous scientific investigation into the interplay between order submission strategies and market behavior.
+    By integrating a realistic LOB into the simulation, the environment provides a robust benchmark for testing
+    distributed reinforcement learning algorithms under complex stochastic market dynamics.
+    The detailed representation of market microstructure, combined with fine-grained arrival of order events,
+    allows for statistically representative simulations that ensure order submission strategies
+    are adequately trained to adapt to market reaction.
 
     \begin{figure}[htb]
         \centering
@@ -59,45 +60,78 @@
     New orders are sampled from a mixture of processes, and at each time step, the environment checks for crossing orders and executes trades accordingly,
     updating the order book and the agent's state, as well as the reward signal.
 
-    The system dynamics are modeled as a continuous-time Markov Decision Process (MDP), where the transition probabilities
-    \( P(s', t|s, a) \) are governed by the Kolmogorov forward equation:
-
-    \[
+    The system dynamics are modeled as a continuous-time Markov Decision Process (MDP),
+    where each state corresponds to some representation of the current market state.
+    It can contain both LOB-observed variables, such as $N$-depth price and quantity quotes,
+    as it can contain processed or fabricated features, such as $15$ window price moving averages,
+    periodic volatility values, mean return rates, and others.
+    The governing equation for the state dynamics is the Kolmogorov forward equation,
+    which gives the probability of transitioning from some state $s \in S'$ (where $S'$ is the set of all possible states excluding final states)
+    to some other state $s' \in S$ (where $S$ is the set of all possible states)
+    at a future time $t \geq 0$ given the agent's action in the state $s$ was $a$:
+    \begin{equation}
         \frac{\partial P(s', t|s, a)}{\partial t} = \int_S L(x|s, a, t) P(s'|x, a, t) \, dx
-    \]
+        \label{eq:kolmogorov}
+    \end{equation}
 
-    Here, \( a \) represents the action chosen by the control agent according to a policy \( \pi(s) \), and \( L(x|s, a, t) \) is the generator operator,
-    which defines the dynamics of state transitions at any given time \( t \).
-    Solving for the transition probabilities is often approached either analytically through closed-form solutions,
-    as in earlier works~\citep{Avellaneda2008, Gueant2017},
-    or numerically via approximations (e.g., by simulating trajectories or using reinforcement learning methods)~\citep{Gueant2022, Gasperov2022, Guo2023}.
+    Here, the action $a$ chosen by the control agent was sampled or deterministically chosen according to a policy $\pi(s)$,
+    so that $a \in \pi(s)$ for deterministic policies or $a \sim \pi(s)$ for stochastic policies.
+    Finally, \( L(x|s, a, t) \) is the generator operator for the environment's dynamics at any given time \( t \),
+    and depends on the current state $s$ and the action taken by the agent $a$.
 
-    The market-making problem is modeled using online reinforcement learning, where the simulator represents a
-    limit order book (LOB) that reflects stylized market behaviors.
-    The event timing in the LOB follows a Hawkes process, capturing the self-exciting nature of clustered order arrivals.
-    The intensity \( \lambda(t) \) of the Hawkes process is defined as:
+    However, solving for the generator operator $L$ under complex market dynamics is usually extremely complex,
+    and oftentimes either unfeasible or completely impossible due to the non-linear and non-gaussian nature of asset-return distributions.
+    Thus, solving for the transition probabilities is often approached either by simplifying the market model and
+    analytically finding closed-form solutions, as in earlier works~\citep{Avellaneda2008, Gueant2017},
+    by numerically approximating the observed state transitions for simpler state spaces,
+    or by numerically approximating some reward function $R$
+    (e.g., by simulating trajectories or using reinforcement learning methods)~\citep{Gueant2022, Gasperov2022, Guo2023}.
+    The market-making problem can be modeled using the reinforcement learning paradigm,
+    representing the environment through a simulated limit order book (LOB) that reflects stylized market behaviors,
+    and incorporating the Profit-and-Loss scores into a known reward function.
 
-    \begin{gather*}
-        \lambda(t) = \mu + \sum_{t_i < t} \phi(t - t_i)\\
-        \phi(t - t_i) = \alpha e^{-\beta(t - t_i)}\\
-    \end{gather*}
+    For our environment, we break up the simulating of order arrivals into four separate steps:
+    \begin{itemize}
+        \item Sampling the next event times;
+        \item Sampling the spread, volatility and mean price drift processes;
+        \item Sampling the number of new events, and their order prices and quantities;
+        \item Inserting the sampled orders into the LOB.
+    \end{itemize}
+    This setup was designed to provide a highly realistic representation of known limit-order book and
+    microstructure stylized facts, such as clustered order arrivals, normal return distributions and price drifts,
+    which in turn guided our choice for adopting the Reinforcement Learning approach to optimize our policy instead of trying
+    to find a closed-form solution.
+
+    The event times in our simulator follow a Hawkes process,
+    a stochastic process with a self-exciting kernel.
+    This property is extremely relevant for the context of limit order books,
+    as it can replicate the self-exciting nature of clustered order arrivals.
+    The intensity kernel \( \lambda(t) \) for the Hawkes is defined as:
+
+    \begin{equation}
+        \begin{aligned}
+            \lambda(t) = \mu + \sum_{t_i < t} \phi(t - t_i)\\
+            \phi(t - t_i) = \alpha e^{-\beta(t - t_i)}
+        \end{aligned}
+        \label{eq:hawkes}
+    \end{equation}
 
     where \( \mu > 0 \) is the baseline intensity, and \( \alpha \), \( \beta \) govern the magnitude and decay of past events' influence.
-    To generate order arrivals, we sample from an exponential process with intensity \( \lambda(t) \),
-    where the inter-arrival times are exponentially distributed.
-    Bid and ask prices are modeled as separate Geometric Brownian Motion (GBM) processes, with prices evolving according to:
+    To generate order arrivals, we can sample from an exponential process with intensity \( \lambda(t) \),
+    making the inter-arrival times exponentially distributed.
+    For the second step, the bid and ask prices are modeled as separate Geometric Brownian Motion (GBM) processes, with prices evolving according to:
 
     \begin{gather*}
-        dX_{\text{ask}} = (\mu_t + s_t) X_{\text{mid}} \, dt + \sigma dW_t\\
-        dX_{\text{bid}} = (\mu_t - s_t) X_{\text{mid}} \, dt + \sigma dW_t\\
+        dX_{\text{ask}} = (\mu_t + s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t\\
+        dX_{\text{bid}} = (\mu_t - s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t\\
     \end{gather*}
 
-    where \( \mu_t \) is the drift, \( s_t \) is the spread, and \( \sigma \) is the volatility.
-    The drift \( \mu_t \) follows a mean-reverting Ornstein-Uhlenbeck process, while the spread \( s_t \) follows a Cox-Ingersoll-Ross process,
-    ensuring a positive spread.
-    The midprice \( X_{\text{mid}} \) is calculated as the average of the current bid and ask prices.
-    In the absence of orders, the midprice is based on the last traded price or an initial value,
-    while price volatility is modeled using a GARCH(1,1) process:
+    where \( \mu_t \) is the drift, \( s_t \) is the spread, and \(  \sigma_t \) is the volatility.
+    To ensure our simulator is capable of replicating changing market dynamics,
+    we model the GBM drift $\mu_t$, the spread $s_t$ and the volatility $\sigma$ separately.
+    The drift \( \mu_t \) follows a mean-reverting Ornstein-Uhlenbeck process~\citep{Uhlenbeck1930},
+    while the spread \( s_t \) is sampled from a Cox-Ingersoll-Ross process~\citep{Cox1985}, so we ensure it remains positive.
+    Our price volatility is modeled using a GARCH(1,1) process:
 
     \begin{equation*}
         \begin{aligned}
@@ -107,10 +141,14 @@
     \end{equation*}
 
     where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
-    Order quantities \( q_{\text{ask}} \) and \( q_{\text{bid}} \) are modeled as Poisson random variables with arrival rate \( \lambda_q \),
-    reflecting stochastic order arrivals.
-    All market regime variables (e.g., spread, order arrival rate, and price drift, are sampled according to the aforementioned process,
-    and their mixture form the order book dynamics.
-
+    The values for $\omega$, $\alpha$, and $\beta$, as well as the default simulation hyperparameters are
+    available in the annexed code and reproducibility section (\Fullref{ch:code}).
+    Finally, the midprice \( X_{\text{mid}} \) used in the GBM processes is calculated as the average of the current best bid and ask prices.
+    In the absence of orders, the midprice is based on the last traded price or an initial value.
+    Together with the sampled ask and bid prices, order quantities \( q \) are sampled from a Poisson distribution with a fixed rate,
+    and pairs of price, side (buy or sell), and quantities are combined into orders and inserted into the limit order book,
+    which automatically matches received orders.
+    All market variables (e.g., spread, order arrival rate, and price drift) are sampled according to the four steps described above,
+    and together with the Red-Black tree structure make up the underlying order book dynamics.
 
 \end{document}

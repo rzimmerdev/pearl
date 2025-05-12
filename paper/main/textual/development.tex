@@ -1,19 +1,17 @@
 \chapter{Development}
 \label{ch:development}
-%Este capítulo é parte principal do trabalho acadêmico e deve conter a exposição ordenada e detalhada do assunto.
-%Divide-se em seções e subseções, em conformidade com a abordagem do tema e do método, abrangendo:
-%revisão bibliográfica, materiais e métodos, técnicas utilizadas, resultados obtidos e discussão.
+
 Distributed reinforcement learning (RL) has evolved considerably in response to the demands of complex tasks such as game playing and financial trading.
 Early methods such as the Asynchronous Advantage Actor-Critic (A3C)~\citep{Mnih2016}
 algorithm introduced the concept of multiple parallel workers collecting experiences independently,
-which helped to reduce update variance and speed up training.
+which helped to increase training speeds and reduce reward variance.
 Building on these ideas, architectures like IMPALA and Gorila~\citep{Espeholt2018,Nair2015} have decoupled data collection from model training by using
 a decentralized learner and worker structure, which periodically synchronizes the policy with the updated gradient
 from the workers through gradient passing.
-This design enables significant scalability across heterogeneous computing resources and facilitates high-throughput training.
+The decentralized learner design enables significant scalability across heterogeneous computing resources and facilitates high-throughput training.
 
 As mentioned in \fullref{ch:introduction}, a key challenge present in these systems is the communication overhead incurred when transmitting experiences or
-updated policies between the learner and the workers.
+policy gradient updates between the learner and the workers.
 The IMPALA algorithm aggregates trajectories from multiple workers into
 batches for efficient gradient computation while managing the staleness of policy information.
 More recent approaches, such as SEED RL\citep{Espeholt2020}, have further optimized communication by bundling inference with training updates.
@@ -30,8 +28,6 @@ This thesis builds upon existing distributed algorithms through means of shared 
 designed specifically to address the nature of high-frequency trading applications.
 In the following sections, we present the design and implementation of our proposed architecture,
 which we refer to as Parallel Environments for Asynchronous Reinforcement Learning (PEARL).
-
-\input{textual/development/literature}
 
 \section{Environment and Agent Methodology}
 \label{sec:methodology}

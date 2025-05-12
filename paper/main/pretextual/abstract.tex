@@ -23,10 +23,10 @@
     parallelized market simulators that adapts the multi-agent RL paradigm for asynchronous interactions with parallel limit order book simulators.
     The system leverages a brokerless messaging layer to decouple trajectory collection from policy learning,
     reducing synchronization lag and enabling higher throughput.
-    Empirical evaluation using a PPO-based agent shows that PEARL achieves improved convergence rates, greater sample efficiency,
-    and lower latency compared to traditional setups.
+    Empirical evaluation using a proximal policy optimization-based agent showed that the PEARL architecture achieves improved convergence rates, greater sample efficiency,
+    and lower latency compared to a traditional replicated environment setup.
     By explicitly addressing simulation redundancy and communication delays,
-    this architecture advances scalable and time-sensitive RL deployment in financial markets.
+    we aimed to increase scalability and training efficiency for RL algorithms in financial market making.
 
    \vspace{\onelineskip}
  

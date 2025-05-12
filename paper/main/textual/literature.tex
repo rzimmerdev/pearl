@@ -1,10 +1,10 @@
-\section{Literature Review}
-\label{sec:literature_review}
+\chapter{Literature Review}
+\label{ch:literature_review}
 
-We performed a simple overview of recent literature regarding distributed reinforcement learning,
+We performed a literature review regarding distributed reinforcement learning,
 and categorized the results according to groups of tags.
-This review was made with the purpose of highlighting frequently used algorithms, RL metrics,
-and types of system and network benchmarks.
+This review was made with the purpose of highlighting recent trends in distributed RL and frequently used algorithms, RL metrics,
+and relevant system and network communication benchmarks.
 To gather relevant literature, we searched the Web of Science database using the following search query,
 while limiting the results to the last 5 years:
 
@@ -36,7 +36,8 @@ The remaining 33 references were analyzed, and tagged according to the following
     \item \textbf{System Metrics} (Wall Speed, Latency, Memory, Core Efficiency)
 \end{itemize}
 
-\subsection{Algorithmic Landscape}
+\section{Algorithmic Landscape}
+\label{sec:algorithmic-landscape}
 
 The algorithm categories analyzed, as shown in \cref{fig:algorithm}, revealed a clear preference for actor-critic architectures (6 out of 33 papers),
 followed by Q-learning variants including DQN and DDPG (4), and to a lesser extent SAC, PPO, and Impala.
@@ -51,12 +52,12 @@ The diversity suggests no one-size-fits-all solution, but rather that algorithmi
     \label{fig:algorithm}
 \end{figure}
 
-\subsection{Communication Models and Scalability}
+\section{Communication Models and Scalability}
+\label{sec:communication-models-and-scalability}
 
 Decentralized architectures were most frequent for our search query (8 instances), often favored for scalability and fault tolerance.
-Centralized (5) and asynchronous (5) methods are frequently used in systems where shared state must be maintained across learners.
-Synchronous designs (4) were the least common, likely due to their inefficiencies in environments with heterogeneous worker speeds,
-shown in \cref{fig:communication_type}.
+Centralized (5) and asynchronous (5) methods are frequently used in systems where shared state must be maintained across learners,
+with synchronous designs being less common, shown in \cref{fig:communication_type}.
 The prevalence of asynchronous and decentralized schemes underscores the challenge of balancing policy staleness with communication overhead
 —a trade-off directly addressed in designs like IMPALA and SEED RL.
 
@@ -67,7 +68,8 @@ The prevalence of asynchronous and decentralized schemes underscores the challen
     \label{fig:communication_type}
 \end{figure}
 
-\subsection{RL and Performance Metrics}
+\section{RL and Performance Metrics}
+\label{sec:rl-and-performance-metrics}
 
 Among RL-specific evaluation criteria, convergence and sample efficiency dominate (8 and 7 mentions respectively),
 highlighting the central importance of rapid learning and stable policy improvement, as shown in \cref{fig:rl_metrics}.
@@ -99,15 +101,17 @@ This aligns with our own motivation for optimizing PEARL to accommodate the thro
     \end{minipage}
 \end{figure}
 
-\subsection{Conclusion of the Literature Review}
+\section{Conclusion of the Literature Review}
+\label{sec:conclusion-of-the-literature-review}
 
-Overall, the literature points to a growing interest in modular, scalable, and asynchronous architectures that can adapt to diverse computational environments,
+Overall, the literature points to a growing interest in modular, scalable, and \textbf{asynchronous architectures} that can adapt to diverse computational environments,
 while still maintaining acceptable training speeds and sample efficiency.
-Actor-Critic methods, particularly those employing off-policy or asynchronous updates, dominate the field due to their flexibility and sample efficiency.
+\textbf{Actor-Critic} methods, particularly those employing off-policy or asynchronous updates, dominate the field due to their flexibility and \textbf{sample efficiency}.
 Communication remains a central bottleneck, with decentralization and batching strategies like those used in SEED RL emerging as practical solutions.
 
-Our proposed system—PEARL—builds on these insights by adopting asynchronous shared environments with minimal inter-process communication.
-This design explicitly targets environments such as financial simulations, where timing, throughput,
-and low-latency response are critical.
-In the following sections, we describe the architecture and implementation details of the system,
+Building on these insights, we introduce PEARL, a system designed for \textbf{multi-agent reinforcement learning}, where
+timing, throughput, and low-latency responses are critical, such as financial simulations.
+The architecture, designed to minimize inter-process communication,
+is based on a \textbf{parallel asynchronous} interface between learners and shared environments.
+In the following sections, we discuss the system's implementation details,
 and evaluate its performance in terms of wall time, latency, core efficiency and training reward.
