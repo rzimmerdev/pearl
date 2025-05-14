@@ -1,13 +1,7 @@
 %! Author = rzimmerdev
 %! Date = 3/28/25
 
-% Preamble
-\documentclass[11pt]{article}
-
 % Packages
-\usepackage{amsmath}
-\usepackage{algpseudocode}
-
 % Document
 \begin{document}
     \subsection{Parallel Environments for Asynchronous Reinforcement Learning (PEARL)}
@@ -39,7 +33,7 @@
     % graphics for diagrams/pearl_architecture.pdf
     \begin{figure}[htb]
         \centering
-        \includegraphics[width=0.8\textwidth]{diagrams/pearl_architecture.pdf}
+        \includegraphics[width=0.8\textwidth]{diagrams/pearl.drawio.pdf}
         \caption{Overview of the Parallel Environments for Asynchronous Reinforcement Learning (PEARL) framework.}
         \label{fig:pearl_architecture}
     \end{figure}
@@ -98,7 +92,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=1\textwidth]{diagrams/pipeline.pdf}
+        \includegraphics[width=1\textwidth]{diagrams/pipeline.drawio.pdf}
         \caption{Illustration of the pipeline between learners, their workers and a single environment instance.}
         \label{fig:pipeline}
     \end{figure}

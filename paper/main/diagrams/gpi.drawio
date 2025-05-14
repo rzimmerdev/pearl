@@ -1,0 +1,78 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.9 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="26.0.9">
+  <diagram name="Page-1" id="JthKmUEdamsh-6OuiyjA">
+    <mxGraphModel dx="972" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7A0So71uddYbhaX4MV5w-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="7A0So71uddYbhaX4MV5w-2" target="7A0So71uddYbhaX4MV5w-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-2" value="Initialize Policy $$\pi_\theta$$" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0;dx=16.43;notch=0;labelPosition=center;verticalLabelPosition=middle;spacingTop=12;spacingRight=15;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="7A0So71uddYbhaX4MV5w-3" target="7A0So71uddYbhaX4MV5w-5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-3" value="Trajectory Gathering&lt;div&gt;$$[s_t, a_t, R_t, r_t(\theta)]$$&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="340" y="80" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="7A0So71uddYbhaX4MV5w-5" target="7A0So71uddYbhaX4MV5w-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-10" value="$$\theta \gets \theta + \alpha \nabla_\theta L, \quad \phi \gets \phi + \alpha \nabla_\phi L$$" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="7A0So71uddYbhaX4MV5w-8" vertex="1" connectable="0">
+          <mxGeometry x="-0.0976" y="-3" relative="1" as="geometry">
+            <mxPoint x="3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-5" value="Policy Evaluation&lt;div&gt;$$[A^{GAE}_t, R_t]$$&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="520" y="80" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="7A0So71uddYbhaX4MV5w-6" target="rtSvigjBf3gv21ltsain-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7A0So71uddYbhaX4MV5w-6" value="Policy Improvement (Backpropagation)&lt;div&gt;$$[\theta, \phi]$$&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="520" y="200" width="125" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="rtSvigjBf3gv21ltsain-1" target="7A0So71uddYbhaX4MV5w-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="410" y="170" />
+              <mxPoint x="410" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-5" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rtSvigjBf3gv21ltsain-4" vertex="1" connectable="0">
+          <mxGeometry x="0.1143" relative="1" as="geometry">
+            <mxPoint x="15" y="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-6" value="Reset environments and&amp;nbsp;&lt;div&gt;use updated networks&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rtSvigjBf3gv21ltsain-4" vertex="1" connectable="0">
+          <mxGeometry x="0.071" y="1" relative="1" as="geometry">
+            <mxPoint x="-69" y="12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-1" value="Converged or &lt;i&gt;max_iter?&lt;/i&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="200" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-7" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="rtSvigjBf3gv21ltsain-1" target="rtSvigjBf3gv21ltsain-9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="360" y="240" as="sourcePoint" />
+            <mxPoint x="330" y="310" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="290" y="235" />
+              <mxPoint x="290" y="235" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-10" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rtSvigjBf3gv21ltsain-7" vertex="1" connectable="0">
+          <mxGeometry x="-0.2812" y="-2" relative="1" as="geometry">
+            <mxPoint x="20" y="17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtSvigjBf3gv21ltsain-9" value="End Training" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;rotation=90;horizontal=0;size=15;" parent="1" vertex="1">
+          <mxGeometry x="200" y="205" width="70" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
