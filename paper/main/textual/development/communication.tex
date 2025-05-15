@@ -21,7 +21,8 @@
 
     The communication infrastructure of the system is designed to support fully asynchronous interactions
     between distributed actors and the centralized learner module.
-    The adopted service mesh architecture, shown in~\autoref{fig:service_mesh}, provides logical separation between communication and computation concerns,
+    The adopted service mesh architecture, shown in~\fullimg{fig:service_mesh}, 
+    provides logical separation between communication and computation concerns,
     and allows the learner and environment subsystems to scale independently across compute nodes.
 
     As previously discussed, we employ a brokerless ZeroMQ Router/Dealer pattern for the messaging layer.
@@ -49,7 +50,7 @@
         \label{fig:communication}
     \end{figure}
 
-    \autoref{fig:communication} illustrates the end-to-end communication pipeline.
+    \Fullimg{fig:communication} illustrates the end-to-end communication pipeline.
     Each agent is initialized with a direct messaging channel to the central learner process.
     The learner operates as a multiplexed ZeroMQ Router endpoint capable of concurrently handling multiple inbound streams.
     It tags incoming messages with agent identifiers and manages per-agent buffers for temporal ordering and batching of updates.

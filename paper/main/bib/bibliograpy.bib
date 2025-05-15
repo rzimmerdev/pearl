@@ -2378,6 +2378,7 @@ Unique-ID = {WOS:000725394600020},
   volume    = {34},
   doi       = {10.1063/5.0176892},
   publisher = {AIP Publishing},
+  ranking   = {rank1},
   url       = {http://dx.doi.org/10.1063/5.0176892},
 }
 
@@ -2550,6 +2551,44 @@ Unique-ID = {WOS:000725394600020},
   doi       = {10.2307/1911242},
   publisher = {Wiley},
   url       = {https://www.jstor.org/stable/1911242},
+}
+
+@Article{FalcesMarin2022,
+  author    = {Falces Marin, Javier AND Díaz Pardo de Vera, David AND Lopez Gonzalo, Eduardo},
+  journal   = {PLOS ONE},
+  title     = {A reinforcement learning approach to improve the performance of the Avellaneda-Stoikov market-making algorithm},
+  year      = {2022},
+  month     = {12},
+  number    = {12},
+  pages     = {1-32},
+  volume    = {17},
+  abstract  = {Market making is a high-frequency trading problem for which solutions based on reinforcement learning (RL) are being explored increasingly. This paper presents an approach to market making using deep reinforcement learning, with the novelty that, rather than to set the bid and ask prices directly, the neural network output is used to tweak the risk aversion parameter and the output of the Avellaneda-Stoikov procedure to obtain bid and ask prices that minimise inventory risk. Two further contributions are, first, that the initial parameters for the Avellaneda-Stoikov equations are optimised with a genetic algorithm, which parameters are also used to create a baseline Avellaneda-Stoikov agent (Gen-AS); and second, that state-defining features forming the RL agent’s neural network input are selected based on their relative importance by means of a random forest. Two variants of the deep RL model (Alpha-AS-1 and Alpha-AS-2) were backtested on real data (L2 tick data from 30 days of bitcoin–dollar pair trading) alongside the Gen-AS model and two other baselines. The performance of the five models was recorded through four indicators (the Sharpe, Sortino and P&L-to-MAP ratios, and the maximum drawdown). Gen-AS outperformed the two other baseline models on all indicators, and in turn the two Alpha-AS models substantially outperformed Gen-AS on Sharpe, Sortino and P&L-to-MAP. Localised excessive risk-taking by the Alpha-AS models, as reflected in a few heavy dropdowns, is a source of concern for which possible solutions are discussed.},
+  doi       = {10.1371/journal.pone.0277042},
+  publisher = {Public Library of Science},
+  url       = {https://doi.org/10.1371/journal.pone.0277042},
+}
+
+@InProceedings{Sutton2000,
+  author    = {Sutton, Richard S and McAllester, David A and Singh, Satinder P and Mansour, Yishay},
+  booktitle = {Advances in Neural Information Processing Systems},
+  title     = {Policy gradient methods for reinforcement learning with function approximation},
+  year      = {2000},
+  pages     = {1057--1063},
+}
+
+@InProceedings{Schulman2015,
+  author    = {Schulman, John and Levine, Sergey and Abbeel, Pieter and Jordan, Michael I and Moritz, Philipp},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  title     = {Trust region policy optimization},
+  year      = {2015},
+  pages     = {1889--1897},
+}
+
+@Article{Schulman2017,
+  author  = {Schulman, John and Wolski, Filip and Dhariwal, Prafulla and Radford, Alec and Klimov, Oleg},
+  journal = {arXiv preprint arXiv:1707.06347},
+  title   = {Proximal policy optimization algorithms},
+  year    = {2017},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}

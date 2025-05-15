@@ -17,4 +17,6 @@
 *.sty
 *.bkp
 
-**/out/
+**/out/**
+!**/out/
+!**/out/*.pdf

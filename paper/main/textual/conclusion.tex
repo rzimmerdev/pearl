@@ -59,7 +59,7 @@ made use of a NVIDIA GTX 1080 GPU, with 8GB of GDDR5X VRAM.
 For details on the environment setup, as well as for the choice of hyperparameters regarding the PPO algorithm,
 we suggest interested readers to look at the repositories containing code implementation for the environment,
 the simulator and the agent, annexed in \fullref{ch:code}.
-In \cref{fig:loss}, we plot the episodic loss, and in \cref{fig:performance} we plot the final average negative log loss per count of shared environments for the experiments.
+In \fullimg{fig:loss}, we plot the episodic loss, and in \fullimg{fig:performance} we plot the final average negative log loss per count of shared environments for the experiments.
 The performance at the end of the $100$ episodes scales positively with the number of shared environments, up to $8$ environments,
 when it starts to decrease.
 We attribute this behavior to the test machine's $8$ physical CPU cores, which limit training scalability.
@@ -84,7 +84,7 @@ Increasing the number of environments beyond the available cores introduced enou
 While the system achieves positive results when increasing shared environments, both in terms of latency and compute utilization,
 it also poses a discussion on the trade-offs of shared LOB environments.
 The increased number of environments proportionally increases contention on the simulation process, which becomes a bottleneck under extremely high agent concurrency.
-This can be seen in \cref{fig:speedup}, which shows the speedup for the different counts of shared environments.
+This can be seen in \fullimg{fig:speedup}, which shows the speedup for the different counts of shared environments.
 As the number of environments increases, the processing speed, that is, how fast the concurrent environments can sample and insert new orders into the LOB,
 decreases exponentially.
 Additionally, managing consistent rollout recording and replay in this context requires careful attention to buffering and message timing.

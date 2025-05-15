@@ -10,7 +10,7 @@
 %% abntex2.cls, v-1.9.5 laurocesar
 %% Copyright 2012-2015 by abnTeX2 group at https://www.abntex.net.br/ 
 %----------------------------------------------------------------
-
+%! TeX root = main.tex
 \documentclass[
     12pt,        % tamanho da fonte
     openright,    % capítulos começam em pág ímpar (insere página vazia caso preciso)
@@ -23,7 +23,7 @@
     english,            % idioma adicional para hifenização
     french,                % idioma adicional para hifenização
     spanish,            % idioma adicional para hifenização
-    brazil                % o último idioma é o principal do documento
+brazil                % o último idioma é o principal do documento
 % {class/USPSC} configura o cabeçalho contendo apenas o número da página
 ]{class/USPSC}
 %]{class/USPSC1} %- páginas ímpares: com seções ou subseções e o número da página e páginas pares: com o número da página e o título do capítulo
@@ -146,7 +146,8 @@
 \newcommand{\Fullref}[1]{\hyperref[#1]{Section~\ref*{#1}}}
 \newcommand{\fullref}[1]{\hyperref[#1]{section~\ref*{#1}}}
 
-
+\newcommand{\Fullimg}[1]{\hyperref[#1]{Figure~\ref*{#1}}}
+\newcommand{\fullimg}[1]{\hyperref[#1]{figure~\ref*{#1}}}
 % Espaçamentos entre linhas e parágrafos
 
 % O tamanho do parágrafo é dado por:
