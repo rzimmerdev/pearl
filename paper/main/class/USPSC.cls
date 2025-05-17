@@ -1115,7 +1115,7 @@
    \renewcommand{\appendixtocname}{\uppercase{#2}}
   }{%
   \renewcommand{\appendixtocname}{#2}} 
- \renewcommand{\appendixpagename}{#2}
+ \renewcommand{\appendixpagename}{2}
  \switchchapname{#1}% Corrected from \switchapname -> \switchchapname
  \renewcommand*{\cftappendixname}{#1 \space}
 }
@@ -1164,8 +1164,8 @@
 % ---
 % Imprime uma pagina de divisao no estilo parte
 \newcommand{\partpage}{%
-  \cleardoublepage
-  \phantomsection
+  % \cleardoublepage
+  % \phantomsection
   \addcontentsline{toc}{part}{\appendixtocname}%
   \appendixpage*
 }

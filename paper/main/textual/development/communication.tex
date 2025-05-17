@@ -56,7 +56,7 @@
     It tags incoming messages with agent identifiers and manages per-agent buffers for temporal ordering and batching of updates.
     This enables efficient mini-batch construction for training while preserving per-agent data locality when needed.
 
-    The overall communication design maximizes concurrency while controlling the negative effects of different processing speeds per agent.
+    The overall communication design maximies concurrency while controlling the negative effects of different processing speeds per agent.
     Since the communication layer is built on top of a service mesh,
     it also supports horizontal scaling by adding agents without need for centralized coordination,
     as both learners and environments can be shutdown, restarted and added without interfering with training.

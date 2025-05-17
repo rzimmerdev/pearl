@@ -13,7 +13,8 @@
 \begin{document}
     \subsection{Simulated Trading Environment and Limit Order Book Dynamics}
     \label{subsec:environment}
-    The simulated environment is designed to replicate key aspects of a modern financial market by incorporating a limit order book (LOB) mechanism.
+    The simulated environment is designed to replicate key aspects of a modern market making dynamics by 
+    incorporating a limit order book (LOB) mechanism.
     A LOB is the core structure in many electronic trading systems, where buy and sell orders are organized by price and time priority,
     and can be quoted continuously, thereby reflecting the real-time supply and demand of an asset.
     At any given moment, the orders available in the book are accessible to traders in a sorted fashion, organized per price level,
@@ -21,21 +22,26 @@
 
     Market participants interact with the exchange by submitting orders that represent their intention to buy, called a bid order,
     or their intention to sell, called an ask order.
-    Specifically, each action corresponds to placing a limit order—detailing a specified quantity at a predetermined price.
-    When an agent submits an order, it is added to the appropriate side of the LOB, where orders are queued according to their price and
-    the time at which they were submitted.
+    Specifically, each action corresponds to placing a limit order --- an order detailing a specified quantity at a predetermined price.
+    When an agent submits an order, it is added to the appropriate side of the LOB, 
+    and queued first according to its price and second to the time at which the order was submitted.
     An order is executed if there is a matching order on the opposite side of the book that satisfies the price condition,
-    or if it is a market order, in which case no price is specified and the order is matched at the best available price;
-    otherwise, it remains in the book until a suitable counter-order appears or if it is cancelled by the trader.
+    that is, if the price is higher or equal for a posted ask order or lower or equal for a posted bid order.
+    Otherwise, if no existing order matches the posted order, 
+    it remains in the book until a suitable counter-order appears or if it is cancelled by the trader.
+    Similar to a limit order, another type of order is a market order, 
+    which specifies no price and simply accepts to buy or sell the asset at the best available price; 
 
     The simulation employs a discrete-event framework to model these processes accurately.
-    At each simulation step, the environment generates an observation that includes critical details such as the best bid and ask prices,
-    the order book depth across various price levels, and records of recent trade executions.
-    These observations are then provided to the agents, enabling them to update their strategies based on the evolving market state.
-    This event-driven process is incorporated into the simulator, as it mimics the intricate dynamics of order matching observed in real markets.
+    At each simulation step, the environment generates an observation that includes critical details on what changed in the LOB, 
+    such as the best bid and ask prices, the order book depth across various price levels, and records of recent trade executions.
+    These observations are then transformed into the state space and provided to the agents, 
+    enabling their policies to act according to evolving market states.
+    This event-driven process is incorporated into the simulator, 
+    as it mimics the intricate dynamics of order matching exchanges observed in real markets.
 
-    Order submission and execution in the simulated environment are handled asynchronously.
-    Agents send their orders via a messaging layer implemented with the ZeroMQ framework, a high-performance messaging library,
+    In our simulated environment, the processes of order submission and execution are handled asynchronously.
+    Agents send their orders via a messaging layer implemented with the ZeroMQ framework, a brokerless messaging library,
     to ensure that multiple agents can interact with the shared LOB concurrently without incurring in significant latency.
     This asynchronous architecture not only improves simulation throughput but also closely aligns with
     the latency-sensitive nature of high-frequency trading environments, usually measured in the milliseconds.
@@ -53,20 +59,22 @@
         \label{fig:lob}
     \end{figure}
 
-    The LOB is implemented using a Red-Black tree data structure, which allows for efficient insertion, deletion,
+    Our LOB is implemented on top of a Red-Black tree data structure, which allows for efficient insertion, deletion,
     and sorted or reversed traversal per price level.
     Each price level is represented as a node in the tree, with the price as the key and a queue of posted order details
     (e.g., client id, quantity, timestamp) as the value.
-    New orders are sampled from a mixture of processes, and at each time step, the environment checks for crossing orders and executes trades accordingly,
-    updating the order book and the agent's state, as well as the reward signal.
+    New orders are sampled from a mixture of processes, and at each time step, 
+    the environment checks for crossing orders and executes trades accordingly,
+    updating the order book and the agent's state, as well outputing the reward signal.
 
     The system dynamics are modeled as a continuous-time Markov Decision Process (MDP),
     where each state corresponds to some representation of the current market state.
-    It can contain both LOB-observed variables, such as $N$-depth price and quantity quotes,
-    as it can contain processed or fabricated features, such as $15$ window price moving averages,
-    periodic volatility values, mean return rates, and others.
+    Our chosen state space contains both observed variables from the book, that is, $N$-depth price and quantity quotes,
+    as well as fabricated features, such as $15$ window price moving averages,
+    periodic volatility values, mean return rates, and others which we describe at the end of this section.
     The governing equation for the state dynamics is the Kolmogorov forward equation,
-    which gives the probability of transitioning from some state $s \in S'$ (where $S'$ is the set of all possible states excluding final states)
+    which gives the probability of transitioning from some state $s \in S'$ 
+    (where $S'$ is the set of all possible states excluding final states)
     to some other state $s' \in S$ (where $S$ is the set of all possible states)
     at a future time $t \geq 0$ given the agent's action in the state $s$ was $a$:
     \begin{equation}
@@ -77,19 +85,25 @@
     Here, the action $a$ chosen by the control agent was sampled or deterministically chosen according to a policy $\pi(s)$,
     so that $a \in \pi(s)$ for deterministic policies or $a \sim \pi(s)$ for stochastic policies.
     Finally, \( L(x|s, a, t) \) is the generator operator for the environment's dynamics at any given time \( t \),
-    and depends on the current state $s$ and the action taken by the agent $a$.
+    and depends on the current state $s$ and the action taken by the agent $a$, and $P$ is the standard probability space.
 
-    However, solving for the generator operator $L$ under complex market dynamics is usually extremely complex,
-    and oftentimes either unfeasible or completely impossible due to the non-linear and non-gaussian nature of asset-return distributions.
-    Thus, solving for the transition probabilities is often approached either by simplifying the market model and
+    We are mostly interested in finding a policy that maximizes the expected reward over each episode (in our case, trading days).
+    Solving for the generator operator $L$ results in finding the optimal policy $\pi*$, as it allows us to calculate
+    the action with highest probability of resulting in the highest reward, but under complex market dynamics, 
+    finding a closed form for $L$ can become extremely complex, 
+    and oftentimes completel unfeasible due to the non-linear and non-stationary nature of asset-return distributions.
+    Thus, solving for the transition probabilities is often done by either simplifying the market model and
     analytically finding closed-form solutions, as in earlier works~\citep{Avellaneda2008, Gueant2017},
-    by numerically approximating the observed state transitions for simpler state spaces,
-    or by numerically approximating some reward function $R$
+    by numerically approximating the probabilities for state transitions for smaller state spaces,
+    or by directly finding the distribution for $\pi*$. 
+    In the latter case, we and solving the adjacent problem of finding a 
+    policy to maximize the expected reward $E[R_t]$ for each state and action pairs
     (e.g., by simulating trajectories or using reinforcement learning methods)~\citep{Gueant2022, Gasperov2022, Guo2023}.
-    The market-making problem can be modeled using the reinforcement learning paradigm,
-    representing the environment through a simulated limit order book (LOB) that reflects stylized market behaviors,
-    and incorporating the Profit-and-Loss scores into a known reward function.
-
+    This formulation makes up the reinforcement learning paradigm, and will be discussed in depth in~\fullref{subsec:agent}.
+    
+    The market-making problem can be modeled as a MDP,
+    where the environment is represented as a simulated limit order book (LOB) that reflects stylized market behaviors,
+    and the reward function as some score calculated in terms of the portfolio's daily or running Profit-and-Loss score.
     For our environment, we break up the simulating of order arrivals into four separate steps:
     \begin{itemize}
         \item Sampling the next event times;
@@ -119,15 +133,14 @@
     where \( \mu > 0 \) is the baseline intensity, and \( \alpha \), \( \beta \) govern the magnitude and decay of past events' influence.
     To generate order arrivals, we can sample from an exponential process with intensity \( \lambda(t) \),
     making the inter-arrival times exponentially distributed.
-    For the second step, the bid and ask prices are modeled as separate Geometric Brownian Motion (GBM) processes, with prices evolving according to:
-
-    \begin{equation}
-        \begin{split}
-            dX_{\text{ask}} &= (\mu_t + s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t\\
-            dX_{\text{bid}} &= (\mu_t - s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t
-        \end{split}
+    For the second step, the bid and ask prices are modeled as separate Geometric Brownian Motion (GBM) processes, 
+    with prices evolving according to:
+    \begin{gather}
+        dX_{\text{ask}} = (\mu_t + s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t\\
+        dX_{\text{bid}} = (\mu_t - s_t) X_{\text{mid}} \, dt + \sigma_t X_{\text{mid}} dW_t\\
+        X_{\text{mid}} = \frac{X_{\text{ask}} + X_{\text{bid}}}{2}
         \label{eq:gbm}
-    \end{equation}
+    \end{gather}
     where \( \mu_t \) is the drift, \( s_t \) is the spread, and \(  \sigma_t \) is the volatility.
     To ensure our simulator is capable of replicating changing market dynamics,
     we model the GBM drift $\mu_t$, the spread $s_t$ and the volatility $\sigma$ separately.
@@ -136,25 +149,27 @@
     Our price volatility is modeled using a GARCH(1,1) process:
 
     \begin{equation}
-        \begin{aligned}
-            X_{\text{mid}} &= \frac{X_{\text{ask}} + X_{\text{bid}}}{2} \\
+        \begin{aligned} 
             \sigma_t^2 &= \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2
         \end{aligned}
     \end{equation}
 
-    where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
-    The values for $\omega$, $\alpha$, and $\beta$, as well as the default simulation hyperparamete:rs are
+    where \( \sigma_t \) is the volatility, \( \epsilon_{t-1} \) is the return shock, 
+    and \( \alpha \), \( \beta \) are parameters capturing volatility clustering.
+    The values for $\omega$, $\alpha$, and $\beta$, as well as the default simulation hyperparameters are
     available in the annexed code and reproducibility section (\Fullref{ch:code}).
-    Finally, the midprice \( X_{\text{mid}} \) used in the GBM processes is calculated as the average of the current best bid and ask prices.
+    Finally, the midprice \( X_{\text{mid}} \) used in the GBM processes is calculated as the average of the current best bid and ask prices,
+    as shown in \cref{eq:gbm}.
     In the absence of orders, the midprice is based on the last traded price or an initial value.
     Together with the sampled ask and bid prices, order quantities \( q \) are sampled from a Poisson distribution with a fixed rate,
-    and pairs of price, side (buy or sell), and quantities are combined into orders and inserted into the limit order book,
+    and the tuples of price, side (buy or sell), and quantity representing new orders and inserted into the limit order book,
     which automatically matches received orders.
     All market variables (e.g., spread, order arrival rate, and price drift) are sampled according to the four steps described above,
     and together with the Red-Black tree structure make up the underlying order book dynamics.
 
     After inserting the orders into the LOB, 
-    we can read the state space for the RL environment as a combination of $N$-depth levels of the limit order book, with fabricated features.
+    the state observation for the RL environment is generated as a combination of $N$-depth levels of the limit order book 
+    and additional observed and preprocessed features.
     For any given simulation time $t$, these features include the current midprice $X_\text{mid}$, the agent's inventory $\text{Inventory}_t$, 
     $10$, $15$ and $50$ window moving averages for the price returns, a $30$ period historical volatility $\hat{\sigma_t}$,
     a $15$ period RSI and order imbalance scores, calculated as:

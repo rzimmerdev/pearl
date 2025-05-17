@@ -16,44 +16,50 @@
     As discussed in \fullref{subsec:environment}, the reinforcement learning problem is formulated as a MDP with a state space \( S \),
     action space \( A \), transition probabilities $P(s'|s, a)$, and reward function $R(s', a, s)$.
     The agent's goal is to learn the best choice of actions $a$ according only to the current state $s$.
-    The rationale for chosing each actions form the policy $\pi$, 
-    so that $a = \pi(s)$ is a deterministic policy and $a \sim \pi(s)$ a stochastic policy,
-    and for an optimal policy $\pi*$ the agent maximizes expected return over time.
+    The rationale behind choosing each action defines the policy $\pi$, where $a \sim \pi(s)$ denotes a stochastic policy. 
+    The optimal policy $\pi^*$ is then the policy that maximizes the agent’s expected return 
+    (which is simply the discounted sum of future rewards) over each episode.
 
     In reinforcement learning, the Bellman equation allows for recursively definining the value of a state, 
     and is given by the value function $V(s)$ in terms of a reward function $R(s', a, s$ and the conditional expected future state values.
-    For a given policy \( \pi(s) \), the Bellman equation for the value function \( V^{\pi}(s) \) is:
-
-    \[
+    For a given policy \( \pi(s) \), the Bellman equation for the value function \( V^{\pi}(s) \) is: 
+    \begin{equation}
         V^{\pi}(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s, a) \left( R_t + \gamma V^{\pi}(s') \right)
-    \]
+        \label{eq:value}
+    \end{equation}
 
     where \( R_t = R(s', a_t, s)\) is the value for the reward function starting in the state $s$, and reaching state $s'$ through
     action $a_t$ at timestep $t$. \( \gamma \) is simply a discount factor to impose diminishing returns and favor immediate rewards.
     The goal is to find the optimal policy \( \pi^* \) that maximizes the expected return, which is given by:
-
-    \[
-        V^*(s) = \max_a \mathbb{E}[R_t + \gamma V^*(s') | s = s, a = a]
-    \]
-
-    Policy iteration and value iteration are methods to approximate this equation numerically,
-    but they become computationally expensive for large state spaces.
+    \begin{equation}
+        \pi^*(s) = \arg\max_a \mathbb{E}[R_t + \gamma V^*(s') \mid s, a]
+    \end{equation}
+    where
+    \begin{equation}
+         V^*(s) = \max_a \mathbb{E}[R_t + \gamma V^*(s') | s = s, a = a]      
+        \label{eq:value_star}
+    \end{equation}
+    Policy iteration and value iteration are methods to approximate the expected reward and thus state values numerically,
+    but they can quickly become computationally expensive for large state spaces.
     In such cases, neural networks are used to approximate the value function or the policy function or distribution per se, 
     making them suitable for complex environments where storing the values for the entire state is unfeasible.
     The Generalized Policy Iteration is a framework that unifies these methods by iteratively evaluating and improving the policy.
     Most modern reinforcement learning algorithms and the current state-of-the-art methods are based on this framework,
     including but not limited to Q-learning, Actor-Critic (and variations), and Policy Gradient methods.
 
-    Policy Gradient methods are particularly well-suited for continuous action spaces and have been widely used in finance and trading applications
-    ~\citep{Guo2023, Gasperov2022}
-    When trajectory gathering and policy gradient updates are performed iteratively, 
-    using a neural network with backpropagation to minimize the loss and improve the policy, 
-    the PPO algorithm ensures convergence by GPI and guarante of exploration, as the policy is stochastic.
-    Thus, we can train a neural network to optimize a market making agent to maximize a function of daily returns.
-    In our case, we use a reward function in terms of a virtual running Profit-and-Loss score, defined as
+    Policy Gradient methods are particularly well-suited for continuous action spaces 
+    and have been widely used in finance and trading applications~\citep{Guo2023, Gasperov2022}
+    When trajectory collection and policy gradient updates are performed iteratively using a stochastic policy modeled 
+    by a neural network---where the objective function (typically a loss score) serves as a proxy for observed rewards---the 
+    GPI theorem guarantees policy convergence to a local maximum for the agent's returns~\citep{Sutton2018, Schulman2015}. 
+    Thus, we can train a neural network to optimize a market making agent with the objective of maximizing daily returns.
+    In our case, we use a reward function in terms of a virtual running profit-and-loss score, defined as
     \begin{equation}
         \begin{aligned}
-            \text{Running PnL}_t = \delta_t^{\text{ask}} q_t^{\text{ask}} - \delta_t^{\text{bid}} q_t^{\text{bid}} + \text{I}_t \cdot \Delta M_t, \\
+            \text{Running PnL}_t = 
+            \delta_t^{\text{ask}} q_t^{\text{ask}} 
+            - \delta_t^{\text{bid}} q_t^{\text{bid}} 
+            + \text{I}_t \cdot \Delta M_t, \\
             \text{Penalty}_t = \eta \left( \text{Inventory}_t \cdot \Delta M_t \right)^+,\\
             \text{PnL}_t \coloneqq \text{Running PnL}_t - \text{Penalty}_t .
         \end{aligned}
@@ -63,26 +69,25 @@
     The actual reward function is defined as the negative of the exponential of the running PnL, 
     where $u$ is the risk aversion parameter~\citep{Gueant2022, FalcesMarin2022}.
     Additionally, as we are using an actor-critic approach, 
-    we maximize for the advantage function ---which represents how much the actor
-    outperformed the critic's predictions--- instead of the aforementioned sum of discounted rewards:
+    we maximize for the advantage function---which represents how much the actor
+    outperformed the critic's predictions---instead of the aforementioned sum of discounted rewards:
     
-    \begin{equation}
+    \begin{align}
         R_t = U(\text{PnL}_t) = -e^{-u \cdot \text{PnL}_t},\\
-        A^{\text{GAE}}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}
+        A^{\text{GAE}}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l},
         \label{eq:reward}
-    \end{equation},
-
+    \end{align}
     where $\delta$ is the temporal-difference error, defined as:
     \begin{equation}
         \delta_t = R_t + \gamma V(s_{t+1}) - V(s_t).
         \label{eq:td}
     \end{equation}
-
     The policy gradient approach involves parameterizing the policy distribution 
     $\pi(s)$ in the form $\pi_\theta(a|s)$, where $\theta$ are the weights of a neural network.
     Thus, constructing a loss function in terms of the reward function makes it so that minimizing 
     it is equal to maximizing the expected episodic return.
-    For the Proximal Policy Optimization (PPO) algorithm~\citep{Schulman2017}, an actor-critic algorithm, which we used to test the PEARL architecture,
+    For the Proximal Policy Optimization (PPO) algorithm~\citep{Schulman2017}, 
+    an actor-critic algorithm, which we used to test the PEARL architecture,
     the actor loss is given by a clipped surrogate objective, used to constrain the gradient to prevent excessive changes:
     \begin{equation}
         L_{\text{actor}}(\theta) = \mathbb{E}_t \left[ 
@@ -90,17 +95,16 @@
         \right]
         \label{eq:actor_loss}
     \end{equation}
-
     The policy gradient given a state-action pair \( (s, a) \) and policy network \( \pi_\theta \) is calculated as:
     \begin{equation}
         \nabla_\theta J_\text{PPO}(\theta) = \nabla_\theta L_{\text{actor}}(\theta)
         \label{eq:actor_gradient}
     \end{equation}
-    
-    where \( r_t(\theta) \) is the probability ratio between the new and old policies, and \( A^{\text{GAE}}_t \) is the generalized advantage function.
-    The value function is similarly approximated using a separate network architecture, called the critic network, with weights $\phi$, 
+    where \( r_t(\theta) \) is the probability ratio between the new and old policies, 
+    and \( A^{\text{GAE}}_t \) is the generalized advantage function.
+    The value function $V(s_t)$ is similarly approximated using a separate network architecture, 
+    called the critic network, with weights $\phi$, 
     and for the PPO algorithm its loss and gradient is given by:
-
     \begin{equation}        
         \begin{aligned}
             L_{\text{critic}} = \mathbb{E}_t \left[ (V(s_t) - R_t)^2 \right]\\ 
@@ -116,6 +120,11 @@
     and since the actor network implements a stochastic policy, 
     the training process will surely converge to a local optimum under the condition that the network's capacity 
     (i.e., its size) is sufficiently large with regard to the complexity of our market simulator dynamics~\citep{Sutton2000, Schulman2015}.
+    An overview of the layers that make up ou chosen design for the policy architecture is shown in~\fullimg{fig:architecture}.
+    The model architecture consists of Transformer encoder blocks for processing the limit order book features, 
+    alongside a set of fully connected layers for the observed and preprocessed features. 
+    The architecture was designed to achieve a balance between representational capacity and computational efficiency, 
+    as the focus of this thesis lies more in the distributed learning setup than in the specific details of network architecture.
 
 % diagrams/gpi.pdf
     \begin{figure}[htb]
@@ -129,7 +138,7 @@
         \centering
         \includegraphics[width=0.8\textwidth]{diagrams/architecture.drawio.pdf}
         \caption{Architecture of the reinforcement learning agent used in the simulation.}
-        \label{fig:agent}
+        \label{fig:architecture}
     \end{figure}
 
 \end{document}
