@@ -9,7 +9,8 @@
 The increasing availability of large-scale computing infrastructure has driven significant advances
 in Reinforcement Learning (RL) across several domains, such as robotics, video games, and finance~\citep{Yin2024,Hou2025,Huh2023}.
 Further advances in both computational power and deep learning methods enabled RL agents to leverage powerful neural networks
-as policy estimators, capable of dealing with complex environments with improved data throughput and convergence rates~\citep{Zheng2023,Jia2024}.
+as policy estimators, capable of dealing with complex environments with improved data 
+throughput and convergence rates~\citep{Zheng2023,Jia2024}.
 In summary, the RL paradigm formalizes sequential decision-making as the process of learning a policy aiming to maximize expected return
 via interaction with an environment, either directly or through a known model of its dynamics~\citep{Zhu2022}.
 
@@ -26,31 +27,37 @@ Despite their performance gains, conventional distributed RL architectures exhib
 deployed in domains where environment dynamics are highly similar for multiple agents~\citep{AlSaffar2023,Lu2024}.
 High-frequency trading (HFT) is a consummate example of this type of scenario: market making environments typically share nearly
 identical state transition characteristics across simulations for the same financial securities.
-As a result, using separate environment simulators for each individual worker can easily result in redundant computations being performed,
-as similar order flow is replicated in multiple environments that do not result in new experiences for the agents, 
-and thus increase the processing time necessary for similar training performance~\citep{Hou2025}.
-In a latency-sensitive setting such as algorithmic trading, these inefficiencies directly degrade policy quality and responsiveness.
-Furthermore, communication delays, data staleness, and the presence of straggler workers can further contribute to training instability~\citep{He2022,Xie2023},
-making it even harder for policies to learn how to trade on non-stationary market regimes~\citep{Borzilov2025}.
+As a result, using separate environment simulators for each individual worker requires computing very similar order flows 
+in individually replicated environments that do not provide enough new experiences to the agents 
+to justify allocating additional processing cores during training~\citep{Hou2025}.
+In a latency-sensitive setting such as algorithmic trading, 
+this inefficiency can directly affect and degrade policy quality and responsiveness.
+Furthermore, communication delays, data staleness, and the presence of straggler workers 
+resulting from inefficient utilization of the available processing cores and node communication layer
+can additionally contribute to both training instability~\citep{He2022,Xie2023} 
+and slower training speeds~\citep{Borzilov2025} under non-stationary market regimes.
 
-This thesis introduces a distributed RL architecture specifically designed to address the simulation redundancy of high-frequency market making environments.
+This thesis introduces a distributed RL architecture specifically designed to address the simulation 
+redundancy of high-frequency market making environments.
 By replacing independent environment replicas with a shared, parallelized environment structure,
-the proposed system reduces computational redundancy and allows agents to simultaneously and asynchronously interact with a common market simulator~\citep{Yin2024,Hou2025}.
-The simulator is replicated only when parallel processing is advantageous, that is,
-to match the number of computational cores available.
-The architecture separates policy learning and trajectory collection while eliminating the overhead incurred by reducing computations on similar market dynamics.
-This design leverages the fact that in realistic market simulations, the underlying dynamics
----such as order arrivals and cancellations---can be modeled centrally without requiring independent order flow processes per agent.
+the proposed system reduces computational redundancy and allows agents to simultaneously and 
+asynchronously interact with a common market simulator~\citep{Yin2024,Hou2025}.
+The architecture separates policy learning and trajectory collection while eliminating the overhead 
+incurred by reducing computations on similar market dynamics, 
+as long as the simulator is replicated only when parallel processing is advantageous, that is,
+to match the number of computational cores available without overutilizing virtual cores that introduce additional context switching overhead.
+This design aims to leverage the fact that in realistic market simulations, 
+the underlying dynamics---such as order arrivals and cancellations---can 
+be modeled centrally without requiring separate order flow processes per agent.
 
 In what follows, we examine the primary challenges of distributed RL under non-stationary and asynchronous conditions~\citep{Huh2023}, 
 describe the motivation behind the need for a shared environment structure~\citep{Cho2023,Furukawa2022},
 and finally identify the architectural limitations of the proposed system in a latency-critical problem by means of controlled experiments.
 The system proposed herein, nicknamed PEARL for Parallel Environments for Asynchronous Reinforcement Learning,
 implements a distrubted RL approach using a brokerless messaging layer for asynchronous communication and an environment model
-calibrated to reproduce stylized facts of an exchange's limit order book.
-We evaluate the system's performance using a PPO-based model and demonstrate improvements in
-throughput, convergence, and learning stability, testing it under multiple scenarios, including shared and non-shared environments, 
-and competing traders.
+calibrated to reproduce stylized facts of an exchange's limit order book and matching engine.
+We perform a series of tests to evaluate the system's performance using a PPO-based model and demonstrate improvements in
+throughput, convergence, and learning stability, under shared and non-shared environments, and with competing traders.
 
 
 \section{Challenges in Distributed Reinforcement Learning}
@@ -148,9 +155,8 @@ we aim to reduce the computational load without compromising the statistical div
 This enables more frequent learner updates with fresher data, and improves convergence rates by limiting the staleness gap
 between the policy used for data collection and the policy being updated.
 
-Overall, the proposed architecture aims to balance scalability and learning stability,
-which are necessary for both training reinforcement learning agents and fine-tuning them to daily changes
-in market rates, such as expected return and volatility.
+Overall, the proposed architecture aims to balance between scalability and learning stability,
+both necessary for optimizing reinforcement learning agents for trading under dynamic market return and volatility rates.
 By explicitly addressing the trade-offs between communication latency, synchronization lag, and stability,
 this system offers a practical step toward scalable and time viable RL systems in financial domains.
 
@@ -158,10 +164,10 @@ this system offers a practical step toward scalable and time viable RL systems i
 \label{sec:overview}
 
 In \fullref{subsec:pearl} we introduce the details for implementing the Parallel Environments for Asynchronous Reinforcement Learning (PEARL) framework,
-and test it using a simulated trading environment that incorporates a realistic limit order book (LOB) mechanism
-by using a mixture of stochastic processes to model underlying market dynamics, described in \fullref{subsec:environment}
-The processes are chosen to mimic known stylized facts of financial markets, such as heavy-tailed price returns and
-volatility clustering, and are calibrated to match the statistical properties of real-world financial data.
+and test it using a realistic limit order book (LOB) simulation environment built upon
+a mixture of stochastic processes to model underlying market dynamics, described in detail in~\fullref{subsec:environment}.
+The chosen processes replicate known stylized facts of market microstructure, such as heavy-tailed price returns and
+volatility clustering, and are calibrated to match statistical properties of real-world equities.
 
 The PEARL architecture is designed to enable multiple agents to interact with a shared environment concurrently and asynchronously,
 and we test the training performance of the system using a distributed version of the Proximal Policy Optimization (PPO) algorithm

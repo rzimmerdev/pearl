@@ -25,7 +25,7 @@ latexmk_cmd = latexmk
 
 latexmk: $(OUTSUBDIRS)
 	mkdir -p $(OUTDIR)
-	latexmk -pdf -bibtex -pvc -output-directory=$(OUTDIR) -interaction=nonstopmode main.tex
+	latexmk -pdf -bibtex -pvc -view=none -output-directory=$(OUTDIR) -interaction=nonstopmode main.tex
 
 
 export_paper:

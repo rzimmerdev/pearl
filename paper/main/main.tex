@@ -190,12 +190,12 @@ brazil                % o último idioma é o principal do documento
 
 % Folha de rosto do ICMC (o * indica impressão em anverso (frente) e verso )
 %\imprimirfolharostocar
-%\imprimirfolharostocar*
+% \imprimirfolharostocar*
 
 % Folha de rosto padrão do Pacote USPSC (o * indica impressão em anverso (frente) e verso )
 %\imprimirfolhaderosto
     \imprimirfolhaderosto*
-
+    \cleardoublepage
 % Inserir a ficha catalográfica em pdf
 % \includepdf{pretextual/USPSC-fichacatalografica.pdf}
     \include{pretextual/USPSC-fichacatalografica}
@@ -228,7 +228,8 @@ brazil                % o último idioma é o principal do documento
 % Abstract
     \input{pretextual/abstract}
     \input{pretextual/resumo}
-
+    
+    \cleardoublepage
 % inserir lista de figurass
 %\pdfbookmark[0]{\listfigurename}{lof}
 %\listoffigures*
